@@ -15,6 +15,7 @@ Guía para escribir en Obsidian y publicar en la web. No hace falta tocar códig
 |---|---|
 | Entradas del blog | `src/content/blog/` |
 | Ensayos | `src/content/ensayos/` |
+| Lugares del mapa | `src/content/lugares/` |
 | Imágenes de una entrada | la misma carpeta que la entrada (o una subcarpeta) |
 
 Podés ordenar las entradas en subcarpetas (por ejemplo, `src/content/blog/2026/`). La dirección de la página sale sólo del nombre del archivo, así que mover un archivo de carpeta no rompe su enlace. **Renombrar el archivo sí lo rompe.**
@@ -62,7 +63,85 @@ draft: false
 - `draft: true` = borrador. **No se publica.** Sólo se ve si alguien corre el sitio en su computadora con `npm run dev`.
 - `draft: false` = se publica en el próximo despliegue.
 
-En la carpeta `plantillas/` del repositorio hay dos plantillas listas (`entrada-blog.md` y `ensayo.md`). En Obsidian se activan en *Configuración → Plantillas → Ubicación de la carpeta de plantillas*.
+En la carpeta `plantillas/` del repositorio hay tres plantillas listas (`entrada-blog.md`, `ensayo.md` y `lugar.md`). En Obsidian se activan en *Configuración → Plantillas → Ubicación de la carpeta de plantillas*.
+
+## Agregar un lugar al mapa
+
+Cada punto del mapa es un archivo `.md` en `src/content/lugares/`. El encabezado dice dónde va y qué respaldo tiene; el cuerpo del archivo es el texto de la ficha. Se sube igual que una entrada del blog.
+
+### El encabezado de un lugar
+
+```yaml
+---
+titulo: "Nombre del lugar"
+capa: arqueologia
+lat: -16.0123
+lon: -69.1234
+precision: aproximada
+resumen: "Una o dos frases. Aparecen en el listado y arriba de la ficha."
+imagen:
+  archivo: ./fotos/nombre-del-lugar.jpg
+  credito: "Foto: Nombre Apellido, 2025. CC BY 4.0"
+  descripcion: "Qué se ve en la foto (para quien no la ve)."
+enlaces:
+  - texto: "Página del museo"
+    url: "https://example.org/museo"
+    verificado: 2026-10-21
+fuentes:
+  - autor: "Apellido, N."
+    año: 2019
+    titulo: "Título del documento"
+    url: "https://example.org/documento.pdf"
+marcador: "[VERIFICAR]"
+relacionados:
+  - nombre-de-una-entrada-del-blog
+  - ensayos/nombre-de-un-ensayo
+draft: true
+---
+
+Texto de la ficha. Puede tener párrafos, subtítulos, listas y enlaces, como una entrada del blog.
+```
+
+Qué es cada campo:
+
+- **`titulo`** y **`resumen`**: obligatorios.
+- **`capa`**: una de estas nueve. Se puede escribir el nombre con tildes o sin ellas.
+
+  | Se escribe | Capa |
+  |---|---|
+  | `clima` | Clima |
+  | `ecologia` | Ecología |
+  | `biodiversidad` | Biodiversidad |
+  | `cultura` | Cultura |
+  | `antropologia` | Antropología |
+  | `arqueologia` | Arqueología |
+  | `turismo` | Turismo |
+  | `emprendimientos-comunitarios` | Emprendimientos comunitarios |
+  | `gobiernos-municipales` | Gobiernos municipales |
+
+- **`lat`** y **`lon`**: en grados decimales, con signo menos (todo el lago está al sur del ecuador y al oeste de Greenwich). Se pueden copiar de OpenStreetMap o de Google Maps (clic derecho sobre el punto). Si quedan fuera del recorte del lago y sus orillas, el sitio no se construye y el error lo dice: casi siempre es lat y lon invertidas o un signo menos que falta.
+- **`precision`**:
+  - `exacta` (si no se pone nada, vale esta): el punto va donde dicen las coordenadas.
+  - `aproximada`: el punto aparece corrido entre 1.2 y 2.5 km, siempre en la misma dirección para ese lugar, con una zona sombreada de 3 km de radio que contiene la ubicación real. Las coordenadas exactas no llegan a la página publicada.
+  - `oculta`: sin punto en el mapa; la ficha aparece sólo en el listado. Con `oculta` se pueden dejar `lat` y `lon` vacíos.
+- **`imagen`** (opcional): la foto va en la carpeta del lugar (o en una subcarpeta) y la ruta es relativa al archivo. El `credito` es obligatorio si hay imagen: autor y licencia. Sólo imágenes propias o con licencia clara.
+- **`enlaces`** (opcional): enlaces externos. `verificado` es la fecha en que se comprobó que el enlace funciona y dice lo que se cita, con formato `AAAA-MM-DD`.
+- **`fuentes`** (opcional, salvo con `corpus`): documentos que respaldan la ficha. `url` es opcional.
+- **`marcador`**: el respaldo de la ficha. Va **entre comillas** cuando lleva corchetes.
+  - `corpus`: respaldo verificable. Exige al menos una fuente.
+  - `"[VERIFICAR]"`: requiere validación externa. El lector lo ve destacado.
+  - `"[HIPÓTESIS]"`: premisa razonable sin respaldo documental. El lector lo ve destacado.
+  - `"[DATO PROPIO]"`: conocimiento del autor, sin documento que lo cite.
+- **`relacionados`** (opcional): entradas del blog o ensayos que la ficha enlaza. Se escribe el nombre del archivo sin `.md`. Si hay una entrada y un ensayo con el mismo nombre, se antepone `blog/` o `ensayos/`. También vale un wikilink de Obsidian (`"[[nombre]]"`, entre comillas). Si el relacionado está en borrador o mal escrito, en el sitio publicado se omite; con `npm run dev` aparece marcado como [PENDIENTE].
+- **`draft`**: igual que en el blog. `true` = no se publica.
+
+### Antes de publicar un lugar sensible
+
+`precision: aproximada` y `oculta` protegen el dato **en la página**, no en el repositorio. Si el repositorio de GitHub es público, cualquiera puede abrir el `.md` y leer `lat` y `lon`. Para sitios arqueológicos o lugares sagrados: con `oculta`, dejar las coordenadas vacías; con `aproximada`, anotar coordenadas ya redondeadas (dos decimales: una cuadrícula de algo más de 1 km de lado) en lugar de las exactas.
+
+### Para compartir un lugar
+
+Cada ficha tiene su propia dirección: la del mapa seguida de `#lugar-` y el nombre del archivo. Por ejemplo, `…/mapa/#lugar-isla-de-ejemplo` abre el mapa con esa ficha.
 
 ## Configurar Obsidian una sola vez
 

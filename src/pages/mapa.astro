@@ -1,9 +1,211 @@
 ---
+import 'leaflet/dist/leaflet.css';
 import Base from '../layouts/Base.astro';
+import FichaLugar from '../components/FichaLugar.astro';
+import { CAPAS, VISTA_LAGO } from '../lib/capas';
+import { lugares, puntoMapa, radioAproximado } from '../lib/lugares';
+
+const lista = await lugares();
+const puntos = lista.map(puntoMapa).filter((p) => p !== null);
+const cuenta = (capa: string) => lista.filter((l) => l.data.capa === capa).length;
+const datos = { puntos, vista: VISTA_LAGO, radio: radioAproximado };
+
+// Color e ícono de cada capa, tomados de tokens.css. Se genera desde CAPAS para que
+// agregar una capa no obligue a tocar este archivo.
+const reglasCapas = CAPAS.map(
+  (c) => `.capa-${c.id}{--capa-color:var(--color-capa-${c.id});--capa-icono:var(--icono-capa-${c.id})}`,
+).join('\n');
+
+// Mientras no haya ningún lugar publicado, la página no se ofrece a los buscadores.
+const sinPublicados = lista.every((l) => l.data.draft);
 ---
-<Base titulo="Mapa" descripcion="Página en construcción." noIndexar>
-  <article class="lectura">
-    <h1>Mapa</h1>
-    <p class="vacio">Esta sección está en construcción.</p>
-  </article>
+<Base
+  titulo="Mapa del Lago Titikaka"
+  descripcion="Mapa del Lago Titikaka y sus orillas, de Bolivia y Perú, con capas temáticas y fichas de lugares."
+  noIndexar={sinPublicados}
+>
+  <style is:inline set:html={reglasCapas}></style>
+  <div class="pagina-mapa">
+    <header class="mapa-encabezado">
+      <h1>Mapa del Lago Titikaka</h1>
+      <p class="mapa-intro">El lago y sus orillas, de los dos lados: Bolivia y Perú. Las capas se prenden y se apagan; cada punto abre una ficha. Debajo del mapa está el mismo contenido como listado.</p>
+    </header>
+
+    <fieldset class="capas interfaz" hidden>
+      <legend>Capas</legend>
+      <ul class="capas-lista">
+        {CAPAS.map((c) => (
+          <li>
+            <label class={`capa-chip capa-${c.id}`}>
+              <input type="checkbox" value={c.id} checked />
+              <span class="capa-punto" aria-hidden="true"></span>
+              {c.nombre}
+              <span class="capa-cuenta">({cuenta(c.id)})</span>
+            </label>
+          </li>
+        ))}
+      </ul>
+      <p class="capas-acciones">
+        <button type="button" data-todas>Todas</button>
+        <button type="button" data-ninguna>Ninguna</button>
+      </p>
+    </fieldset>
+
+    <div class="mapa-zona">
+      <div id="mapa" class="mapa" role="region" aria-label="Mapa interactivo del Lago Titikaka">
+        <noscript><p class="vacio">El mapa necesita JavaScript. El mismo contenido está en el listado de abajo.</p></noscript>
+      </div>
+      <aside id="ficha-panel" class="ficha-panel" hidden tabindex="-1">
+        <button type="button" class="ficha-cerrar interfaz" aria-label="Cerrar la ficha">×</button>
+        <div class="ficha-panel-contenido"></div>
+      </aside>
+    </div>
+
+    <section class="listado" aria-labelledby="titulo-listado">
+      <h2 id="titulo-listado">Lugares</h2>
+      <p class="meta listado-estado" aria-live="polite"></p>
+      {lista.length === 0 ? (
+        <p class="vacio">Todavía no hay lugares publicados.</p>
+      ) : (
+        <ul class="listado-lista">
+          {lista.map((l) => (
+            <li id={`lugar-${l.id}`} class="listado-item" data-lugar={l.id} data-capa={l.data.capa}>
+              <FichaLugar lugar={l} />
+              {l.data.precision !== 'oculta' && (
+                <button type="button" class="ver-en-mapa interfaz" data-ver-en-mapa hidden>Ver en el mapa</button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  </div>
+
+  <script type="application/json" id="datos-mapa" set:html={JSON.stringify(datos)}></script>
+  <script>
+    import '../scripts/mapa.ts';
+  </script>
 </Base>
+
+<style is:global>
+  /* Estilos de /mapa. Globales porque el panel copia fichas del listado. */
+  .pagina-mapa h1 { margin-bottom: 0.4rem; }
+  .mapa-intro { max-width: var(--ancho-lectura); color: var(--color-texto-suave); margin-top: 0; }
+
+  /* Panel de capas */
+  .capas { border: 0; padding: 0; margin: 1.25rem 0 0.75rem; min-width: 0; }
+  .capas legend { font-weight: 600; font-size: var(--tam-chico); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-texto-suave); padding: 0; margin-bottom: 0.5rem; }
+  .capas-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .capa-chip {
+    display: inline-flex; align-items: center; gap: 0.4rem; position: relative;
+    border: 1px solid var(--color-borde); border-radius: 999px;
+    padding: 0.3rem 0.75rem 0.3rem 0.45rem; font-size: 0.92rem; cursor: pointer;
+    background: var(--color-fondo); white-space: nowrap; user-select: none;
+  }
+  .capa-chip:has(input:checked) { border-color: var(--capa-color); background: var(--color-superficie); }
+  .capa-chip:has(input:not(:checked)) { color: var(--color-texto-suave); }
+  .capa-chip:has(input:not(:checked)) .capa-punto { opacity: 0.35; }
+  .capa-chip:has(input:focus-visible) { outline: 2px solid var(--color-acento); outline-offset: 2px; }
+  .capa-chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .capa-cuenta { color: var(--color-texto-suave); font-size: 0.85em; }
+  .capas-acciones { margin: 0.5rem 0 0; display: flex; gap: 0.5rem; }
+  .capas-acciones button, .ver-en-mapa {
+    font: inherit; font-size: var(--tam-chico); cursor: pointer;
+    background: none; border: 1px solid var(--color-borde); border-radius: var(--radio);
+    color: var(--color-acento); padding: 0.25rem 0.7rem;
+  }
+  .capas-acciones button:hover, .ver-en-mapa:hover { border-color: var(--color-acento); }
+
+  /* Punto de color con el ícono de la capa */
+  .capa-punto {
+    display: inline-block; flex: none; width: 1.4em; height: 1.4em; border-radius: 50%;
+    background: var(--capa-color); position: relative; vertical-align: -0.3em;
+  }
+  .capa-punto::after {
+    content: ''; position: absolute; inset: 0.22em; background: var(--color-capa-icono);
+    -webkit-mask: var(--capa-icono) center / contain no-repeat; mask: var(--capa-icono) center / contain no-repeat;
+  }
+
+  /* Mapa */
+  .mapa-zona { position: relative; }
+  .mapa {
+    height: var(--mapa-alto); min-height: 22rem; border: 1px solid var(--color-borde);
+    border-radius: var(--radio); background: var(--color-superficie); z-index: 0;
+    font-family: var(--fuente-interfaz);
+  }
+  .mapa .leaflet-tile-pane { filter: var(--mapa-filtro-teselas); }
+  .mapa .leaflet-control-attribution { font-size: 0.75rem; }
+  .mapa .leaflet-bar a { background: var(--color-fondo); color: var(--color-texto); border-color: var(--color-borde); }
+  .mapa .leaflet-bar a:hover { background: var(--color-superficie); }
+  .mapa .leaflet-control-attribution { background: color-mix(in srgb, var(--color-fondo) 85%, transparent); color: var(--color-texto-suave); }
+  .pin-envoltura { background: none; border: 0; }
+  .pin-envoltura:focus-visible { outline: none; }
+  .pin {
+    display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--capa-color); border: 2px solid var(--color-capa-contorno);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35); transition: transform 0.15s;
+  }
+  .pin-icono {
+    width: 18px; height: 18px; background: var(--color-capa-icono);
+    -webkit-mask: var(--capa-icono) center / contain no-repeat; mask: var(--capa-icono) center / contain no-repeat;
+  }
+  .pin-aproximado { border-style: dashed; opacity: 0.85; }
+  .pin.activo, .pin-envoltura:focus-visible .pin { transform: scale(1.25); outline: 3px solid var(--color-acento); outline-offset: 1px; }
+  .zona-aproximada { stroke: var(--capa-color); fill: var(--capa-color); fill-opacity: 0.18; stroke-dasharray: 5 5; stroke-width: 2; }
+
+  /* Ficha lateral: a la derecha en escritorio, abajo en celular */
+  .ficha-panel {
+    position: absolute; top: 0; right: 0; bottom: 0; z-index: 1001;
+    width: min(var(--mapa-ancho-ficha), 100%); overflow-y: auto; overscroll-behavior: contain;
+    background: var(--color-fondo); border: 1px solid var(--color-borde);
+    border-radius: 0 var(--radio) var(--radio) 0; box-shadow: -4px 0 16px rgb(0 0 0 / 0.12);
+    padding: 1.25rem 1.25rem 1.5rem; font-size: 1rem; line-height: 1.55;
+  }
+  .ficha-panel:focus { outline: none; }
+  .ficha-panel:focus-visible { outline: 2px solid var(--color-acento); }
+  .ficha-cerrar {
+    position: sticky; top: 0; float: right; margin: -0.5rem -0.5rem 0 0.5rem;
+    width: 2.25rem; height: 2.25rem; font-size: 1.5rem; line-height: 1; cursor: pointer;
+    border: 1px solid var(--color-borde); border-radius: 50%; background: var(--color-fondo); color: var(--color-texto);
+  }
+  .ficha-cerrar:hover { border-color: var(--color-acento); color: var(--color-acento); }
+  .ficha-panel .ficha-titulo { font-size: 1.4rem; margin: 0.3rem 0 0.5rem; }
+  .ficha-panel .ficha-resumen { font-style: italic; }
+
+  @media (max-width: 700px) {
+    .capas-lista { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.4rem; scrollbar-width: thin; }
+    .mapa { height: var(--mapa-alto-celular); }
+    .ficha-panel {
+      top: auto; left: 0; width: 100%; max-height: 68%;
+      border-radius: 12px 12px var(--radio) var(--radio); box-shadow: 0 -4px 16px rgb(0 0 0 / 0.18);
+    }
+  }
+
+  /* Ficha (listado y panel) */
+  .ficha-capa { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); color: var(--color-texto-suave); margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+  .ficha-insignia, .ficha-marcador-aviso {
+    background: var(--color-pendiente-fondo); color: var(--color-pendiente-texto);
+    border-radius: var(--radio); font-family: var(--fuente-interfaz);
+  }
+  .ficha-insignia { padding: 0 0.4em; font-weight: 600; font-size: 0.85em; }
+  .ficha-titulo { margin: 0.25rem 0 0.35rem; }
+  .ficha-resumen { margin: 0 0 0.6rem; }
+  .ficha-marcador { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); color: var(--color-texto-suave); border-left: 3px solid var(--color-borde); padding: 0.35rem 0.7rem; }
+  .ficha-marcador-aviso { border-left-color: var(--color-pendiente-texto); }
+  .ficha-imagen { margin: 1rem 0; }
+  .ficha-imagen img { border-radius: var(--radio); display: block; }
+  .ficha-imagen figcaption, .ficha-nota { font-family: var(--fuente-interfaz); font-size: 0.82rem; color: var(--color-texto-suave); margin-top: 0.35rem; }
+  .ficha-seccion h4 { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-texto-suave); margin: 1.4rem 0 0.4rem; }
+  .ficha-seccion ul { padding-left: 1.1rem; margin: 0; }
+  .ficha-seccion li { margin-bottom: 0.3rem; }
+
+  /* Listado */
+  .listado { margin-top: 3rem; max-width: var(--ancho-lectura); }
+  .listado h2 { margin-top: 0; }
+  .listado-lista { list-style: none; margin: 0; padding: 0; }
+  .listado-item { padding: 1.4rem 0; border-bottom: 1px solid var(--color-borde); }
+  .listado-item:first-child { padding-top: 0.5rem; }
+  .ficha-detalle summary { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); color: var(--color-acento); cursor: pointer; margin-bottom: 0.4rem; }
+  .ficha-detalle[open] summary { margin-bottom: 0.8rem; }
+  .ver-en-mapa { margin-top: 0.4rem; }
+</style>

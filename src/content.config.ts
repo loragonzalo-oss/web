@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { slugificar } from './lib/slug';
+import { IDS_CAPAS, RECORTE } from './lib/capas';
 
 // La dirección de cada texto sale del nombre del archivo (sin carpetas), o de `slug`
 // en el frontmatter si se quiere fijar otra. Así se puede ordenar en carpetas sin
@@ -41,4 +42,78 @@ const ensayos = defineCollection({
   }),
 });
 
-export const collections = { blog, ensayos };
+// Un campo que Obsidian deja vacío llega como null o ''. Se trata como ausente.
+const vacio = (v: unknown) => (v === null || v === '' ? undefined : v);
+
+// Admite coma decimal («-15,8») además de punto.
+const coordenada = (v: unknown) => (typeof v === 'string' ? v.trim().replace(',', '.') : vacio(v));
+
+// `[VERIFICAR]` sin comillas es una lista en YAML; se acepta igual, con o sin corchetes y tildes.
+const MARCADORES = { CORPUS: 'corpus', VERIFICAR: '[VERIFICAR]', HIPOTESIS: '[HIPÓTESIS]', 'DATO PROPIO': '[DATO PROPIO]', 'DATO PROPIO DEL AUTOR': '[DATO PROPIO]' } as const;
+function normalizarMarcador(v: unknown) {
+  const texto = Array.isArray(v) && v.length === 1 ? v[0] : v;
+  if (typeof texto !== 'string') return texto;
+  const clave = texto.replace(/[[\]]/g, '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase();
+  return MARCADORES[clave as keyof typeof MARCADORES] ?? texto;
+}
+
+// Frontmatter de los lugares del mapa. Ver COMO-PUBLICAR.md, «Agregar un lugar al mapa».
+const lugares = defineCollection({
+  loader: glob({ base: './src/content/lugares', pattern: '**/*.md', generateId: generarId }),
+  schema: ({ image }) =>
+    z
+      .object({
+        titulo: z.string(),
+        capa: z.preprocess((v) => (typeof v === 'string' ? slugificar(v) : v), z.enum(IDS_CAPAS)),
+        lat: z.preprocess(coordenada, z.coerce.number().min(-90).max(90).optional()),
+        lon: z.preprocess(coordenada, z.coerce.number().min(-180).max(180).optional()),
+        precision: z.preprocess(vacio, z.enum(['exacta', 'aproximada', 'oculta']).default('exacta')),
+        resumen: z.string(),
+        imagen: z.preprocess(
+          vacio,
+          z.object({
+            archivo: image(),
+            credito: z.string().min(1),           // autor y licencia de la imagen
+            descripcion: z.string().optional(),   // texto alternativo
+          }).optional(),
+        ),
+        enlaces: z.preprocess(
+          vacio,
+          z.array(z.object({ texto: z.string(), url: z.url(), verificado: z.coerce.date() })).default([]),
+        ),
+        fuentes: z.preprocess(
+          vacio,
+          z.array(z.object({
+            autor: z.string(),
+            año: z.union([z.number(), z.string()]).transform(String),
+            titulo: z.string(),
+            url: z.preprocess(vacio, z.url().optional()),
+          })).default([]),
+        ),
+        marcador: z.preprocess(normalizarMarcador, z.enum(['corpus', '[VERIFICAR]', '[HIPÓTESIS]', '[DATO PROPIO]'])),
+        relacionados: z.preprocess(vacio, z.array(z.string()).default([])),
+        slug: z.string().optional(),
+        draft: z.boolean().default(false),
+      })
+      .superRefine((d, ctx) => {
+        const sinCoordenadas = d.lat === undefined || d.lon === undefined;
+        if (d.precision !== 'oculta' && sinCoordenadas) {
+          ctx.addIssue({ code: 'custom', path: ['lat'], message: 'Faltan lat y lon. Sólo se pueden omitir con «precision: oculta».' });
+        }
+        if (!sinCoordenadas) {
+          const { latMin, latMax, lonMin, lonMax } = RECORTE;
+          if (d.lat! < latMin || d.lat! > latMax || d.lon! < lonMin || d.lon! > lonMax) {
+            ctx.addIssue({
+              code: 'custom',
+              path: ['lat'],
+              message: `Coordenadas fuera del recorte del lago (lat entre ${latMin} y ${latMax}, lon entre ${lonMin} y ${lonMax}). ¿Están invertidas o les falta el signo menos?`,
+            });
+          }
+        }
+        if (d.marcador === 'corpus' && d.fuentes.length === 0) {
+          ctx.addIssue({ code: 'custom', path: ['fuentes'], message: 'Con «marcador: corpus» hace falta al menos una fuente.' });
+        }
+      }),
+});
+
+export const collections = { blog, ensayos, lugares };

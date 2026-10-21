@@ -26,7 +26,8 @@ npm run preview   # sirve dist/ localmente
 | Colores y tipografía | `src/styles/tokens.css` |
 | Entradas del blog | `src/content/blog/` |
 | Ensayos | `src/content/ensayos/` |
-| Lugares del mapa (etapa futura) | `src/content/lugares/` |
+| Lugares del mapa | `src/content/lugares/` |
+| Capas del mapa (nombres) | `src/lib/capas.ts` |
 | Páginas | `src/pages/` |
 | Plantillas para Obsidian | `plantillas/` |
 | Capturas de revisión | `docs/capturas/` |

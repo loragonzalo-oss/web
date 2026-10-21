@@ -31,6 +31,37 @@
   --color-acento-hover: #5a2a14;
   --color-pendiente-fondo: #fff3c4;
   --color-pendiente-texto: #5c4700;
+
+  /* Mapa (/mapa) */
+  --mapa-alto: min(72vh, 44rem);
+  --mapa-alto-celular: 62vh;
+  --mapa-ancho-ficha: 24rem;
+  --mapa-filtro-teselas: none;          /* filtro CSS sobre el fondo de OpenStreetMap */
+  --color-capa-icono: #ffffff;          /* color del ícono dentro del marcador */
+  --color-capa-contorno: #ffffff;
+
+  /* Capas del mapa: un color por capa. Los íconos están más abajo. */
+  --color-capa-clima: #3b6ea5;
+  --color-capa-ecologia: #4f7d3a;
+  --color-capa-biodiversidad: #1f7f7a;
+  --color-capa-cultura: #a8456b;
+  --color-capa-antropologia: #8a5a2b;
+  --color-capa-arqueologia: #6b4f9e;
+  --color-capa-turismo: #b85a18;
+  --color-capa-emprendimientos-comunitarios: #8a6d0e;
+  --color-capa-gobiernos-municipales: #4a5560;
+
+  /* Íconos de capa: SVG de 24 × 24 usados como máscara (se pintan con el color de la capa).
+     Para cambiar uno, se reemplaza el contenido de <svg>…</svg>. Provisorios. */
+  --icono-capa-clima: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 11.5 3.3 3.3 0 0 0 7 18z'/%3E%3C/svg%3E");
+  --icono-capa-ecologia: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19C5 11 10 5 19 5c0 9-6 14-14 14z'/%3E%3Cpath d='M5 19l8-8'/%3E%3C/svg%3E");
+  --icono-capa-biodiversidad: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 7l4 5-4 5'/%3E%3Cpath d='M6 12c3-4 6-6 9-6s5 3 6 6c-1 3-3 6-6 6s-6-2-9-6z'/%3E%3Cpath d='M16 11h.01'/%3E%3C/svg%3E");
+  --icono-capa-cultura: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l9 9-9 9-9-9z'/%3E%3Cpath d='M12 8l4 4-4 4-4-4z'/%3E%3C/svg%3E");
+  --icono-capa-antropologia: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='7' r='3'/%3E%3Cpath d='M3 20c0-4 3-7 6-7s6 3 6 7'/%3E%3Ccircle cx='17' cy='8' r='2.5'/%3E%3Cpath d='M17 13c2.5 0 4 3 4 6'/%3E%3C/svg%3E");
+  --icono-capa-arqueologia: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20h18M5 20v-4h14v4M7 16v-4h10v4M9 12V8h6v4'/%3E%3C/svg%3E");
+  --icono-capa-turismo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='7' width='18' height='13' rx='2'/%3E%3Cpath d='M8 7l2-3h4l2 3'/%3E%3Ccircle cx='12' cy='13.5' r='3.5'/%3E%3C/svg%3E");
+  --icono-capa-emprendimientos-comunitarios: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10h16l-2-5H6z'/%3E%3Cpath d='M5 10v10h14V10'/%3E%3Cpath d='M10 20v-5h4v5'/%3E%3C/svg%3E");
+  --icono-capa-gobiernos-municipales: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-5 9 5z'/%3E%3Cpath d='M5 9v9M10 9v9M14 9v9M19 9v9M3 20h18'/%3E%3C/svg%3E");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,5 +75,18 @@
     --color-acento-hover: #f0b68f;
     --color-pendiente-fondo: #3d3310;
     --color-pendiente-texto: #f3dc8a;
+
+    --mapa-filtro-teselas: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+    --color-capa-icono: #171614;
+    --color-capa-contorno: #171614;
+    --color-capa-clima: #7fa8d6;
+    --color-capa-ecologia: #8fbc78;
+    --color-capa-biodiversidad: #5cc2bb;
+    --color-capa-cultura: #d983a4;
+    --color-capa-antropologia: #c99a6b;
+    --color-capa-arqueologia: #a58fd4;
+    --color-capa-turismo: #eb9a5e;
+    --color-capa-emprendimientos-comunitarios: #d4b24e;
+    --color-capa-gobiernos-municipales: #9aa7b3;
   }
 }

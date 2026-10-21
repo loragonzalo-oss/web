@@ -19,9 +19,23 @@ Al resolver uno, se borra la línea y se reemplaza el marcador en el archivo ind
 - [ ] ¿«Sobre mí» en primera o en tercera persona? Hoy está en tercera, sólo con los datos confirmados del encargo inicial.
 - [ ] ¿Foto en «Sobre mí»?
 
+## Mapa del Lago Titikaka
+
+- [ ] [PENDIENTE: fuentes de datos a evaluar]. Antes de incorporar cualquier capa externa hay que confirmar licencia y formato de cada una. Ninguna está descargada ni incrustada. Candidatas mencionadas en el encargo, sin evaluar:
+  - GBIF (registros de biodiversidad). Licencia: [PENDIENTE]. Formato: [PENDIENTE].
+  - SENAMHI de Bolivia y de Perú (clima). Licencia: [PENDIENTE]. Formato: [PENDIENTE].
+  - Observatorio Binacional. Licencia: [PENDIENTE]. Formato: [PENDIENTE].
+  - Otras: [PENDIENTE].
+- [ ] [PENDIENTE: criterio de inclusión para empresas y emprendimientos]. Qué condiciones tiene que cumplir un emprendimiento comunitario o una empresa de turismo para tener ficha (quién lo propone, cómo se verifica, si se cobra o no, cómo se da de baja). Hasta que exista, no cargar fichas de esas dos capas.
+- [ ] Repositorio público y lugares sensibles: `precision: aproximada` y `oculta` esconden el dato en la página, no en el `.md`. Decidir si los sitios arqueológicos y lugares sagrados se cargan sin coordenadas, con coordenadas redondeadas o desde otro lugar. Ver COMO-PUBLICAR.md, «Antes de publicar un lugar sensible».
+- [ ] Colores e íconos de las nueve capas: provisorios, en `src/styles/tokens.css`. Entran en la decisión de identidad visual.
+- [ ] Fondo del mapa: usa las teselas públicas de OpenStreetMap, con su atribución. Su política de uso admite sitios de poco tráfico; si el tráfico crece, pasar a un proveedor de teselas (se cambia una línea en `src/scripts/mapa.ts`).
+- [ ] Las capturas `docs/capturas/mapa-*.png` se sacaron sin el fondo de OpenStreetMap (el entorno donde se hicieron bloquea `tile.openstreetmap.org`). Rehacerlas cuando haya contenido real, y comprobar ahí que los puntos de ejemplo caen sobre el agua.
+
 ## Etapas siguientes
 
-- [ ] /mapa: hoy es una página «en construcción», fuera del sitemap. Va en una sesión aparte con su propio encargo. Carpeta reservada: `src/content/lugares/`.
+- [ ] /mapa: el motor está hecho; falta el contenido real. Las nueve fichas de `src/content/lugares/ejemplo-*.md` son de relleno, con `draft: true`: borrarlas cuando haya lugares reales.
+- [ ] /mapa: cuando se publique el primer lugar real, sacar el filtro que deja /mapa/ fuera del sitemap en `astro.config.mjs`. La etiqueta `noindex` ya se quita sola cuando hay al menos un lugar publicado.
 - [ ] Borrar el contenido de ejemplo cuando haya contenido real: `src/content/blog/ejemplo-entrada-uno.md`, `src/content/blog/ejemplo-entrada-dos.md`, `src/content/ensayos/ejemplo-ensayo.md`. Están en `draft: true`, así que no se publican.
 - [ ] Activar GitHub Pages con fuente «GitHub Actions» después de unir el primer pull request (ver COMO-PUBLICAR.md).
 
