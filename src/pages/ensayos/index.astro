@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/rutas';
+import { fechaLarga, fechaISO } from '../../lib/fechas';
+import { ensayos } from '../../lib/contenido';
+
+const lista = await ensayos();
+---
+<Base titulo="Ensayos" descripcion="Ensayos de Gonzalo R. Lora Veizaga.">
+  <section class="lectura">
+    <h1>Ensayos</h1>
+    {lista.length === 0 ? (
+      <p class="vacio">Todavía no hay ensayos publicados.</p>
+    ) : (
+      <ul class="lista">
+        {lista.map((e) => (
+          <li>
+            <p class="meta">
+              <time datetime={fechaISO(e.data.fecha)}>{fechaLarga(e.data.fecha)}</time>
+              {e.data.publicacion && <> · <em>{e.data.publicacion}</em></>}
+              {e.data.draft && <> · borrador</>}
+            </p>
+            <h2><a href={url(`/ensayos/${e.id}/`)}>{e.data.titulo}</a></h2>
+            <p class="resumen">{e.data.resumen}</p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</Base>
+
+<style>
+  .lista { list-style: none; margin: 0; padding: 0; }
+  li { padding: 1.6rem 0; border-bottom: 1px solid var(--color-borde); }
+  li:first-child { padding-top: 0; }
+  h2 { margin: 0.2rem 0 0.5rem; font-size: var(--tam-h3); }
+  h2 a { color: var(--color-texto); text-decoration: none; }
+  h2 a:hover { color: var(--color-acento); }
+  .meta, .resumen { margin: 0; }
+</style>

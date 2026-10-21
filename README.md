@@ -1,0 +1,32 @@
+# Web de autor — Gonzalo R. Lora Veizaga
+
+Sitio estático hecho con [Astro](https://astro.build). Se publica en GitHub Pages desde la rama `main`.
+
+- Cómo escribir y publicar: [COMO-PUBLICAR.md](COMO-PUBLICAR.md)
+- Lo que falta: [PENDIENTES.md](PENDIENTES.md)
+- Reglas del sitio: [CLAUDE.md](CLAUDE.md)
+
+## Para trabajar en la computadora
+
+Requiere Node 22.22 o posterior.
+
+```sh
+npm install
+npm run dev       # sitio local en http://localhost:4321/web/ (muestra borradores)
+npm run build     # construye el sitio en dist/ (sin borradores)
+npm run preview   # sirve dist/ localmente
+```
+
+## Dónde está cada cosa
+
+| Qué | Dónde |
+|---|---|
+| Dirección del sitio (`site` y `base`) | `sitio.config.mjs` |
+| Nombre, redes, correo, menú | `src/lib/sitio.ts` |
+| Colores y tipografía | `src/styles/tokens.css` |
+| Entradas del blog | `src/content/blog/` |
+| Ensayos | `src/content/ensayos/` |
+| Lugares del mapa (etapa futura) | `src/content/lugares/` |
+| Páginas | `src/pages/` |
+| Plantillas para Obsidian | `plantillas/` |
+| Capturas de revisión | `docs/capturas/` |

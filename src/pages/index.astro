@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import Pendiente from '../components/Pendiente.astro';
+import ListaEntradas from '../components/ListaEntradas.astro';
+import { SITIO } from '../lib/sitio';
+import { url } from '../lib/rutas';
+import { entradasBlog } from '../lib/contenido';
+
+const ultimas = (await entradasBlog()).slice(0, 3);
+---
+<Base>
+  <section class="presentacion lectura">
+    <h1>{SITIO.nombre}</h1>
+    <p class="apodo">«{SITIO.apodo}»</p>
+    <p class="linea"><Pendiente texto="línea de presentación" /></p>
+  </section>
+
+  <section class="libro lectura" aria-labelledby="titulo-libro">
+    <p class="meta etiqueta">El libro · En preparación</p>
+    <h2 id="titulo-libro">Un libro sobre el Lago Titikaka</h2>
+    <p><Pendiente texto="título y descripción breve del libro" /></p>
+    <p class="interfaz"><a href={url('/libro/')}>Sobre el libro →</a></p>
+  </section>
+
+  <section class="ultimas lectura" aria-labelledby="titulo-blog">
+    <h2 id="titulo-blog">Últimas entradas del blog</h2>
+    <ListaEntradas entradas={ultimas} />
+    {ultimas.length > 0 && <p class="interfaz"><a href={url('/blog/')}>Todas las entradas →</a></p>}
+  </section>
+</Base>
+
+<style>
+  .presentacion { margin-bottom: 3.5rem; }
+  .apodo { font-style: italic; color: var(--color-texto-suave); font-size: 1.3rem; margin: 0.2rem 0 1.2rem; }
+  .libro {
+    background: var(--color-superficie);
+    border-left: 4px solid var(--color-acento);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 3.5rem;
+    border-radius: var(--radio);
+  }
+  .libro h2 { margin-top: 0.2rem; }
+  .etiqueta { text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+  .ultimas h2 { margin-top: 0; }
+</style>

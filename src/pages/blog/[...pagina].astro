@@ -1,0 +1,41 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import ListaEntradas from '../../components/ListaEntradas.astro';
+import Paginacion from '../../components/Paginacion.astro';
+import { url } from '../../lib/rutas';
+import { entradasBlog } from '../../lib/contenido';
+import { ENTRADAS_POR_PAGINA } from '../../lib/sitio';
+
+// /blog/ es la página 1; /blog/2/, /blog/3/… las siguientes.
+export const getStaticPaths = (async () => {
+  const entradas = await entradasBlog();
+  const total = Math.max(1, Math.ceil(entradas.length / ENTRADAS_POR_PAGINA));
+  return Array.from({ length: total }, (_, i) => ({
+    params: { pagina: i === 0 ? undefined : String(i + 1) },
+    props: {
+      entradas: entradas.slice(i * ENTRADAS_POR_PAGINA, (i + 1) * ENTRADAS_POR_PAGINA),
+      actual: i + 1,
+      ultima: total,
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entradas, actual, ultima } = Astro.props;
+const anterior = actual > 2 ? `/blog/${actual - 1}/` : actual === 2 ? '/blog/' : undefined;
+const siguiente = actual < ultima ? `/blog/${actual + 1}/` : undefined;
+---
+<Base titulo={actual > 1 ? `Blog · página ${actual}` : 'Blog'} descripcion="Entradas del blog de Gonzalo R. Lora Veizaga.">
+  <section class="lectura">
+    <h1>Blog</h1>
+    <p class="meta enlaces">
+      <a href={url('/blog/etiquetas/')}>Etiquetas</a> · <a href={url('/rss.xml')}>RSS</a>
+    </p>
+    <ListaEntradas entradas={entradas} />
+    <Paginacion actual={actual} ultima={ultima} anterior={anterior} siguiente={siguiente} />
+  </section>
+</Base>
+
+<style>
+  .enlaces { margin: -0.5rem 0 2rem; }
+</style>

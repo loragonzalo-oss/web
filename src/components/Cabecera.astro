@@ -1,0 +1,49 @@
+---
+import { MENU, SITIO } from '../lib/sitio';
+import { url } from '../lib/rutas';
+
+const actual = Astro.url.pathname;
+---
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href={url('/')}>
+      <span class="marca-nombre">{SITIO.nombre}</span>
+      <span class="marca-apodo">«{SITIO.apodo}»</span>
+    </a>
+    <nav aria-label="Principal">
+      <ul>
+        {MENU.map((item) => {
+          const destino = url(item.href);
+          const activo = actual.startsWith(destino);
+          return (
+            <li><a href={destino} aria-current={activo ? 'page' : undefined}>{item.texto}</a></li>
+          );
+        })}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .cabecera {
+    border-bottom: 1px solid var(--color-borde);
+    font-family: var(--fuente-interfaz);
+    margin-bottom: 3rem;
+  }
+  .cabecera-fila {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+  }
+  .marca { text-decoration: none; color: var(--color-texto); display: flex; flex-wrap: wrap; gap: 0 0.5rem; align-items: baseline; }
+  .marca-nombre { font-family: var(--fuente-texto); font-weight: 600; font-size: 1.2rem; }
+  .marca-apodo { color: var(--color-texto-suave); font-size: 0.95rem; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; }
+  nav a { text-decoration: none; color: var(--color-texto-suave); font-size: 0.98rem; padding: 0.35rem 0; display: inline-block; }
+  nav a:hover, nav a[aria-current='page'] { color: var(--color-acento); }
+  nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: 0.4em; }
+</style>

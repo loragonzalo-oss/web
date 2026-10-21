@@ -1,0 +1,6 @@
+---
+// Marca visible de dato faltante. Cada uso tiene que estar anotado en PENDIENTES.md.
+interface Props { texto?: string }
+const { texto } = Astro.props;
+---
+<span class="pendiente">[PENDIENTE{texto ? `: ${texto}` : ''}]</span>

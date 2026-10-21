@@ -1,0 +1,48 @@
+/*
+  Tokens de diseño. La paleta y la identidad visual del autor son un tema abierto:
+  para cambiarlas se editan SÓLO estos valores. El resto del CSS usa estas variables.
+*/
+:root {
+  /* Tipografía */
+  --fuente-texto: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --fuente-interfaz: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --tam-base: 1.1875rem;   /* 19 px: cuerpo de lectura */
+  --tam-chico: 0.9rem;
+  --tam-h1: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+  --tam-h2: clamp(1.45rem, 1.2rem + 1vw, 1.85rem);
+  --tam-h3: 1.25rem;
+  --interlineado: 1.65;
+
+  /* Medidas */
+  --ancho-lectura: 66ch;   /* unos 65-70 caracteres por línea */
+  --ancho-sitio: 72rem;
+  --margen-lateral: 1.25rem;
+  --espacio: 1.5rem;
+  --radio: 4px;
+
+  /* Color: modo claro */
+  --color-fondo: #faf8f4;
+  --color-superficie: #f1ede5;
+  --color-texto: #22201c;
+  --color-texto-suave: #5f5a52;
+  --color-borde: #ddd6ca;
+  --color-acento: #7a3b1e;
+  --color-acento-hover: #5a2a14;
+  --color-pendiente-fondo: #fff3c4;
+  --color-pendiente-texto: #5c4700;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-fondo: #171614;
+    --color-superficie: #211f1c;
+    --color-texto: #e8e3da;
+    --color-texto-suave: #a59e92;
+    --color-borde: #3a3631;
+    --color-acento: #e09a6c;
+    --color-acento-hover: #f0b68f;
+    --color-pendiente-fondo: #3d3310;
+    --color-pendiente-texto: #f3dc8a;
+  }
+}

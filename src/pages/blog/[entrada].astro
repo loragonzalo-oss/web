@@ -1,0 +1,48 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { url, slugEtiqueta } from '../../lib/rutas';
+import { fechaLarga, fechaISO } from '../../lib/fechas';
+import { entradasBlog } from '../../lib/contenido';
+
+export const getStaticPaths = (async () => {
+  const entradas = await entradasBlog();
+  return entradas.map((e) => ({ params: { entrada: e.id }, props: { e } }));
+}) satisfies GetStaticPaths;
+
+const { e } = Astro.props;
+const { Content } = await render(e);
+---
+<Base
+  titulo={e.data.titulo}
+  descripcion={e.data.resumen}
+  imagen={e.data.imagen?.src}
+  tipo="article"
+  fecha={e.data.fecha}
+  noIndexar={e.data.draft}
+>
+  <article class="lectura">
+    {e.data.draft && <p class="borrador-aviso">Borrador: sólo se ve en el modo de desarrollo. No se publica.</p>}
+    <header>
+      <p class="meta"><time datetime={fechaISO(e.data.fecha)}>{fechaLarga(e.data.fecha)}</time></p>
+      <h1>{e.data.titulo}</h1>
+      {e.data.resumen && <p class="resumen">{e.data.resumen}</p>}
+    </header>
+    <div class="cuerpo"><Content /></div>
+    <footer>
+      {e.data.etiquetas.length > 0 && (
+        <p class="meta etiquetas">
+          {e.data.etiquetas.map((t) => <a href={url(`/blog/etiquetas/${slugEtiqueta(t)}/`)}>#{t}</a>)}
+        </p>
+      )}
+      <p class="interfaz"><a href={url('/blog/')}>← Volver al blog</a></p>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .resumen { font-size: 1.15em; color: var(--color-texto-suave); font-style: italic; }
+  footer { margin-top: 3rem; border-top: 1px solid var(--color-borde); padding-top: 1rem; }
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+</style>
