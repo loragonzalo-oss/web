@@ -27,7 +27,6 @@ Al resolver uno, se borra la línea y se reemplaza el marcador en el archivo ind
   - Observatorio Binacional. Licencia: [PENDIENTE]. Formato: [PENDIENTE].
   - Otras: [PENDIENTE].
 - [ ] [PENDIENTE: criterio de inclusión para empresas y emprendimientos]. Qué condiciones tiene que cumplir un emprendimiento comunitario o una empresa de turismo para tener ficha (quién lo propone, cómo se verifica, si se cobra o no, cómo se da de baja). Hasta que exista, no cargar fichas de esas dos capas.
-- [ ] Repositorio público y lugares sensibles: `precision: aproximada` y `oculta` esconden el dato en la página, no en el `.md`. Decidir si los sitios arqueológicos y lugares sagrados se cargan sin coordenadas, con coordenadas redondeadas o desde otro lugar. Ver COMO-PUBLICAR.md, «Antes de publicar un lugar sensible».
 - [ ] Colores e íconos de las nueve capas: provisorios, en `src/styles/tokens.css`. Entran en la decisión de identidad visual.
 - [ ] Fondo del mapa: usa las teselas públicas de OpenStreetMap, con su atribución. Su política de uso admite sitios de poco tráfico; si el tráfico crece, pasar a un proveedor de teselas (se cambia una línea en `src/scripts/mapa.ts`).
 - [ ] Las capturas `docs/capturas/mapa-*.png` se sacaron sin el fondo de OpenStreetMap (el entorno donde se hicieron bloquea `tile.openstreetmap.org`). Rehacerlas cuando haya contenido real, y comprobar ahí que los puntos de ejemplo caen sobre el agua.

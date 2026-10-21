@@ -75,8 +75,8 @@ Cada punto del mapa es un archivo `.md` en `src/content/lugares/`. El encabezado
 ---
 titulo: "Nombre del lugar"
 capa: arqueologia
-lat: -16.0123
-lon: -69.1234
+lat: -16.01
+lon: -69.12
 precision: aproximada
 resumen: "Una o dos frases. Aparecen en el listado y arriba de la ficha."
 imagen:
@@ -122,8 +122,8 @@ Qué es cada campo:
 - **`lat`** y **`lon`**: en grados decimales, con signo menos (todo el lago está al sur del ecuador y al oeste de Greenwich). Se pueden copiar de OpenStreetMap o de Google Maps (clic derecho sobre el punto). Si quedan fuera del recorte del lago y sus orillas, el sitio no se construye y el error lo dice: casi siempre es lat y lon invertidas o un signo menos que falta.
 - **`precision`**:
   - `exacta` (si no se pone nada, vale esta): el punto va donde dicen las coordenadas.
-  - `aproximada`: el punto aparece corrido entre 1.2 y 2.5 km, siempre en la misma dirección para ese lugar, con una zona sombreada de 3 km de radio que contiene la ubicación real. Las coordenadas exactas no llegan a la página publicada.
-  - `oculta`: sin punto en el mapa; la ficha aparece sólo en el listado. Con `oculta` se pueden dejar `lat` y `lon` vacíos.
+  - `aproximada`: `lat` y `lon` van redondeadas a **dos decimales como máximo** (por ejemplo, `-16.01`). En el mapa, el punto aparece corrido entre 1.2 y 2.5 km de esas coordenadas, siempre en la misma dirección para ese lugar, con una zona sombreada de 3 km de radio alrededor.
+  - `oculta`: sin punto en el mapa; la ficha aparece sólo en el listado. Con `oculta`, el archivo **no lleva** `lat` ni `lon`: se dejan vacíos o se borran.
 - **`imagen`** (opcional): la foto va en la carpeta del lugar (o en una subcarpeta) y la ruta es relativa al archivo. El `credito` es obligatorio si hay imagen: autor y licencia. Sólo imágenes propias o con licencia clara.
 - **`enlaces`** (opcional): enlaces externos. `verificado` es la fecha en que se comprobó que el enlace funciona y dice lo que se cita, con formato `AAAA-MM-DD`.
 - **`fuentes`** (opcional, salvo con `corpus`): documentos que respaldan la ficha. `url` es opcional.
@@ -137,7 +137,12 @@ Qué es cada campo:
 
 ### Antes de publicar un lugar sensible
 
-`precision: aproximada` y `oculta` protegen el dato **en la página**, no en el repositorio. Si el repositorio de GitHub es público, cualquiera puede abrir el `.md` y leer `lat` y `lon`. Para sitios arqueológicos o lugares sagrados: con `oculta`, dejar las coordenadas vacías; con `aproximada`, anotar coordenadas ya redondeadas (dos decimales: una cuadrícula de algo más de 1 km de lado) en lugar de las exactas.
+Regla del sitio (CLAUDE.md, regla 6): las coordenadas exactas de un lugar sensible —sitios arqueológicos, lugares sagrados y los que el autor indique— **nunca entran al repositorio**. La ubicación exacta queda en la bóveda privada.
+
+- Con `precision: aproximada`, el archivo lleva sólo coordenadas redondeadas a dos decimales (una cuadrícula de algo más de 1 km de lado). Si `lat` o `lon` tienen más decimales, el sitio no se construye y el error dice cuál corregir.
+- Con `precision: oculta`, el archivo no lleva `lat` ni `lon`. Si tiene alguno, el sitio no se construye.
+
+Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
 
 ### Para compartir un lugar
 

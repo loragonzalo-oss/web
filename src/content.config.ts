@@ -110,6 +110,26 @@ const lugares = defineCollection({
             });
           }
         }
+        // Regla de CLAUDE.md: las coordenadas exactas de un lugar sensible nunca entran al repositorio.
+        if (d.precision === 'oculta' && (d.lat !== undefined || d.lon !== undefined)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['lat'],
+            message: 'Con «precision: oculta» el archivo no lleva lat ni lon: dejalos vacíos. La ubicación exacta queda en la bóveda privada.',
+          });
+        }
+        if (d.precision === 'aproximada') {
+          for (const campo of ['lat', 'lon'] as const) {
+            const decimales = String(d[campo] ?? '').split('.')[1]?.length ?? 0;
+            if (decimales > 2) {
+              ctx.addIssue({
+                code: 'custom',
+                path: [campo],
+                message: `Con «precision: aproximada», ${campo} lleva como máximo dos decimales (tiene ${decimales}: ${d[campo]}). Redondeá el valor; el exacto queda en la bóveda privada.`,
+              });
+            }
+          }
+        }
         if (d.marcador === 'corpus' && d.fuentes.length === 0) {
           ctx.addIssue({ code: 'custom', path: ['fuentes'], message: 'Con «marcador: corpus» hace falta al menos una fuente.' });
         }
