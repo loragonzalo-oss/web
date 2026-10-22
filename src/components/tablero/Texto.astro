@@ -1,0 +1,14 @@
+---
+// Texto de una versión del tablero (src/content/tablero/*.yaml): párrafos separados por una
+// línea en blanco y listas con «- ». El texto vive en el YAML, no acá.
+import Trozos from './Trozos.astro';
+import { bloques } from '../../lib/tablero';
+
+interface Props { texto: string }
+const { texto } = Astro.props;
+---
+{bloques(texto).map((b) =>
+  b.tipo === 'lista'
+    ? <ul>{b.items.map((item) => <li><Trozos trozos={item} /></li>)}</ul>
+    : <p><Trozos trozos={b.trozos} /></p>,
+)}

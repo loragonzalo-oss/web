@@ -1,0 +1,271 @@
+# Tablero de indicadores del Lago Titikaka — Propuesta 07.
+# Cómo se actualiza: docs/tablero/COMO-ACTUALIZAR.md.
+#
+# Por pétalo:
+#   polaridad: 1 si el riesgo crece cuando el valor sube; -1 si crece cuando baja.
+#   referencia (z = 0), limite (z = 1), alto_riesgo (z = 2).
+#   criterio del alto riesgo: A cambio de régimen publicado; B límite físico u operativo con
+#     fuente; C peor valor histórico registrado; D convención (el doble de la distancia entre
+#     la referencia y el límite).
+#   umbral: fuente (criterios A, B o C) o convencion (criterio D; se muestra con asterisco).
+#   estado_valor: fuente o provisorio.
+#   incierto: true para un valor incierto (pétalo más tenue, con contorno).
+#   z_referencia: la z de la propuesta. Si el cálculo difiere en más de 0.01, el sitio no se
+#     construye y el error dice qué pétalo revisar.
+# Números con punto decimal y sin espacios (998124, no «998 124»): el sitio los escribe solo.
+# Mientras draft sea true, la página publicada muestra sólo «en preparación».
+
+version: P07
+nombre: Propuesta 07
+fecha: 2026-10-22
+herramienta: Claude
+cambios: >-
+  Trece indicadores en cuatro variables estructurantes; tres anclas por indicador, jerarquía
+  A-D para el alto riesgo, compresión logarítmica sobre z = 2, área proporcional a z.
+draft: true
+
+variables:
+  - id: VE1
+    nombre: Calidad hídrica
+  - id: VE2
+    nombre: Dinámica hídrica
+  - id: VE3
+    nombre: Integridad ecosistémica
+  - id: VE4
+    nombre: Gobernanza
+
+textos:
+  rotulo: "[PENDIENTE: rótulo del autor — proyecto personal en desarrollo, sin validación de la ALT ni del CCMB]"
+
+  introduccion: "[PENDIENTE: introducción del autor, en primera persona]"
+
+  # Texto del autor, ya fijado. Va como pie de la figura.
+  regla_lectura: >-
+    La rosa no compara gravedades entre pétalos. Un pétalo más largo está más lejos de su
+    propio límite; no es «más grave» que otro.
+
+  metodo: "[PENDIENTE: nota de método del autor]"
+
+  # Apoyo técnico provisorio para la nota de método. Mientras lleve la marca de abajo, la
+  # página lo muestra como relleno.
+  metodo_apoyo: |
+    [PENDIENTE: apoyo técnico provisorio, a revisar o reemplazar por el autor]
+
+    Cada indicador tiene tres anclas: la referencia (z = 0), el límite (z = 1) y el alto riesgo (z = 2). Cada uno tiene además un sentido: en unos el riesgo crece cuando el valor sube (la clorofila, los años sin consejo científico); en otros crece cuando el valor baja (el nivel del lago, la superficie de bofedales). Para los segundos se invierten los signos y la cuenta es la misma.
+
+    La z dice cuánto se aleja el valor de su referencia, medido en tramos de su propio indicador:
+
+    - si el valor está en la referencia o del lado bueno, z = 0;
+    - entre la referencia y el límite, z crece en línea recta de 0 a 1;
+    - entre el límite y el alto riesgo, crece en línea recta de 1 a 2;
+    - más allá del alto riesgo, crece cada vez más despacio: z = 2 + 0.65 · ln(1 + exceso), donde el exceso se mide en tramos «límite-alto riesgo». La escala termina en z = 3.5; lo que pasa de ahí se marca como fuera de escala.
+
+    El alto riesgo de cada indicador se fija con la mejor razón disponible, en este orden: A, un cambio de régimen publicado; B, un límite físico u operativo con fuente; C, el peor valor histórico registrado; D, si no hay nada de lo anterior, una convención: el doble de la distancia entre la referencia y el límite. Los umbrales por convención llevan asterisco.
+
+    En la figura, el largo del pétalo sale de R(z) = √(0.16² + K · z), con K = (1 − 0.16²) / 3.5. Así el área del pétalo crece en proporción a z, y un pétalo con el doble de z no se ve cuatro veces más grande. El hueco central (0.16) deja lugar para el rótulo.
+
+    La z no es una probabilidad ni una medida de resiliencia: sólo ordena cada valor respecto de sus propias anclas. Por eso la rosa no sirve para comparar pétalos entre sí.
+
+  # Formato APA. Sólo las fuentes de este encargo; lo que falta queda como [PENDIENTE].
+  fuentes:
+    - "Buytaert, W., et al. (2017). [PENDIENTE: título, revista, volumen, páginas y DOI]."
+    - "Lazzaro, X., et al. (Eds.). (2023). *El libro del Observatorio permanente del lago Titicaca*. [PENDIENTE: editorial, lugar y DOI o URL]."
+    - "Lora Veizaga, G. R. (2026). *Escenarios socioecológicos TDPS* (versión 2). [PENDIENTE: título exacto y forma de publicación]."
+    - "Richardson, K., et al. (2023). [PENDIENTE: título, revista, volumen, páginas y DOI]."
+    - "Rockström, J., et al. (2009). [PENDIENTE: título, revista, volumen, páginas y DOI]."
+    - "[PENDIENTE: referencia completa del Producto 4 de la CT BO-T1425 (Informe de Integración de Consultorías)]."
+    - "[PENDIENTE: fuentes primarias de los valores marcados como provisorios]."
+
+petalos:
+  # ——— VE 1 · Calidad hídrica ———
+  - ve: VE1
+    indicador: "Cohana: clorofila a"
+    unidad: µg/L
+    valor: 84.83
+    polaridad: 1
+    referencia: 0
+    limite: 20
+    alto_riesgo: 100
+    criterio: A
+    umbral: fuente
+    estado_valor: fuente
+    z_referencia: 1.81
+    fuente: "Valor y anclas: Lazzaro et al. (2023), pp. 146-147. Estación CE8, octubre a diciembre de 2020; eutrófico desde 20 y hipertrófico desde 100 µg/L."
+
+  - ve: VE1
+    indicador: "Bahías: clorofila a máx."
+    unidad: µg/L
+    valor: 137.99
+    polaridad: 1
+    referencia: 0
+    limite: 20
+    alto_riesgo: 100
+    criterio: A
+    umbral: fuente
+    estado_valor: provisorio
+    z_referencia: 2.25
+    fuente: "Anclas: Lazzaro et al. (2023), pp. 146-147. Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  - ve: VE1
+    indicador: "Puchukollo: uso de capacidad"
+    unidad: "%"
+    valor: 126
+    polaridad: 1
+    referencia: 0
+    limite: 100
+    alto_riesgo: 200
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 1.26
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  - ve: VE1
+    indicador: "Caudal tratado de El Alto"
+    unidad: "%"
+    valor: 55
+    polaridad: -1
+    referencia: 100
+    limite: 80
+    alto_riesgo: 60
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 2.15
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  # ——— VE 2 · Dinámica hídrica ———
+  - ve: VE2
+    indicador: "Nivel del lago"
+    unidad: msnm
+    valor: 3807.68
+    decimales: 2
+    polaridad: -1
+    referencia: 3809.0
+    limite: 3807.80
+    alto_riesgo: 3806.50
+    criterio: B
+    umbral: fuente
+    estado_valor: provisorio
+    incierto: true
+    z_referencia: 1.09
+    fuente: "Alto riesgo: umbral inferior de la obra de regulación (ALT, 1998, citado en Lazzaro et al., 2023, p. 61). Límite: Producto 4 de la CT BO-T1425. Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+    nota: "La referencia (3809.00 msnm) es provisoria."
+
+  - ve: VE2
+    indicador: "Dependencia glaciar urbana"
+    unidad: "%"
+    valor: 50
+    polaridad: 1
+    referencia: 0
+    limite: 25
+    alto_riesgo: 50
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 2.00
+    fuente: "Límite: Buytaert et al. (2017). Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+    nota: "Mide cuánto depende del hielo el agua de La Paz y El Alto, no el nivel del lago."
+
+  - ve: VE2
+    indicador: "Balance P − ETP"
+    unidad: mm/año
+    valor: -242
+    polaridad: -1
+    referencia: -242
+    limite: -290.4
+    alto_riesgo: -338.8
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 0.00
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  # ——— VE 3 · Integridad ecosistémica ———
+  - ve: VE3
+    indicador: "Tolares"
+    unidad: ha
+    valor: 998124
+    polaridad: -1
+    referencia: 1656747
+    limite: 1325398
+    alto_riesgo: 994048
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 1.99
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  - ve: VE3
+    indicador: "Bofedales"
+    unidad: ha
+    valor: 105366
+    polaridad: -1
+    referencia: 165215
+    limite: 132172
+    alto_riesgo: 99129
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    incierto: true
+    z_referencia: 1.81
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  - ve: VE3
+    indicador: "Especies centinela amenazadas"
+    unidad: de 5
+    valor: 4
+    polaridad: 1
+    referencia: 0
+    limite: 3
+    alto_riesgo: 5
+    criterio: B
+    umbral: fuente
+    estado_valor: provisorio
+    incierto: true
+    z_referencia: 1.50
+    fuente: "Indicador propuesto por el autor; límite y alto riesgo según su regla (3 y 5 especies amenazadas). Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+    nota: "Las cinco especies: k'ayra, boga, umanto, *Orestias ctenolepis* y zambullidor."
+
+  - ve: VE3
+    indicador: "Pesca nativa"
+    unidad: "% del histórico"
+    valor: 11
+    polaridad: -1
+    referencia: 100
+    limite: 80
+    alto_riesgo: 60
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 2.80
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  # ——— VE 4 · Gobernanza ———
+  - ve: VE4
+    indicador: "Eficacia operativa de la ALT"
+    unidad: "%"
+    valor: 62
+    polaridad: -1
+    referencia: 100
+    limite: 90
+    alto_riesgo: 80
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 2.67
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+
+  - ve: VE4
+    indicador: "Años sin CCMB"
+    unidad: años
+    valor: 27
+    polaridad: 1
+    referencia: 0
+    limite: 2
+    alto_riesgo: 4
+    criterio: D
+    umbral: convencion
+    estado_valor: provisorio
+    z_referencia: 3.50
+    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"

@@ -1,0 +1,57 @@
+---
+// La rosa del tablero: SVG estático generado al construir, sin JavaScript en el cliente.
+// La geometría está en src/lib/tablero.ts (svgRosa), la misma que usa la imagen para compartir.
+// Tipografía de la figura: --fuente-tablero (por defecto, la del texto que la rodea). Para
+// cambiarla se define esa variable en un solo lugar, la regla .tablero de abajo.
+import { svgRosa, type PetaloRosa } from '../../lib/tablero';
+
+interface Props {
+  petalos: PetaloRosa[];
+  variables: { id: string; nombre: string }[];
+  anio: string;
+  version: string;
+}
+const { petalos, variables, anio, version } = Astro.props;
+
+const svg = svgRosa(petalos, {
+  titulo: `Rosa de indicadores del Lago Titikaka y su cuenca, ${version}`,
+  descripcion: `Figura con ${petalos.length} pétalos, uno por indicador, agrupados en ${variables.length} variables estructurantes. El largo de cada pétalo dice cuánto se aleja ese indicador de su propio límite. Los valores, las anclas y el estado de cada pétalo están en la tabla que sigue a la figura.`,
+  centro: ['TDPS', anio],
+  variables,
+});
+---
+<div class="rosa-marco"><Fragment set:html={svg} /></div>
+
+<style is:global>
+  .tablero { --fuente-tablero: inherit; }
+
+  .rosa-marco { max-width: 56rem; margin: 0 auto; }
+  .rosa { display: block; width: 100%; height: auto; overflow: visible; color: var(--color-texto); }
+  .rosa text { fill: currentColor; }
+  .rosa .rosa-nombre { font-size: 17px; font-family: var(--fuente-tablero, inherit); }
+  .rosa .rosa-valor { font-size: 16px; fill: var(--color-texto-suave); font-variant-numeric: tabular-nums; }
+  .rosa .rosa-marca { font-size: 12px; fill: var(--color-texto-suave); }
+  .rosa .rosa-ve-texto { font-size: 16px; letter-spacing: 0.04em; fill: var(--color-texto-suave); }
+  .rosa .rosa-circulos-texto text {
+    font-size: 14px;
+    paint-order: stroke;
+    stroke: var(--color-fondo);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  .rosa .rosa-centro-sigla { font-size: 24px; font-weight: 600; letter-spacing: 0.06em; }
+  .rosa .rosa-centro-anio { font-size: 16px; fill: var(--color-texto-suave); }
+  .rosa .rosa-numeros text { font-size: 30px; font-weight: 600; }
+  .rosa .rosa-ve-texto.rosa-corto { font-size: 26px; }
+  .rosa .rosa-corto { display: none; }
+
+  /* Pantallas angostas: los números del 1 al 13 (remiten a la tabla) en lugar de las
+     etiquetas largas, y se recorta el margen vacío para que la rosa se vea más grande (queda a la vista el
+     cuadrado de −400 a 400 del viewBox: ancho 140% y márgenes según ARRIBA en tablero.ts). */
+  @media (max-width: 600px) {
+    .rosa .rosa-largo { display: none; }
+    .rosa .rosa-corto { display: inline; }
+    .rosa-marco { overflow: hidden; aspect-ratio: 1; }
+    .rosa-marco .rosa { width: 140%; max-width: none; margin: -5% 0 0 -20%; }
+  }
+</style>

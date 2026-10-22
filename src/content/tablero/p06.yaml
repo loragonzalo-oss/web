@@ -1,0 +1,11 @@
+# Tablero de indicadores — Propuesta 06. Sólo entrada de historial: sin pétalos.
+# La versión vigente es la más reciente que tiene pétalos (p07.yaml).
+
+version: P06
+nombre: Propuesta 06
+fecha: 2026-10-21
+herramienta: Codex
+cambios: >-
+  Seis señales (Cohana, nivel, glaciares, biodiversidad, otras bahías, ciudad). Sólo Cohana
+  tenía geometría calculada (z = 1.81); las demás quedaban en gris por falta de una segunda
+  referencia.

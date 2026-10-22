@@ -1,0 +1,90 @@
+---
+// Tabla de los pétalos: la alternativa accesible de la rosa, desde los mismos datos.
+import Trozos from './Trozos.astro';
+import { conUnidad, enLinea, etiquetasEstado, numero, Z_MAX, type PetaloRosa } from '../../lib/tablero';
+
+type Fila = PetaloRosa & {
+  referencia: number;
+  limite: number;
+  alto_riesgo: number;
+  criterio: string;
+  fuente: string;
+  nota?: string;
+};
+interface Props {
+  petalos: Fila[];
+  variables: { id: string; nombre: string }[];
+}
+const { petalos, variables } = Astro.props;
+
+const CRITERIOS: Record<string, string> = {
+  A: 'cambio de régimen publicado',
+  B: 'límite físico u operativo con fuente',
+  C: 'peor valor histórico registrado',
+  D: 'convención',
+};
+const grupos = variables
+  .map((v) => ({ ...v, filas: petalos.map((p, i) => ({ p, n: i + 1 })).filter(({ p }) => p.ve === v.id) }))
+  .filter((g) => g.filas.length > 0);
+const textoZ = (z: number) => `${numero(z, 2)}${z === 0 ? ' (en la referencia)' : z >= Z_MAX ? ' (fuera de escala)' : ''}`;
+const estado = (p: Fila) => [...etiquetasEstado(p.umbral, p.estado_valor), ...(p.incierto ? ['valor incierto'] : [])];
+---
+<div class="tablero-tabla" role="region" aria-labelledby="tabla-titulo" tabindex="0">
+  <table>
+    <caption id="tabla-titulo">Los {petalos.length} indicadores, en el orden de la rosa (desde arriba, en el sentido del reloj)</caption>
+    <thead>
+      <tr>
+        <th scope="col">VE</th>
+        <th scope="col">N.º</th>
+        <th scope="col">Indicador</th>
+        <th scope="col">Valor</th>
+        <th scope="col">Referencia (z = 0)</th>
+        <th scope="col">Límite (z = 1)</th>
+        <th scope="col">Alto riesgo (z = 2)</th>
+        <th scope="col">Criterio del alto riesgo</th>
+        <th scope="col">z</th>
+        <th scope="col">Estado</th>
+        <th scope="col">Fuente</th>
+      </tr>
+    </thead>
+    {grupos.map((g) => (
+      <tbody>
+        {g.filas.map(({ p, n }, j) => (
+          <tr data-petalo={n}>
+            {j === 0 && <th scope="rowgroup" rowspan={g.filas.length} class="tablero-ve">{g.id.replace(/^VE\s*/i, 'VE ')}<span> · {g.nombre}</span></th>}
+            <td class="num">{n}</td>
+            <th scope="row" class="tablero-indicador">
+              {p.indicador}
+              {p.nota && <span class="tablero-nota"><Trozos trozos={enLinea(p.nota)} /></span>}
+            </th>
+            <td class="num">{conUnidad(p.valor, p.unidad, p.decimales)}</td>
+            <td class="num">{conUnidad(p.referencia, p.unidad, p.decimales)}</td>
+            <td class="num">{conUnidad(p.limite, p.unidad, p.decimales)}</td>
+            <td class="num">{conUnidad(p.alto_riesgo, p.unidad, p.decimales)}{p.umbral === 'convencion' && <span aria-hidden="true">*</span>}</td>
+            <td>{p.criterio} · {CRITERIOS[p.criterio]}</td>
+            <td class="num">{textoZ(p.z)}</td>
+            <td class="tablero-estado">{estado(p).map((e) => <span>{e}</span>)}</td>
+            <td class="tablero-fuente"><Trozos trozos={enLinea(p.fuente)} /></td>
+          </tr>
+        ))}
+      </tbody>
+    ))}
+  </table>
+</div>
+
+<style>
+  .tablero-tabla { overflow-x: auto; margin: 1rem 0 0; font-family: var(--fuente-interfaz); font-size: 0.8rem; line-height: 1.45; }
+  .tablero-tabla:focus-visible { outline: 2px solid var(--color-acento); outline-offset: 2px; }
+  table { border-collapse: collapse; width: 100%; min-width: 68rem; }
+  caption { text-align: left; color: var(--color-texto-suave); padding-bottom: 0.5rem; }
+  th, td { text-align: left; vertical-align: top; padding: 0.5rem 0.55rem; border-bottom: 1px solid var(--color-borde); }
+  thead th { font-weight: 600; border-bottom-width: 2px; }
+  tbody + tbody { border-top: 2px solid var(--color-borde); }
+  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tablero-ve { font-weight: 600; width: 7rem; }
+  .tablero-ve span { display: block; font-weight: 400; color: var(--color-texto-suave); }
+  .tablero-indicador { font-weight: 600; min-width: 10rem; }
+  .tablero-nota { display: block; font-weight: 400; color: var(--color-texto-suave); margin-top: 0.2rem; }
+  .tablero-estado span { display: block; white-space: nowrap; }
+  .tablero-fuente { min-width: 16rem; }
+</style>
