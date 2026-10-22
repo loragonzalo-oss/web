@@ -30,7 +30,7 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 
 ## Diseño
 
-Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para el cuerpo, ancho de línea cómodo (unos 65-70 caracteres) y modo oscuro. La paleta e identidad visual del autor es un tema abierto. Usar tokens CSS en un solo archivo (src/styles/tokens.css) para poder cambiarla después sin rehacer nada.
+Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para el cuerpo, ancho de línea cómodo (unos 65-70 caracteres) y modo oscuro. La paleta e identidad visual del autor es un tema abierto. Las medidas compartidas van en src/styles/tokens.css; los colores y las tipografías, en un archivo por tema en src/styles/temas/. El tema publicado se elige con una sola línea (TEMA en sitio.config.mjs). Ningún tema se elige sin orden del autor. Tipografías sólo autoalojadas y con licencia libre (OFL); todo par de texto y fondo cumple contraste AA (el build lo comprueba).
 
 ## Manejo de archivos
 
@@ -42,3 +42,4 @@ Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para 
 
 - 21-10-2026: versión inicial.
 - 21-10-2026: regla 6, lugares sensibles del mapa. Las coordenadas exactas no entran al repositorio; el esquema de `lugares` lo hace cumplir al construir el sitio.
+- 22-10-2026: diseño. Los colores y las tipografías pasan de tokens.css a un archivo por tema en src/styles/temas/; el tema publicado se elige en sitio.config.mjs (TEMA). Tipografías autoalojadas con licencia OFL y contraste AA comprobado al construir.

@@ -1,4 +1,5 @@
 @import './tokens.css';
+@import '@tema-activo';  /* src/styles/temas/<TEMA>.css; en npm run dev, los cuatro */
 
 *, *::before, *::after { box-sizing: border-box; }
 

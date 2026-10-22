@@ -1,12 +1,9 @@
 ---
-import '@fontsource/source-serif-4/400.css';
-import '@fontsource/source-serif-4/400-italic.css';
-import '@fontsource/source-serif-4/600.css';
-import '@fontsource/source-sans-3/400.css';
-import '@fontsource/source-sans-3/600.css';
 import '../styles/global.css';
 import Cabecera from '../components/Cabecera.astro';
 import Pie from '../components/Pie.astro';
+import SelectorTema from '../desarrollo/SelectorTema.astro';
+import { TEMA } from '../../sitio.config.mjs';
 import { SITIO } from '../lib/sitio';
 import { url, urlAbsoluta } from '../lib/rutas';
 
@@ -25,7 +22,7 @@ const canonica = new URL(Astro.url.pathname, Astro.site).href;
 const imagenOG = imagen ? new URL(imagen, Astro.site).href : urlAbsoluta('/og-default.png', Astro.site);
 ---
 <!doctype html>
-<html lang={SITIO.idioma}>
+<html lang={SITIO.idioma} data-tema={TEMA}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,6 +34,7 @@ const imagenOG = imagen ? new URL(imagen, Astro.site).href : urlAbsoluta('/og-de
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={`Blog de ${SITIO.nombre}`} href={urlAbsoluta('/rss.xml', Astro.site)} />
     <link rel="sitemap" href={url('/sitemap-index.xml')} />
+    {import.meta.env.DEV && <SelectorTema />}
 
     <!-- Open Graph (Facebook) -->
     <meta property="og:type" content={tipo} />

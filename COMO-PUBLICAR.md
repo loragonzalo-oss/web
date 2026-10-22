@@ -148,6 +148,46 @@ Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
 
 Cada ficha tiene su propia dirección: la del mapa seguida de `#lugar-` y el nombre del archivo. Por ejemplo, `…/mapa/#lugar-isla-de-ejemplo` abre el mapa con esa ficha.
 
+## Identidad visual: ver los temas y elegir uno
+
+La identidad visual todavía no está decidida. Hay cuatro temas armados sobre el sitio real; el que se publica hoy es el **provisorio**.
+
+| Tema | Inspiración | Cuerpo (serifa) | Interfaz |
+|---|---|---|---|
+| Provisorio | La paleta sobria con la que se armó el sitio | Source Serif 4 | Source Sans 3 |
+| A · Agua honda | El lago en sus tonos fríos; acento verde azulado | Literata | Inter |
+| B · Totora | La orilla: totora seca y totora viva; capas terrosas | Alegreya | Alegreya Sans |
+| C · Piedra y cielo | Luz de altura: piedra clara y azul profundo de cielo | Spectral | IBM Plex Sans |
+
+Todas las tipografías tienen licencia libre SIL Open Font License 1.1 y van dentro del sitio (paquetes `@fontsource/*`): no se cargan de Google Fonts ni de ningún otro servidor. Cada tema tiene modo claro y oscuro y sus propios colores para las nueve capas del mapa. Todos los pares de texto y fondo cumplen el contraste AA; la tabla completa está en `docs/temas-contraste.md`.
+
+### Verlos
+
+Hace falta el sitio corriendo en la computadora (`npm install` una vez y después `npm run dev`; se abre en http://localhost:4321/web/).
+
+- **Selector de tema**: abajo a la izquierda de cualquier página aparece un recuadro «Tema · sólo en desarrollo». Cambia entre provisorio, A, B y C, y entre modo claro, oscuro o el del sistema, sin recargar. Recuerda la elección en ese navegador.
+- **Lámina de comparación**: http://localhost:4321/web/temas/ muestra los cuatro temas, cada uno en claro y en oscuro: paleta, tipografías, un párrafo de muestra, la ficha del mapa y los colores de capa.
+- **Capturas**: sin correr nada, en `docs/capturas/temas/` hay portada, una entrada y el mapa en cada tema, claro y oscuro (`portada-a-claro.png`, `mapa-c-oscuro.png`, etc.).
+
+Ni el selector ni la lámina existen en el sitio publicado.
+
+### Elegir uno
+
+Se cambia **una sola línea**, en `sitio.config.mjs`:
+
+```js
+export const TEMA = 'provisorio';   // 'provisorio', 'a', 'b' o 'c'
+```
+
+Por ejemplo, `export const TEMA = 'b';` publica el tema Totora. Al construir, el sitio carga sólo ese tema y sus tipografías, y comprueba el contraste AA: si alguien cambia un color y algún par de texto y fondo no llega a 4.5:1, el sitio no se construye y el error dice cuál.
+
+### Ajustar un tema
+
+Cada tema es un archivo en `src/styles/temas/` (`provisorio.css`, `a.css`, `b.css`, `c.css`), con los colores del modo claro arriba y los del oscuro (`--oscuro-…`) abajo. Después de cambiar un color:
+
+- `npm run temas:contraste` vuelve a medir los cuatro temas y reescribe `docs/temas-contraste.md`.
+- `npm run temas:capturas` (con `npm run dev` corriendo en otra terminal) rehace las capturas.
+
 ## Configurar Obsidian una sola vez
 
 En *Configuración → Archivos y enlaces*:

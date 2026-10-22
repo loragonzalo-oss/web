@@ -1,0 +1,68 @@
+/*
+  Tema A · «Agua honda». Propuesta para comparar; no está elegida.
+  Inspiración: el lago visto de cerca, en sus tonos fríos. Fondo con un leve tinte de
+  agua, texto azul muy oscuro y acento verde azulado. De noche, el lago sin luna.
+
+  Tipografías (autoalojadas, licencia SIL Open Font License 1.1):
+  - Cuerpo: Literata (TypeTogether, para Google). Pensada para leer libros en pantalla.
+  - Interfaz: Inter (Rasmus Andersson).
+
+  Los valores --oscuro-* son los del modo oscuro. Contraste comprobado con
+  `npm run temas:contraste` (tabla en docs/temas-contraste.md).
+*/
+@import '@fontsource/literata/400.css';
+@import '@fontsource/literata/400-italic.css';
+@import '@fontsource/literata/600.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+
+[data-tema='a'] {
+  --fuente-texto: 'Literata', 'Iowan Old Style', Georgia, serif;
+  --fuente-interfaz: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tam-base: 1.125rem;    /* Literata tiene el ojo grande: 18 px rinden como 19 */
+  --interlineado: 1.7;
+
+  /* Modo claro */
+  --color-fondo: #f4f7f8;
+  --color-superficie: #e5edf0;
+  --color-texto: #13222a;
+  --color-texto-suave: #4a5d66;
+  --color-borde: #c8d6dc;
+  --color-acento: #135a72;
+  --color-acento-hover: #0b3e50;
+  --color-pendiente-fondo: #fbefc0;
+  --color-pendiente-texto: #5a4500;
+  --color-capa-icono: #ffffff;
+  --color-capa-contorno: #ffffff;
+  --color-capa-clima: #2d62a6;
+  --color-capa-ecologia: #3a7843;
+  --color-capa-biodiversidad: #0d7a7e;
+  --color-capa-cultura: #9a3e69;
+  --color-capa-antropologia: #83572e;
+  --color-capa-arqueologia: #5c4a9b;
+  --color-capa-turismo: #ad501d;
+  --color-capa-emprendimientos-comunitarios: #786611;
+  --color-capa-gobiernos-municipales: #4a5966;
+
+  /* Modo oscuro */
+  --oscuro-color-fondo: #0d171c;
+  --oscuro-color-superficie: #15232a;
+  --oscuro-color-texto: #dce7eb;
+  --oscuro-color-texto-suave: #93a8b1;
+  --oscuro-color-borde: #293c45;
+  --oscuro-color-acento: #7cc2da;
+  --oscuro-color-acento-hover: #a7d8e9;
+  --oscuro-color-pendiente-fondo: #3a3210;
+  --oscuro-color-pendiente-texto: #f1da86;
+  --oscuro-color-capa-icono: #0d171c;
+  --oscuro-color-capa-contorno: #0d171c;
+  --oscuro-color-capa-clima: #82aee6;
+  --oscuro-color-capa-ecologia: #8cc293;
+  --oscuro-color-capa-biodiversidad: #5cc6c4;
+  --oscuro-color-capa-cultura: #e08cb2;
+  --oscuro-color-capa-antropologia: #cf9e72;
+  --oscuro-color-capa-arqueologia: #ab9ce6;
+  --oscuro-color-capa-turismo: #ee9b6c;
+  --oscuro-color-capa-emprendimientos-comunitarios: #d2bb5a;
+  --oscuro-color-capa-gobiernos-municipales: #9fb0be;
+}

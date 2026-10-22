@@ -1,0 +1,9 @@
+/*
+  Sólo en modo de desarrollo (npm run dev): carga los cuatro temas para que el
+  selector cambie entre ellos sin recargar. El sitio publicado carga uno solo,
+  el de TEMA en sitio.config.mjs.
+*/
+@import './provisorio.css';
+@import './a.css';
+@import './b.css';
+@import './c.css';

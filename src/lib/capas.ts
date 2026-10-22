@@ -1,5 +1,5 @@
 // Capas temáticas del mapa. El color y el ícono de cada una están en
-// src/styles/tokens.css (--color-capa-<id> y --icono-capa-<id>).
+// el tema (src/styles/temas/, --color-capa-<id>) y en src/styles/tokens.css (--icono-capa-<id>).
 // En el frontmatter de un lugar, `capa` acepta el id o el nombre con tildes:
 // «arqueologia», «Arqueología» y «arqueología» valen lo mismo.
 export const CAPAS = [
@@ -17,6 +17,14 @@ export const CAPAS = [
 export type IdCapa = (typeof CAPAS)[number]['id'];
 
 export const IDS_CAPAS = CAPAS.map((c) => c.id) as [IdCapa, ...IdCapa[]];
+
+// Color e ícono de cada capa, tomados del tema (--color-capa-<id>, --icono-capa-<id>).
+// Se genera desde CAPAS para que agregar una capa no obligue a tocar el CSS.
+export function reglasCapas(): string {
+  return CAPAS.map(
+    (c) => `.capa-${c.id}{--capa-color:var(--color-capa-${c.id});--capa-icono:var(--icono-capa-${c.id})}`,
+  ).join('\n');
+}
 
 export function nombreCapa(id: IdCapa): string {
   return CAPAS.find((c) => c.id === id)!.nombre;

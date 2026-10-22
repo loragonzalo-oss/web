@@ -9,3 +9,7 @@
 //   BASE = '/'
 export const SITE = 'https://loragonzalo-oss.github.io';
 export const BASE = '/web';
+
+// Tema visual que se publica: 'provisorio', 'a', 'b' o 'c' (están en src/styles/temas/).
+// Para elegir la identidad visual se cambia SÓLO esta línea. Ver COMO-PUBLICAR.md, «Identidad visual».
+export const TEMA = 'provisorio';

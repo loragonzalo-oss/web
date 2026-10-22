@@ -1,0 +1,146 @@
+---
+// Lámina de comparación de temas: /temas, sólo con npm run dev.
+// La agrega integracion-temas.mjs; no entra al sitio publicado.
+// Cada tema se muestra en claro y en oscuro, uno al lado del otro.
+import Base from '../layouts/Base.astro';
+import FichaLugar from '../components/FichaLugar.astro';
+import '../styles/ficha.css';
+import { CAPAS, reglasCapas } from '../lib/capas';
+import { lugares } from '../lib/lugares';
+import { TEMAS } from './temas.mjs';
+import { leerTema, revisarTema } from './contraste.mjs';
+import { TEMA } from '../../sitio.config.mjs';
+
+const todos = await lugares();
+const lugar = todos.find((l) => l.id === 'ejemplo-arqueologia') ?? todos[0];
+
+const MUESTRAS = [
+  ['color-fondo', 'Fondo'],
+  ['color-superficie', 'Superficie'],
+  ['color-texto', 'Texto'],
+  ['color-texto-suave', 'Texto suave'],
+  ['color-borde', 'Borde'],
+  ['color-acento', 'Acento'],
+  ['color-acento-hover', 'Acento (cursor)'],
+  ['color-pendiente-fondo', 'Pendiente'],
+];
+const MODOS = [['claro', ''], ['oscuro', 'oscuro-']];
+
+const temas = TEMAS.map((t) => {
+  const filas = revisarTema(t.id);
+  const peor = filas.reduce((a, b) => (b.razon / b.minimo < a.razon / a.minimo ? b : a));
+  return { ...t, valores: leerTema(t.id), pasan: filas.filter((f) => f.pasa).length, total: filas.length, peor };
+});
+---
+<Base titulo="Lámina de temas" noIndexar>
+  <style is:inline set:html={reglasCapas()}></style>
+  <div class="lamina-intro lectura">
+    <h1>Lámina de temas</h1>
+    <p>Página de desarrollo: sólo existe con <code>npm run dev</code> y no se publica. Muestra las cuatro opciones de identidad visual, cada una en modo claro y oscuro. Ninguna está elegida.</p>
+    <p class="meta">Tema publicado hoy: <strong>{TEMAS.find((t) => t.id === TEMA)?.nombre}</strong> (<code>TEMA</code> en <code>sitio.config.mjs</code>). Para ver el sitio entero con otro tema, usá el selector de abajo a la izquierda. Contraste completo: <code>docs/temas-contraste.md</code>.</p>
+    <nav class="lamina-indice interfaz" aria-label="Temas">
+      {temas.map((t) => <a href={`#tema-${t.id}`}>{t.nombre}</a>)}
+    </nav>
+  </div>
+
+  {temas.map((t) => (
+    <section class="lamina-tema" id={`tema-${t.id}`} aria-labelledby={`titulo-${t.id}`}>
+      <header class="lectura">
+        <h2 id={`titulo-${t.id}`}>{t.nombre}</h2>
+        <p>{t.inspiracion}</p>
+        <p class="meta">
+          Cuerpo: {t.cuerpo.familia}, de {t.cuerpo.autor} · Interfaz: {t.interfaz.familia}, de {t.interfaz.autor} · Licencia de ambas: {t.cuerpo.licencia} · Autoalojadas ({t.cuerpo.paquete}, {t.interfaz.paquete}).
+          <br />Contraste AA: {t.pasan} de {t.total} pares. El más justo: {t.peor.descripcion.toLowerCase()} en modo {t.peor.modo}, {t.peor.razon.toFixed(2)}:1 (mínimo {t.peor.minimo}:1).
+        </p>
+      </header>
+
+      <div class="lamina-modos">
+        {MODOS.map(([modo, prefijo]) => (
+          <div class="lamina-panel" data-tema={t.id} data-modo={modo}>
+            <p class="lamina-modo interfaz">Modo {modo}</p>
+
+            <h3 class="lamina-sub interfaz">Paleta</h3>
+            <ul class="lamina-paleta interfaz">
+              {MUESTRAS.map(([token, nombre]) => (
+                <li>
+                  <span class="lamina-color" style={`background: var(--${token})`}></span>
+                  <span>{nombre}<br /><code>{t.valores[prefijo + token]}</code></span>
+                </li>
+              ))}
+            </ul>
+
+            <h3 class="lamina-sub interfaz">Tipografías</h3>
+            <p class="lamina-especimen-texto">{t.cuerpo.familia} <em>itálica</em> <strong>seminegra</strong> · Aa Ññ áéíóú «»</p>
+            <p class="lamina-especimen-interfaz interfaz">{t.interfaz.familia} · <strong>seminegra</strong> · 0123456789 · Capas, Fuentes, Leer la ficha</p>
+
+            <h3 class="lamina-sub interfaz">Texto largo</h3>
+            <article class="lamina-muestra">
+              <p class="meta">Muestra · 22 de octubre de 2026 · <a href="#">etiqueta</a></p>
+              <h4>Un título de entrada a dos líneas para ver cómo corta</h4>
+              <p>«En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lantejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda.»</p>
+              <blockquote>Miguel de Cervantes, <em>Don Quijote de la Mancha</em>, 1605. Texto de dominio público usado sólo como muestra; <a href="#">un enlace</a> dentro de una cita.</blockquote>
+              <p>Un párrafo con un <a href="#">enlace en el cuerpo</a> y una marca <span class="pendiente">[PENDIENTE: dato del autor]</span> como las que quedan visibles en los borradores.</p>
+            </article>
+
+            {lugar && (
+              <>
+                <h3 class="lamina-sub interfaz">Ficha del mapa</h3>
+                <div class="lamina-ficha"><FichaLugar lugar={lugar} /></div>
+              </>
+            )}
+
+            <h3 class="lamina-sub interfaz">Capas del mapa</h3>
+            <ul class="lamina-capas interfaz">
+              {CAPAS.map((c) => (
+                <li class={`capa-${c.id}`}>
+                  <span class="lamina-pin"><span class="lamina-pin-icono"></span></span>
+                  <span>{c.nombre}<br /><code>{t.valores[`${prefijo}color-capa-${c.id}`]}</code></span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <script is:inline>
+    document.querySelectorAll('.lamina-ficha details').forEach((d) => { d.open = true; });
+  </script>
+</Base>
+
+<style is:inline>
+  .lamina-intro h1 { margin-bottom: 0.5rem; }
+  .lamina-indice { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; font-size: var(--tam-chico); margin-top: 1rem; }
+  .lamina-tema { margin: 4rem 0; padding-top: 2rem; border-top: 1px solid var(--color-borde); }
+  .lamina-tema > header h2 { margin-top: 0; }
+  .lamina-modos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1.25rem; margin-top: 1.5rem; }
+  .lamina-panel {
+    background: var(--color-fondo); color: var(--color-texto);
+    font-family: var(--fuente-texto); font-size: var(--tam-base); line-height: var(--interlineado);
+    border: 1px solid var(--color-borde); border-radius: var(--radio); padding: 1.25rem 1.5rem 1.75rem;
+  }
+  .lamina-panel a { color: var(--color-acento); }
+  .lamina-panel a:hover { color: var(--color-acento-hover); }
+  .lamina-modo { margin: 0 0 0.5rem; font-size: var(--tam-chico); color: var(--color-texto-suave); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .lamina-sub { font-size: var(--tam-chico); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-texto-suave); margin: 1.75rem 0 0.6rem; font-weight: 600; }
+  .lamina-paleta, .lamina-capas { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: 0.6rem; font-size: 0.82rem; line-height: 1.3; }
+  .lamina-paleta li, .lamina-capas li { display: flex; gap: 0.5rem; align-items: center; }
+  .lamina-color { flex: none; width: 2.2rem; height: 2.2rem; border-radius: var(--radio); border: 1px solid var(--color-borde); }
+  .lamina-especimen-texto { font-size: 1.5rem; margin: 0 0 0.3rem; }
+  .lamina-especimen-interfaz { margin: 0; }
+  .lamina-muestra { max-width: var(--ancho-lectura); }
+  .lamina-muestra h4 { font-size: var(--tam-h2); line-height: 1.2; margin: 0.3rem 0 0.8rem; font-weight: 600; }
+  .lamina-muestra blockquote { margin: 1.2em 0; padding-left: 1.2em; border-left: 3px solid var(--color-borde); color: var(--color-texto-suave); }
+  .lamina-ficha { background: var(--color-fondo); border: 1px solid var(--color-borde); border-radius: var(--radio); padding: 1.1rem 1.25rem; font-size: 1rem; line-height: 1.55; }
+  .lamina-ficha .ficha-titulo { font-size: 1.4rem; }
+  .lamina-ficha .ficha-resumen { font-style: italic; }
+  .lamina-pin {
+    flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--capa-color); border: 2px solid var(--color-capa-contorno); box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  }
+  .lamina-pin-icono {
+    width: 18px; height: 18px; background: var(--color-capa-icono);
+    -webkit-mask: var(--capa-icono) center / contain no-repeat; mask: var(--capa-icono) center / contain no-repeat;
+  }
+</style>

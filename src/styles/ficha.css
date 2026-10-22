@@ -1,0 +1,33 @@
+/* Ficha de un lugar y punto de capa. Los usan /mapa (listado y panel) y la lámina /temas. */
+
+/* Punto de color con el ícono de la capa */
+.capa-punto {
+  display: inline-block; flex: none; width: 1.4em; height: 1.4em; border-radius: 50%;
+  background: var(--capa-color); position: relative; vertical-align: -0.3em;
+}
+.capa-punto::after {
+  content: ''; position: absolute; inset: 0.22em; background: var(--color-capa-icono);
+  -webkit-mask: var(--capa-icono) center / contain no-repeat; mask: var(--capa-icono) center / contain no-repeat;
+}
+
+
+/* Ficha (listado y panel) */
+.ficha-capa { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); color: var(--color-texto-suave); margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.ficha-insignia, .ficha-marcador-aviso {
+  background: var(--color-pendiente-fondo); color: var(--color-pendiente-texto);
+  border-radius: var(--radio); font-family: var(--fuente-interfaz);
+}
+.ficha-insignia { padding: 0 0.4em; font-weight: 600; font-size: 0.85em; }
+.ficha-titulo { margin: 0.25rem 0 0.35rem; }
+.ficha-resumen { margin: 0 0 0.6rem; }
+.ficha-marcador { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); color: var(--color-texto-suave); border-left: 3px solid var(--color-borde); padding: 0.35rem 0.7rem; }
+.ficha-marcador-aviso { border-left-color: var(--color-pendiente-texto); }
+.ficha-imagen { margin: 1rem 0; }
+.ficha-imagen img { border-radius: var(--radio); display: block; }
+.ficha-imagen figcaption, .ficha-nota { font-family: var(--fuente-interfaz); font-size: 0.82rem; color: var(--color-texto-suave); margin-top: 0.35rem; }
+.ficha-seccion h4 { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-texto-suave); margin: 1.4rem 0 0.4rem; }
+.ficha-seccion ul { padding-left: 1.1rem; margin: 0; }
+.ficha-seccion li { margin-bottom: 0.3rem; }
+
+.ficha-detalle summary { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); color: var(--color-acento); cursor: pointer; margin-bottom: 0.4rem; }
+.ficha-detalle[open] summary { margin-bottom: 0.8rem; }
