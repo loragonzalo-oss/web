@@ -1,0 +1,24 @@
+---
+// Página de una dirección anterior de un ensayo (`direcciones_anteriores`): manda a la vigente.
+// Lleva la canónica hacia la dirección vigente y noindex, para que los buscadores no la guarden.
+import { SITIO } from '../lib/sitio';
+
+interface Props { titulo: string; ruta: string; canonica: string }
+const { titulo, ruta, canonica } = Astro.props;
+---
+<!doctype html>
+<html lang={SITIO.idioma}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo} · {SITIO.nombre}</title>
+    <link rel="canonical" href={canonica} />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0; url=${ruta}`} />
+  </head>
+  <body>
+    <main>
+      <p>Este ensayo está en <a href={ruta}>{canonica}</a>.</p>
+    </main>
+  </body>
+</html>

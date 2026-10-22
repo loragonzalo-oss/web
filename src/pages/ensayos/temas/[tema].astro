@@ -1,0 +1,46 @@
+---
+// Un tema de los ensayos: /ensayos/temas/<tema>/. Hay página por cada etiqueta de los ensayos y
+// también por cada etiqueta del blog, para que el tema exista aunque todavía no tenga ensayos.
+import type { GetStaticPaths } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import ListaEnsayos from '../../../components/ListaEnsayos.astro';
+import { url, slugEtiqueta } from '../../../lib/rutas';
+import { entradasBlog } from '../../../lib/contenido';
+import { temasEnsayos, type Tema } from '../../../lib/lectura';
+
+export const getStaticPaths = (async () => {
+  const temas = new Map<string, Tema & { enBlog: boolean }>();
+  for (const t of await temasEnsayos()) temas.set(t.slug, { ...t, enBlog: false });
+  for (const e of await entradasBlog()) {
+    for (const nombre of e.data.etiquetas) {
+      const slug = slugEtiqueta(nombre);
+      if (!slug) continue;
+      if (!temas.has(slug)) temas.set(slug, { slug, nombre, ensayos: [], enBlog: true });
+      else temas.get(slug)!.enBlog = true;
+    }
+  }
+  return [...temas.values()].map((t) => ({ params: { tema: t.slug }, props: { t } }));
+}) satisfies GetStaticPaths;
+
+const { t } = Astro.props;
+const borrador = t.ensayos.length === 0 || t.ensayos.every((e) => e.data.draft);
+---
+<Base titulo={`Ensayos sobre ${t.nombre}`} descripcion={`Ensayos de Gonzalo R. Lora Veizaga con el tema ${t.nombre}.`} noIndexar={borrador}>
+  <section class="lectura">
+    <p class="meta"><a href={url('/ensayos/')}>Ensayos</a> · <a href={url('/ensayos/temas/')}>Temas</a></p>
+    <h1>#{t.nombre}</h1>
+    {t.ensayos.length === 0 ? (
+      <p class="vacio">Todavía no hay ensayos sobre este tema.</p>
+    ) : (
+      <ListaEnsayos ensayos={t.ensayos} />
+    )}
+    {t.enBlog && (
+      <p class="interfaz otros">En el blog: <a href={url(`/blog/etiquetas/${t.slug}/`)}>entradas con la etiqueta #{t.nombre}</a></p>
+    )}
+    <p class="interfaz"><a href={url('/ensayos/temas/')}>← Todos los temas</a></p>
+  </section>
+</Base>
+
+<style>
+  .otros { margin-top: 2rem; }
+</style>

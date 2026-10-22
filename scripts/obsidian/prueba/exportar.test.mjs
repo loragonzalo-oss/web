@@ -41,7 +41,7 @@ test('exporta cada tipo a su carpeta y deja en la bóveda lo que no se publica',
     assert.equal(estado(r, destino), 'nuevo', destino);
   }
   assert.ok(!existsSync(path.join(repo, 'src/content/blog/nota-privada.md')));
-  assert.equal(r.marcadas, 11);
+  assert.equal(r.marcadas, 12);
   assert.ok(existsSync(path.join(repo, REGISTRO)));
   await rm(base, { recursive: true });
 });
@@ -295,9 +295,9 @@ test('frena una entrada que taparía una dirección del blog (archivo, etiquetas
 
 test('ensayo en revista: conserva volumen, número, páginas y DOI, y frena los mal escritos', async () => {
   const { base, boveda, repo, leer } = await preparar();
-  const nota = (extra) => `---\npublicar: true\ntipo: ensayo\ntitulo: "Ensayo en revista"\nfecha: 2026-10-02\nresumen: "Relleno."\npublicacion: "Revista de Relleno"\n${extra}draft: false\n---\n\nLorem ipsum.\n`;
+  const nota = (extra, slug = 'ensayo-en-revista') => `---\npublicar: true\ntipo: ensayo\ntitulo: "Ensayo en revista"\nfecha: 2026-10-02\nresumen: "Relleno."\npublicacion: "Revista de Relleno"\n${extra}slug: ${slug}\ndraft: false\n---\n\nLorem ipsum.\n`;
   await writeFile(path.join(boveda, '200 Ensayos', 'Ensayo en revista.md'), nota('volumen: 12\nnumero: 3\npaginas: 45 - 67\ndoi: "https://doi.org/10.0000/relleno.1"\n'));
-  await writeFile(path.join(boveda, '200 Ensayos', 'Ensayo con DOI malo.md'), nota('paginas: "cuarenta"\ndoi: "no-es-un-doi"\n'));
+  await writeFile(path.join(boveda, '200 Ensayos', 'Ensayo con DOI malo.md'), nota('paginas: "cuarenta"\ndoi: "no-es-un-doi"\n', 'ensayo-con-doi-malo'));
   const r = await exportar({ boveda, repo });
   const salida = await leer('src/content/ensayos/ensayo-en-revista.md');
   assert.match(salida, /^volumen: "?12"?$/m);
@@ -307,5 +307,58 @@ test('ensayo en revista: conserva volumen, número, páginas y DOI, y frena los 
   const motivos = frenada(r, '200 Ensayos/Ensayo con DOI malo.md').motivos.join('\n');
   assert.match(motivos, /«paginas» se escribe/);
   assert.match(motivos, /«doi» no es un DOI válido/);
+  await rm(base, { recursive: true });
+});
+
+test('ensayo como referencia: conserva los campos nuevos y copia la imagen con su crédito', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  const r = await exportar({ boveda, repo });
+  assert.equal(frenada(r, '200 Ensayos/Ensayo como referencia.md'), undefined);
+  const md = await leer('src/content/ensayos/ensayo-como-referencia.md');
+  assert.match(md, /^slug: ensayo-como-referencia$/m);
+  assert.match(md, /^publicado_en:\n {2}- lugar: LinkedIn\n {4}tipo: red social\n {4}fecha: "?2026-09-01"?\n {4}enlace: https:\/\/www\.linkedin\.com\/posts\/relleno$/m);
+  assert.match(md, /^version_web: resumen$/m);
+  assert.match(md, /^etiquetas:\n {2}- Tema de relleno$/m);
+  assert.match(md, /^compartir: Texto de relleno para compartir\.$/m);
+  assert.match(md, /^direcciones_anteriores:\n {2}- ensayo-viejo$/m);
+  assert.match(md, /^imagen:\n {2}archivo: \.\/imagenes\/ensayo-como-referencia\/imagen-de-prueba\.png\n {2}credito: Relleno, dominio público$/m);
+  assert.ok(existsSync(path.join(repo, 'src/content/ensayos/imagenes/ensayo-como-referencia/imagen-de-prueba.png')));
+  await rm(base, { recursive: true });
+});
+
+test('ensayo como referencia: frena sin slug al publicar y con campos mal formados', async () => {
+  const { base, boveda, repo } = await preparar();
+  const nota = (extra) => `---\npublicar: true\ntipo: ensayo\ntitulo: "Relleno"\nfecha: 2026-10-02\nresumen: "Relleno."\n${extra}---\n\nLorem ipsum.\n`;
+  const dir = path.join(boveda, '200 Ensayos');
+  await writeFile(path.join(dir, 'Sin slug.md'), nota('draft: false\n'));
+  await writeFile(path.join(dir, 'Borrador sin slug.md'), nota('draft: true\n'));
+  await writeFile(path.join(dir, 'Mal formado.md'), nota([
+    'slug: mal-formado',
+    'publicado_en:',
+    '  - lugar: LinkedIn',
+    '    tipo: blog personal',
+    '    fecha: 2026-13-01',
+    '    enlace: no-es-una-direccion',
+    '  - tipo: revista',
+    'version_web: parcial',
+    'imagen:',
+    '  archivo: "[[Imagen de prueba.png]]"',
+    'direcciones_anteriores: ["mal-formado"]',
+    '',
+  ].join('\n')));
+  await writeFile(path.join(dir, 'Temas.md'), nota('slug: temas\n'));
+  const r = await exportar({ boveda, repo });
+  assert.match(frenada(r, '200 Ensayos/Sin slug.md').motivos.join('\n'), /Falta «slug»\. Un ensayo que se publica/);
+  assert.equal(frenada(r, '200 Ensayos/Borrador sin slug.md'), undefined);
+  const motivos = frenada(r, '200 Ensayos/Mal formado.md').motivos.join('\n');
+  assert.match(motivos, /«publicado_en», lugar 1: «tipo: blog personal» no existe/);
+  assert.match(motivos, /«publicado_en», lugar 1: «fecha» no es una fecha válida/);
+  assert.match(motivos, /«publicado_en», lugar 1: «enlace» no es una dirección web válida/);
+  assert.match(motivos, /«publicado_en», lugar 2: falta «lugar»/);
+  assert.match(motivos, /«publicado_en», lugar 2: falta «fecha»/);
+  assert.match(motivos, /«version_web: parcial» no existe/);
+  assert.match(motivos, /«imagen» necesita «credito»/);
+  assert.match(motivos, /«mal-formado» es la dirección vigente/);
+  assert.match(frenada(r, '200 Ensayos/Temas.md').motivos.join('\n'), /\/ensayos\/temas\/ ya la usa el sitio/);
   await rm(base, { recursive: true });
 });

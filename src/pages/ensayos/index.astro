@@ -1,11 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ListaEnsayos from '../../components/ListaEnsayos.astro';
 import { url } from '../../lib/rutas';
-import { fechaLarga, fechaISO } from '../../lib/fechas';
 import { ensayos } from '../../lib/contenido';
-import { slugSerie } from '../../lib/lectura';
+import { series, temasEnsayos, rutaTexto } from '../../lib/lectura';
 
 const lista = await ensayos();
+const temas = await temasEnsayos();
+// Series con al menos un ensayo, con todos sus textos en orden. La página de cada serie es /series/<serie>/.
+const conEnsayos = (await series()).filter((s) => s.textos.some((t) => t.collection === 'ensayos'));
 ---
 <Base titulo="Ensayos" descripcion="Ensayos de Gonzalo R. Lora Veizaga.">
   <section class="lectura pagina-ensayos">
@@ -13,37 +16,59 @@ const lista = await ensayos();
     {lista.length === 0 ? (
       <p class="vacio">Todavía no hay ensayos publicados.</p>
     ) : (
-      <ul class="lista">
-        {lista.map((e) => (
-          <li>
-            <p class="meta">
-              <time datetime={fechaISO(e.data.fecha)}>{fechaLarga(e.data.fecha)}</time>
-              {e.data.serie && <> · serie <a href={url(`/series/${slugSerie(e.data.serie)}/`)}>{e.data.serie}</a></>}
-              {e.data.draft && <> · borrador</>}
-            </p>
-            <h2><a href={url(`/ensayos/${e.id}/`)}>{e.data.titulo}</a></h2>
-            <p class="resumen">{e.data.resumen}</p>
-            {e.data.publicacion && (
-              <p class="meta publicacion">
-                Publicado en {e.data.enlace
-                  ? <a href={e.data.enlace}><em>{e.data.publicacion}</em></a>
-                  : <em>{e.data.publicacion}</em>}
-              </p>
-            )}
-          </li>
-        ))}
-      </ul>
+      <>
+        <nav class="accesos interfaz" aria-label="Ensayos por tema y por serie">
+          <a href="#por-tema">Por tema</a>
+          <a href="#por-serie">Por serie</a>
+        </nav>
+        <ListaEnsayos ensayos={lista} />
+
+        <section class="grupo" aria-labelledby="por-tema">
+          <h2 id="por-tema">Por tema</h2>
+          {temas.length === 0 ? (
+            <p class="vacio">Todavía no hay ensayos con tema.</p>
+          ) : (
+            <ul class="temas interfaz">
+              {temas.map((t) => (
+                <li><a href={url(`/ensayos/temas/${t.slug}/`)}>#{t.nombre}</a> <span class="meta">({t.ensayos.length})</span></li>
+              ))}
+            </ul>
+          )}
+          <p class="interfaz"><a href={url('/ensayos/temas/')}>Todos los temas</a></p>
+        </section>
+
+        <section class="grupo" aria-labelledby="por-serie">
+          <h2 id="por-serie">Por serie</h2>
+          {conEnsayos.length === 0 ? (
+            <p class="vacio">Todavía no hay ensayos en series.</p>
+          ) : (
+            conEnsayos.map((s) => (
+              <div class="serie">
+                <h3><a href={url(`/series/${s.slug}/`)}>{s.nombre}</a></h3>
+                <ol>
+                  {s.textos.map((t) => (
+                    <li>
+                      <a href={rutaTexto(t)}>{t.data.titulo}</a>
+                      {t.collection === 'blog' && <span class="meta"> · blog</span>}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))
+          )}
+        </section>
+      </>
     )}
   </section>
 </Base>
 
 <style>
-  .lista { list-style: none; margin: 0; padding: 0; }
-  li { padding: 1.6rem 0; border-bottom: 1px solid var(--color-borde); }
-  li:first-child { padding-top: 0; }
-  h2 { margin: 0.2rem 0 0.5rem; font-size: var(--tam-h3); }
-  h2 a { color: var(--color-texto); text-decoration: none; }
-  h2 a:hover { color: var(--color-acento); }
-  .meta, .resumen { margin: 0; }
-  .publicacion { margin-top: 0.5rem; }
+  .accesos { display: flex; gap: 1.4rem; margin: -0.5rem 0 2rem; font-size: var(--tam-chico); }
+  .grupo { margin-top: 3rem; }
+  .grupo h2 { font-size: var(--tam-h3); margin: 0 0 1rem; }
+  .temas { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; }
+  .serie { margin: 0 0 1.4rem; }
+  .serie h3 { margin: 0 0 0.4rem; font-size: 1.1rem; }
+  .serie ol { margin: 0; padding-left: 1.4rem; }
+  .serie li { margin: 0.2rem 0; }
 </style>
