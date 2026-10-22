@@ -33,6 +33,28 @@ jobs:
       - name: 3. Construir el sitio que se publica (y el índice del buscador)
         run: npm run build
 
+      # Aviso, no bloquea. Detector de Impeccable (https://github.com/pbakaus/impeccable,
+      # Apache-2.0) sobre el sitio construido. Sólo se baja el binario del motor, verificado
+      # por sha256; no se instala la skill ni nada más. Reglas apagadas: .impeccable/config.json.
+      # El sha256 sale del archivo impeccable-linux-x64.sha256 de la misma release.
+      # El motor 0.1.16 acepta --github pero todavía no lo aplica: los hallazgos salen como
+      # texto en el registro del paso, no como anotaciones.
+      - name: Aviso de diseño (Impeccable, no bloquea)
+        continue-on-error: true
+        env:
+          IMPECCABLE_VERSION: engine-v0.1.16
+          IMPECCABLE_SHA256: a890a5b4b7d9d79ec54aa74612b5e924e5f5b422600a25fde8bcbda11b031787
+          DO_NOT_TRACK: '1'
+          IMPECCABLE_NO_TELEMETRY: '1'
+          IMPECCABLE_NO_UPDATE_CHECK: '1'
+          IMPECCABLE_LIVE_COPY_AGENT: 'off'
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/impeccable" \
+            "https://github.com/pbakaus/impeccable/releases/download/$IMPECCABLE_VERSION/impeccable-linux-x64"
+          echo "$IMPECCABLE_SHA256  $RUNNER_TEMP/impeccable" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/impeccable"
+          "$RUNNER_TEMP/impeccable" detect --github dist/
+
       - name: 4. Enlaces internos rotos (sitio que se publica)
         run: npm run revisar:enlaces
 

@@ -547,6 +547,9 @@ La revisión tiene siete pasos. Si uno sale en rojo, los siguientes no corren.
 **3. Construir el sitio que se publica.** Arma el sitio completo, igual que el despliegue, y el índice del buscador.
 - *Si falla:* casi siempre es un encabezado mal escrito en un `.md` (fecha, comillas, un campo con otro nombre) o un lugar del mapa con coordenadas que no corresponden. El error dice qué archivo y qué campo. Es lo mismo que se explica en «Si algo falla».
 
+**Aviso de diseño (Impeccable, no bloquea).** Entre el paso 3 y el 4 corre un detector de patrones de diseño genérico sobre el sitio construido. Es un aviso: aunque encuentre algo, la revisión sigue y no queda en rojo. Las reglas que no sirven para un sitio editorial en español están apagadas en `.impeccable/config.json`. Los hallazgos se leen en el registro de ese paso, en la pestaña *Actions*. Hay otro verificador del mismo tipo que se corre a mano: `npm run lint:taste`.
+- *Si sale en amarillo:* no hace falta hacer nada. Si un hallazgo te parece útil, se discute; las reglas de CLAUDE.md ganan siempre.
+
 **4. Enlaces internos rotos.** Revisa todos los enlaces que van de una página del sitio a otra (y a imágenes y archivos del sitio). No revisa los enlaces a otros sitios.
 - *Si falla:* la lista dice en qué página está el enlace y a dónde apunta. Lo más común es un archivo renombrado (su dirección cambió y los enlaces viejos quedaron apuntando a la anterior) o un enlace escrito a mano con un error. Se corrige el enlace o se devuelve el nombre original al archivo.
 

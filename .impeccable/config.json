@@ -1,0 +1,19 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "cream-palette",
+      "kicker-above-heading",
+      "numbered-section-labels",
+      "em-dash-overuse",
+      "italic-serif-display",
+      "justified-text",
+      "marketing-buzzword",
+      "aphoristic-cadence",
+      "theater-slop-phrase"
+    ],
+    "ignoreValues": [
+      { "rule": "overused-font", "value": "inter", "reason": "Tipografía propia del tema A (autoalojada, OFL)" },
+      { "rule": "overused-font", "value": "instrument sans", "reason": "Tipografía propia de la dirección noche (autoalojada, OFL)" }
+    ]
+  }
+}
