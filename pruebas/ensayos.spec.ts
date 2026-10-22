@@ -99,19 +99,37 @@ test('versión web de resumen: sin cuerpo ni PDF, con los datos y el enlace al o
   await expect(page.locator('.cita-apa')).toContainText('https://example.org/revista-con-derechos/articulo-1');
 });
 
-test('«Compartir»: texto listo para copiar con la canónica y enlaces simples, sin scripts', async ({ page }) => {
-  await abrir(page, `ensayos/${ENSAYOS.revista}/`);
-  await page.locator('.compartir summary').click();
-  const texto = (await page.locator('.texto-compartir').textContent())!;
-  expect(texto.startsWith('[Relleno] Ensayo en revista y en LinkedIn')).toBe(true);
-  expect(texto.endsWith(canonicaDe(ENSAYOS.revista))).toBe(true);
-  expect(texto).toContain('Publicado originalmente en LinkedIn y Revista de Relleno Académico.');
-  expect(texto).toContain('#TemaDeRellenoA #TemaDeRellenoB');
-  expect(texto.length).toBeLessThanOrEqual(650);
-  await expect(page.getByRole('link', { name: 'Compartir en LinkedIn' })).toHaveAttribute('href', `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicaDe(ENSAYOS.revista))}`);
-  await expect(page.getByRole('link', { name: 'Compartir en X' })).toHaveAttribute('href', /^https:\/\/x\.com\/intent\/post\?/);
-  expect(await page.locator('script[src], script[type="module"], iframe').count()).toBe(0);
-  expect(await graves(page), 'accesibilidad con «Compartir» y «Cómo citar» abiertos').toEqual([]);
+// Interruptor COMPARTIR_ACTIVO (sitio.config.mjs). Apagado, que es como viene: sin bloque
+// «Compartir» ni enlaces para compartir. Encendido: segundo sitio de prueba en el puerto
+// 4322, construido con COMPARTIR_ACTIVO=1 (playwright.config.ts).
+test('«Compartir» apagado (COMPARTIR_ACTIVO = false): sin bloque ni enlaces a LinkedIn o X', async ({ page }) => {
+  for (const slug of Object.values(ENSAYOS)) {
+    await abrir(page, `ensayos/${slug}/`);
+    expect(await page.locator('.compartir, .texto-compartir').count(), slug).toBe(0);
+    expect(await page.locator('a[href*="linkedin.com/sharing"], a[href*="x.com/intent"]').count(), slug).toBe(0);
+  }
+});
+
+test.describe('con COMPARTIR_ACTIVO encendido', () => {
+  test.use({ baseURL: `http://localhost:4322${BASE.replace(/\/?$/, '/')}` });
+
+  test('«Compartir» encendido: texto listo para copiar con la canónica y enlaces simples, sin scripts', async ({ page }) => {
+    await abrir(page, `ensayos/${ENSAYOS.revista}/`);
+    await page.locator('.compartir summary').click();
+    const texto = (await page.locator('.texto-compartir').textContent())!;
+    expect(texto.startsWith('[Relleno] Ensayo en revista y en LinkedIn')).toBe(true);
+    expect(texto.endsWith(canonicaDe(ENSAYOS.revista))).toBe(true);
+    expect(texto).toContain('Publicado originalmente en LinkedIn y Revista de Relleno Académico.');
+    expect(texto).toContain('#TemaDeRellenoA #TemaDeRellenoB');
+    expect(texto.length).toBeLessThanOrEqual(650);
+    await expect(page.getByRole('link', { name: 'Compartir en LinkedIn' })).toHaveAttribute('href', `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicaDe(ENSAYOS.revista))}`);
+    await expect(page.getByRole('link', { name: 'Compartir en X' })).toHaveAttribute('href', /^https:\/\/x\.com\/intent\/post\?/);
+    expect(await page.locator('script[src], script[type="module"], iframe').count()).toBe(0);
+    expect(await graves(page), 'accesibilidad con «Compartir» y «Cómo citar» abiertos').toEqual([]);
+    // Al imprimir, el bloque no sale.
+    await page.emulateMedia({ media: 'print' });
+    await expect(page.locator('.compartir')).toBeHidden();
+  });
 });
 
 test('dirección anterior: manda a la vigente, con la canónica hacia ella y noindex', async ({ page }) => {

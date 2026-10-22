@@ -1,7 +1,10 @@
 // Capturas de los ensayos como referencia: un ensayo con «Publicado originalmente en» y
 // «Compartir» abierto (escritorio y celular, claro y oscuro), la imagen para compartir de cada
 // ensayo de prueba, /ensayos, una página de tema y la vista de impresión.
-// Uso: con el sitio de prueba servido (npm run build:prueba && npx astro preview), en otra terminal:
+// El bloque «Compartir» viene apagado (COMPARTIR_ACTIVO en sitio.config.mjs); para verlo en las
+// capturas, el sitio de prueba se construye con la variable encendida.
+// Uso: con el sitio de prueba servido (COMPARTIR_ACTIVO=1 npm run build:prueba && npx astro preview),
+// en otra terminal:
 //   npm run ensayos:capturas
 // Deja los PNG en docs/capturas/ensayos/. Usa los ensayos de relleno en borrador.
 import { mkdirSync, writeFileSync } from 'node:fs';

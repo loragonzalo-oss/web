@@ -13,6 +13,7 @@ import { relacionados, rutaTexto } from '../../lib/lectura';
 import { urlDoi } from '../../lib/revista';
 import { slugificar } from '../../lib/slug';
 import { chocaConEnsayos, lugaresPublicacion, textoCompartir } from '../../lib/referencia';
+import { compartirActivo } from '../../lib/compartir';
 
 // La dirección de un ensayo es /ensayos/<slug>/. Cada una de sus `direcciones_anteriores`
 // lleva a una página que manda a la vigente (canónica hacia la vigente y noindex).
@@ -87,7 +88,7 @@ const conPdf = process.env.ENSAYOS_PDF === '1' && !soloResumen;
           {conPdf && <p><a href={url(`/ensayos/${e.id}/${e.id}.pdf`)} download>Descargar el PDF</a></p>}
         </div>
       )}
-      <Compartir texto={compartir} titulo={d.titulo} direccion={direccion} />
+      {compartirActivo && <Compartir texto={compartir} titulo={d.titulo} direccion={direccion} />}
     </Fragment>
     <PublicadoEn slot="impresion" datos={d} />
     <Fragment slot="pie">

@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-compartir/
 .astro/
 .DS_Store
 .obsidian/

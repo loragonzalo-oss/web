@@ -291,7 +291,7 @@ En la carpeta `plantillas/` del repositorio hay tres plantillas listas (`entrada
 
 La versión de la web es la que se enlaza, se cita y se comparte. LinkedIn, una revista o un medio son lugares donde el ensayo también salió.
 
-**Orden recomendado:** primero se publica el ensayo en la web (`draft: false`, esperar el despliegue y abrir la dirección para comprobarla); después, el post en LinkedIn con el enlace a la web; al final, se anota el post en `publicado_en` y se vuelve a publicar.
+**Orden recomendado** (una vez en el dominio propio; antes no se comparten enlaces, ver «El texto para compartir»): primero se publica el ensayo en la web (`draft: false`, esperar el despliegue y abrir la dirección para comprobarla); después, el post en LinkedIn con el enlace a la web; al final, se anota el post en `publicado_en` y se vuelve a publicar.
 
 ### Fijar la dirección (`slug`)
 
@@ -335,11 +335,13 @@ Cuando los derechos del texto los tiene la revista o la editorial. Con `version_
 
 ### El texto para compartir
 
-Cada ensayo tiene un bloque plegable «Compartir» con un texto listo para copiar: título, resumen, «Publicado originalmente en …», las etiquetas como hashtags (sin tildes ni espacios: «Gestión del agua» pasa a `#GestionDelAgua`) y la dirección. Si pasa de unos 600 caracteres, se recorta el resumen; la dirección nunca. Si preferís tu propio texto, escribilo en `compartir`; la dirección se agrega al final si no la pusiste. Debajo hay enlaces simples «Compartir en LinkedIn» y «Compartir en X», sin botones ni rastreadores de esas redes.
+> **Apagado hasta el dominio propio.** Los enlaces de `loragonzalo-oss.github.io/web` no se comparten: al migrar desaparece la ruta `/web/`. Por eso el bloque «Compartir» y los enlaces «Compartir en LinkedIn» y «Compartir en X» no aparecen mientras `COMPARTIR_ACTIVO` sea `false` en `sitio.config.mjs`, que es como viene. Se enciende al migrar al dominio propio (ver «Pasar al dominio propio»). Hasta entonces, el «orden recomendado» de arriba espera al dominio propio.
+
+Con el interruptor encendido, cada ensayo tiene un bloque plegable «Compartir» con un texto listo para copiar: título, resumen, «Publicado originalmente en …», las etiquetas como hashtags (sin tildes ni espacios: «Gestión del agua» pasa a `#GestionDelAgua`) y la dirección. Si pasa de unos 600 caracteres, se recorta el resumen; la dirección nunca. Si preferís tu propio texto, escribilo en `compartir`; la dirección se agrega al final si no la pusiste. Debajo hay enlaces simples «Compartir en LinkedIn» y «Compartir en X», sin botones ni rastreadores de esas redes.
 
 ### La imagen para compartir
 
-Sin hacer nada, LinkedIn, Facebook y X muestran la tarjeta tipográfica del ensayo (1200 × 630): título, tu nombre y, si hay publicación formal, su nombre. Para usar una foto, agregá `imagen` con `archivo`, `credito` (obligatorio) y `descripcion`; el sitio la recorta a 1200 × 630 y pone el crédito al pie del ensayo. Después del despliegue, conviene pegar la dirección en el Post Inspector de LinkedIn (https://www.linkedin.com/post-inspector/) para que LinkedIn lea la versión nueva.
+Sin hacer nada, LinkedIn, Facebook y X muestran la tarjeta tipográfica del ensayo (1200 × 630): título, tu nombre y, si hay publicación formal, su nombre. Para usar una foto, agregá `imagen` con `archivo`, `credito` (obligatorio) y `descripcion`; el sitio la recorta a 1200 × 630 y pone el crédito al pie del ensayo. Después del despliegue en el dominio propio, conviene pegar la dirección en el Post Inspector de LinkedIn (https://www.linkedin.com/post-inspector/) para que LinkedIn lea la versión nueva.
 
 ### Imprimir y PDF
 
@@ -656,6 +658,14 @@ export const BASE = '/';
 ```
 
 No hay que tocar nada más: enlaces, estilos, imágenes, RSS, sitemap y Open Graph toman la dirección de ahí.
+
+En el mismo archivo, encendé el bloque «Compartir» de los ensayos:
+
+```js
+export const COMPARTIR_ACTIVO = true;
+```
+
+Mientras el sitio vive en `loragonzalo-oss.github.io/web` está apagado: esas direcciones no se comparten, porque al migrar desaparece la ruta `/web/` (regla aprobada el 22-10-2026). Se enciende al migrar al dominio propio, en el mismo cambio que `SITE` y `BASE`.
 
 ### 2. Agregar el archivo CNAME
 

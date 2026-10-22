@@ -13,3 +13,9 @@ export const BASE = '/web';
 // Tema visual que se publica: 'provisorio', 'a', 'b' o 'c' (están en src/styles/temas/).
 // Para elegir la identidad visual se cambia SÓLO esta línea. Ver COMO-PUBLICAR.md, «Identidad visual».
 export const TEMA = 'provisorio';
+
+// Bloque «Compartir» de los ensayos (texto para copiar y enlaces a LinkedIn y X).
+// Apagado mientras el sitio vive en loragonzalo-oss.github.io/web: esas direcciones no se
+// comparten, porque al migrar desaparece la ruta /web/. Se enciende (true) al migrar al dominio
+// propio. Ver COMO-PUBLICAR.md, «Pasar al dominio propio».
+export const COMPARTIR_ACTIVO = false;
