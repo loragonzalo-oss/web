@@ -36,10 +36,12 @@ const nodo = (type: string, style: Record<string, unknown>, children?: unknown, 
 export const GET: APIRoute = async () => {
   const { vigente, petalos } = await tablero();
   const v = vigente.data;
-  const svg = svgRosa(petalos, { titulo: '', descripcion: '', centro: ['', ''], variables: v.variables, textos: false });
+  // El contorno va del color del texto del tema publicado (en el SVG suelto no hay currentColor).
+  const c = await coloresDelTema().catch(() => null);
+  const svg = svgRosa(petalos, { titulo: '', descripcion: '', centro: ['', ''], variables: v.variables, textos: false, contorno: c?.texto ?? '#222222' });
   const rosa = await sharp(Buffer.from(svg)).resize(560, 560).png().toBuffer();
   try {
-    const c = await coloresDelTema();
+    if (!c) throw new Error('sin colores del tema');
     const tema = TEMAS.find((t) => t.id === TEMA)!;
     const fuentes = [
       ...(await fuente(tema.cuerpo.paquete, tema.cuerpo.familia, 600)),

@@ -153,6 +153,7 @@ export interface OpcionesRosa {
   centro: [string, string];             // «TDPS» y el año
   variables: { id: string; nombre: string }[];
   textos?: boolean;                     // false: sin ningún texto (imagen para compartir)
+  contorno?: string;                    // color del contorno; por defecto, el del texto del tema
 }
 
 const ESCALA = 300;
@@ -171,7 +172,6 @@ export const COLORES_ROSA = {
   enReferencia: '#3FBF95',
   fueraDeEscala: '#C9567A',
   arcoVE: '#5E86C1',
-  contornoIncierto: '#F4F1EA',
 } as const;
 
 // Paradas del degradé por z (se convierten a radio con R(z)).
@@ -255,13 +255,18 @@ export function svgRosa(petalos: PetaloRosa[], o: OpcionesRosa): string {
 
   // Zonas de fondo y círculos de límite (z = 1) y alto riesgo (z = 2).
   const c = COLORES_ROSA;
+  const contorno = o.contorno ?? 'currentColor';
+  const trazo = `stroke="${contorno}" stroke-width="0.9" vector-effect="non-scaling-stroke"`;
   partes.push(
     '<g class="rosa-zonas">' +
       `<path d="${anillo(rIn, rz(1))}" fill="${c.zonaVerde}" fill-opacity="0.10" fill-rule="evenodd"/>` +
       `<path d="${anillo(rz(1), rz(2))}" fill="${c.zonaAmbar}" fill-opacity="0.07" fill-rule="evenodd"/>` +
       `<path d="${anillo(rz(2), rz(Z_MAX))}" fill="${c.zonaRoja}" fill-opacity="0.06" fill-rule="evenodd"/>` +
-      `<circle r="${rz(1)}" fill="none" stroke="${c.circuloLimite}" stroke-width="2"/>` +
-      `<circle r="${rz(2)}" fill="none" stroke="${c.circuloAltoRiesgo}" stroke-width="2"/>` +
+      // Cada círculo lleva un filete del color del texto a cada lado: contrasta con
+      // cualquier fondo sin cambiar el color del círculo (WCAG 1.4.11).
+      [[rz(1), c.circuloLimite], [rz(2), c.circuloAltoRiesgo]]
+        .map(([r, color]) => `<circle r="${r}" fill="none" stroke="${contorno}" stroke-width="4" vector-effect="non-scaling-stroke"/><circle r="${r}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke"/>`)
+        .join('') +
       '</g>',
   );
 
@@ -273,11 +278,11 @@ export function svgRosa(petalos: PetaloRosa[], o: OpcionesRosa): string {
     const medio = (i + 0.5) * paso;
     let g = `<g data-petalo="${i + 1}">`;
     if (p.z > 0) {
-      const trazo = p.incierto ? ` fill-opacity="0.45" stroke="${c.contornoIncierto}" stroke-width="0.9" vector-effect="non-scaling-stroke"` : '';
-      g += `<path d="${sector(desde, hasta, rIn, Math.max(rz(p.z), rIn + 1))}" fill="url(#rosa-degrade)"${trazo}/>`;
+      // Todos los pétalos llevan contorno del color del texto; el incierto es además tenue.
+      g += `<path d="${sector(desde, hasta, rIn, Math.max(rz(p.z), rIn + 1))}" fill="url(#rosa-degrade)"${p.incierto ? ' fill-opacity="0.45"' : ''} ${trazo}/>`;
     } else {
       const [x, y] = punto(medio, rIn + 9);
-      g += `<circle cx="${x}" cy="${y}" r="6" fill="${c.enReferencia}"/>`;
+      g += `<circle cx="${x}" cy="${y}" r="6" fill="${c.enReferencia}" ${trazo}/>`;
     }
     if (p.z >= Z_MAX) {
       const [ax, ay] = punto(medio, ESCALA + 24);

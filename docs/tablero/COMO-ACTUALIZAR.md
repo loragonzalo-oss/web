@@ -40,7 +40,7 @@ El sitio no se construye, y el error dice qué archivo y qué campo, si:
 - `umbral: fuente` → «umbral con fuente»; `umbral: convencion` → «umbral por convención» y asterisco junto al valor.
 - `estado_valor: fuente` → «valor con fuente»; `estado_valor: provisorio` → «valor provisorio».
 - Umbral y valor con fuente se resumen como «con fuente».
-- `incierto: true` → pétalo tenue con contorno claro y «valor incierto» en la tabla.
+- `incierto: true` → pétalo tenue (opacidad 0.45) y «valor incierto» en la tabla. Todos los pétalos llevan un contorno fino del color del texto del tema.
 
 (El encargo llamaba `valor` al segundo campo; se llama `estado_valor` porque `valor` ya es la cifra.)
 
@@ -73,6 +73,7 @@ Los nombres de las variables estructurantes (`variables`) salen en la figura, en
 ## La figura
 
 - Colores de pétalos y zonas: fijos, en `COLORES_ROSA` y `PARADAS` (`src/lib/tablero.ts`). No dependen del tema.
+- Contorno: pétalos, punto «en la referencia» y círculos llevan un contorno fino del color del texto del tema (`currentColor`), para que contrasten con cualquier fondo sin cambiar la paleta (decisión del autor, 22-10-2026).
 - Tipografía de la figura: `--fuente-tablero`, definida en un solo lugar (regla `.tablero` en `src/components/tablero/Rosa.astro`). Hoy hereda la del texto. Si se decide otra (por ejemplo Lato), hay que autoalojarla como las demás (paquete de Fontsource, licencia OFL) y poner su nombre en esa variable.
 - Contraste de los objetos gráficos contra los fondos de «noche» y «crema»: `docs/tablero/contraste-figura.md`.
 
