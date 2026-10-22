@@ -15,6 +15,7 @@ npm install
 npm run dev       # sitio local en http://localhost:4321/web/ (muestra borradores)
 npm run build     # construye el sitio en dist/ (sin borradores)
 npm run preview   # sirve dist/ localmente
+npm run revisar   # enlaces internos, páginas y accesibilidad (después de build)
 ```
 
 ## Dónde está cada cosa
@@ -30,4 +31,7 @@ npm run preview   # sirve dist/ localmente
 | Capas del mapa (nombres) | `src/lib/capas.ts` |
 | Páginas | `src/pages/` |
 | Plantillas para Obsidian | `plantillas/` |
+| Imágenes para compartir (generador) | `src/lib/og.ts` |
+| Pruebas automáticas | `pruebas/`, `playwright.config.ts`, `scripts/calidad/` |
+| Revisión de pull requests | `.github/workflows/revision.yml` |
 | Capturas de revisión | `docs/capturas/` |

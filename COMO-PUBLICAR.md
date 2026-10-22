@@ -41,6 +41,8 @@ Campos opcionales:
 - `imagen: ./foto.jpg` — imagen para compartir en redes. Ruta relativa al archivo.
 - `slug: otra-direccion` — si querés que la dirección no sea el nombre del archivo. No uses `archivo`, `etiquetas` ni un número solo: son direcciones que ya usa el blog y el sitio no se construye.
 - `serie: "Nombre de la serie"` y `parte: 2` — ver «Series», más abajo.
+- `imagen: ./foto.jpg` — imagen para compartir en redes. Ruta relativa al archivo. Si no la ponés, el sitio arma una sola: una tarjeta con el título de la entrada y tu nombre (ver «Imágenes para compartir», más abajo).
+- `slug: otra-direccion` — si querés que la dirección no sea el nombre del archivo.
 
 ### Ensayo
 
@@ -284,6 +286,47 @@ La carpeta `.obsidian/` (configuración de la bóveda) no se sube: está excluid
 ## Si algo falla
 
 Si el despliegue sale en rojo en *Actions*, casi siempre es el encabezado: una fecha mal escrita, un título con dos puntos sin comillas o un campo con nombre distinto. Abrí el error en *Actions → el despliegue fallido → build*: la línea dice qué archivo y qué campo. El sitio publicado anterior sigue en línea mientras tanto.
+
+## Imágenes para compartir
+
+Cuando alguien comparte una entrada o un ensayo en Facebook o X, aparece una imagen. El sitio la arma sola al construirse: una tarjeta con el título, la palabra «Blog» o «Ensayo» y tu nombre, con los colores de `src/styles/tokens.css`. Si cambian los colores ahí, las tarjetas cambian solas en el próximo despliegue.
+
+- En una entrada del blog, si ponés `imagen:` en el encabezado, se usa esa foto en lugar de la tarjeta.
+- Si la tarjeta no se puede armar (por ejemplo, porque un color de `tokens.css` está escrito de una forma que el generador no entiende), se usa `public/og-default.png` y el despliegue sigue igual. En el registro del despliegue queda una línea que empieza con `[og]` y dice por qué.
+
+## El buscador
+
+La página «Buscar» (en la cabecera) busca en las entradas del blog, los ensayos, la página del libro y «Sobre mí». No usa ningún servicio externo: el índice se arma solo cada vez que se construye el sitio. Los borradores (`draft: true`) nunca entran al índice, porque no se construyen.
+
+Con `npm run dev` el buscador no funciona y lo avisa: para probarlo en la computadora hay que hacer `npm run build` y después `npm run preview`.
+
+## Revisiones automáticas
+
+Cada vez que se abre o se actualiza un pull request, GitHub corre una revisión del sitio («Revisión del sitio», en la pestaña *Actions* y al pie del pull request). No publica nada: sólo avisa si algo se rompió **antes** de que llegue a `main`. Las entradas que subís directo a `main` no pasan por esta revisión; si el despliegue falla, mirá «Si algo falla», más arriba.
+
+La revisión tiene tres pasos. Si uno sale en rojo, los siguientes no corren.
+
+**1. Construir el sitio.** Arma el sitio completo, igual que el despliegue, y el índice del buscador.
+- *Si falla:* casi siempre es un encabezado mal escrito en un `.md` (fecha, comillas, un campo con otro nombre) o un lugar del mapa con coordenadas que no corresponden. El error dice qué archivo y qué campo. Es lo mismo que se explica en «Si algo falla».
+
+**2. Enlaces internos rotos.** Revisa todos los enlaces que van de una página del sitio a otra (y a imágenes y archivos del sitio). No revisa los enlaces a otros sitios.
+- *Si falla:* la lista dice en qué página está el enlace y a dónde apunta. Lo más común es un archivo renombrado (su dirección cambió y los enlaces viejos quedaron apuntando a la anterior) o un enlace escrito a mano con un error. Se corrige el enlace o se devuelve el nombre original al archivo.
+
+**3. Páginas en escritorio y celular, y accesibilidad.** Abre en un navegador la portada, el blog, los ensayos, «Sobre mí», contacto, el mapa, el buscador y la página de error, en pantalla de computadora (1280 px de ancho) y de celular (390 px). En cada una comprueba tres cosas:
+- *Que no haya desborde horizontal*: que nada sea más ancho que la pantalla y obligue a mover la página de costado. Pasa, por ejemplo, con una tabla muy ancha o una dirección web larga sin espacios. El error nombra el elemento que se sale.
+- *Que no haya errores en la consola*: errores de programación de la página. Si aparece uno después de un cambio de contenido, conviene avisar a quien mantiene el código.
+- *Accesibilidad*: con la herramienta axe, en modo claro y en modo oscuro, revisa que la página se pueda usar con lector de pantalla, con teclado y con poca visión. Falla sólo con problemas serios o críticos. Los más comunes: una imagen sin descripción (en un lugar del mapa, el campo `descripcion` de la imagen), un texto con poco contraste contra el fondo (pasa al cambiar colores en `tokens.css`) o un enlace sin texto.
+- *Si falla:* abrí la revisión en *Actions*; el paso en rojo dice qué página, en qué pantalla y qué problema. Al final de la página de la revisión hay un archivo «informe-pruebas» con el detalle.
+
+**Para correr las mismas revisiones en la computadora** (hace falta haber instalado todo con `npm install`):
+
+```sh
+npx playwright install chromium    # sólo la primera vez: descarga el navegador de pruebas
+npm run build
+npm run revisar                    # enlaces + páginas y accesibilidad
+```
+
+Un pull request con la revisión en rojo se puede unir igual (GitHub no lo impide), pero lo que estaba roto llega al sitio publicado. Lo recomendable es corregir primero.
 
 ## Primera publicación: activar GitHub Pages
 

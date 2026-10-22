@@ -3,4 +3,4 @@
 interface Props { texto?: string }
 const { texto } = Astro.props;
 ---
-<span class="pendiente">[PENDIENTE{texto ? `: ${texto}` : ''}]</span>
+<span class="pendiente" data-pagefind-ignore>[PENDIENTE{texto ? `: ${texto}` : ''}]</span>
