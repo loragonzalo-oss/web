@@ -25,7 +25,7 @@
 .ficha-imagen { margin: 1rem 0; }
 .ficha-imagen img { border-radius: var(--radio); display: block; }
 .ficha-imagen figcaption, .ficha-nota { font-family: var(--fuente-interfaz); font-size: 0.82rem; color: var(--color-texto-suave); margin-top: 0.35rem; }
-.ficha-seccion h4 { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-texto-suave); margin: 1.4rem 0 0.4rem; }
+.ficha-seccion :is(h2, h4) { font-family: var(--fuente-interfaz); font-size: var(--tam-chico); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-texto-suave); margin: 1.4rem 0 0.4rem; }
 .ficha-seccion ul { padding-left: 1.1rem; margin: 0; }
 .ficha-seccion li { margin-bottom: 0.3rem; }
 

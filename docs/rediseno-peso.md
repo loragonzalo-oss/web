@@ -75,3 +75,21 @@ Medido el 2026-10-22 sobre `npm run build:prueba`.
 | Prototipo inmersivo | 0.0 KB | 2.4 KB | 8.6 KB | 93.5 KB | 107.2 KB | 1.18 s | 3.86 s |
 | Prototipo, versión liviana | 0.0 KB | 0.0 KB | 8.6 KB | 93.5 KB | 106.0 KB | 1.13 s | 3.84 s |
 <!-- /tema:crema -->
+
+<!-- tema:Mapa 2.0 con MapLibre (tema provisorio) -->
+## Mapa 2.0 con MapLibre (tema provisorio)
+
+Medido el 2026-10-22 sobre `npm run build:prueba`.
+
+| Página | JS (archivos) | JS (en línea) | CSS | Fuentes | Total transferido | Primer pintado | Última descarga |
+|---|---|---|---|---|---|---|---|
+| Portada | 0.0 KB | 0.0 KB | 5.6 KB | 76.8 KB | 85.6 KB | 1.13 s | 3.45 s |
+| Índice de ensayos | 0.0 KB | 0.0 KB | 5.6 KB | 56.9 KB | 65.1 KB | 1.05 s | 2.98 s |
+| Índice del blog | 0.0 KB | 0.0 KB | 5.6 KB | 56.9 KB | 65.3 KB | 1.08 s | 2.99 s |
+| Entrada larga | 0.0 KB | 0.0 KB | 5.6 KB | 92.5 KB | 112.1 KB | 1.17 s | 3.92 s |
+| /libro | 0.0 KB | 0.0 KB | 5.6 KB | 56.9 KB | 64.7 KB | 1.10 s | 3.01 s |
+| Mapa | 282.4 KB | 0.0 KB | 19.1 KB | 72.5 KB | 383.5 KB | 1.35 s | 11.55 s |
+| Buscador | 29.8 KB | 0.8 KB | 8.5 KB | 72.5 KB | 113.8 KB | 1.07 s | 4.51 s |
+| Prototipo inmersivo | 0.0 KB | 2.4 KB | 7.3 KB | 56.9 KB | 69.3 KB | 1.18 s | 3.07 s |
+| Prototipo, versión liviana | 0.0 KB | 0.0 KB | 7.3 KB | 56.9 KB | 68.1 KB | 1.20 s | 3.10 s |
+<!-- /tema:Mapa 2.0 con MapLibre (tema provisorio) -->

@@ -1,0 +1,18 @@
+{
+  "type": "Feature",
+  "properties": {
+    "nota": "Geometría de relleno sobre el agua. No señala ningún lugar. Dos decimales: prueba «precision: aproximada»."
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [-69.58, -15.62],
+        [-69.48, -15.62],
+        [-69.46, -15.68],
+        [-69.56, -15.7],
+        [-69.58, -15.62]
+      ]
+    ]
+  }
+}

@@ -1,6 +1,8 @@
 ---
-// Ficha de un lugar del mapa. Se dibuja una sola vez, en el listado (el cuerpo, plegado);
-// el panel lateral del mapa copia la cabecera y el cuerpo de acá. Así hay una sola fuente de verdad.
+// Ficha de un lugar del mapa. En /mapa se dibuja una sola vez, en el listado (el cuerpo, plegado);
+// el panel del mapa copia la cabecera y el cuerpo de acá. Así hay una sola fuente de verdad.
+// Con `pagina`, es la ficha completa de la página propia del lugar (/mapa/<id>/): título h1 y
+// cuerpo abierto. Con `enlace`, el título lleva a esa página.
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import Pendiente from './Pendiente.astro';
@@ -9,8 +11,11 @@ import { fechaLarga, fechaISO } from '../lib/fechas';
 import { resolverRelacionados, type Lugar } from '../lib/lugares';
 import { verBorradores } from '../lib/borradores';
 
-interface Props { lugar: Lugar }
-const { lugar } = Astro.props;
+interface Props { lugar: Lugar; enlace?: string; pagina?: boolean }
+const { lugar, enlace, pagina = false } = Astro.props;
+const Titulo = pagina ? 'h1' : 'h3';
+const Detalle = pagina ? 'div' : 'details';
+const Sub = pagina ? 'h2' : 'h4';
 const d = lugar.data;
 const { Content } = await render(lugar);
 const relacionados = (await resolverRelacionados(lugar)).filter((r) => r.href || verBorradores);
@@ -30,12 +35,12 @@ const MARCADOR = {
     {d.draft && <span class="ficha-borrador"> · borrador</span>}
     {MARCADOR.aviso && <span class="ficha-insignia">{d.marcador}</span>}
   </p>
-  <h3 class="ficha-titulo">{d.titulo}</h3>
+  <Titulo class="ficha-titulo">{enlace ? <a href={enlace}>{d.titulo}</a> : d.titulo}</Titulo>
   <p class="ficha-resumen">{d.resumen}</p>
 </div>
 
-<details class="ficha-detalle">
-<summary>Leer la ficha</summary>
+<Detalle class="ficha-detalle">
+{!pagina && <summary>Leer la ficha</summary>}
 <div class="ficha-cuerpo">
   {d.draft && <p class="borrador-aviso">Borrador: sólo se ve en el modo de desarrollo. No se publica.</p>}
 
@@ -53,15 +58,15 @@ const MARCADOR = {
   <div class="ficha-texto"><Content /></div>
 
   {d.precision === 'aproximada' && (
-    <p class="ficha-nota">Ubicación aproximada: el punto está desplazado a propósito.</p>
+    <p class="ficha-nota">Ubicación aproximada: {d.geometria ? 'el trazado está desplazado' : 'el punto está desplazado'} a propósito.</p>
   )}
   {d.precision === 'oculta' && (
-    <p class="ficha-nota">Ubicación no publicada: este lugar no tiene punto en el mapa.</p>
+    <p class="ficha-nota">Ubicación no publicada: este lugar no tiene marca en el mapa.</p>
   )}
 
   {relacionados.length > 0 && (
     <section class="ficha-seccion">
-      <h4>En la web</h4>
+      <Sub>En la web</Sub>
       <ul>
         {relacionados.map((r) => (
           <li>
@@ -76,7 +81,7 @@ const MARCADOR = {
 
   {d.enlaces.length > 0 && (
     <section class="ficha-seccion">
-      <h4>Enlaces</h4>
+      <Sub>Enlaces</Sub>
       <ul>
         {d.enlaces.map((e) => (
           <li>
@@ -90,7 +95,7 @@ const MARCADOR = {
 
   {d.fuentes.length > 0 && (
     <section class="ficha-seccion">
-      <h4>Fuentes</h4>
+      <Sub>Fuentes</Sub>
       <ul>
         {d.fuentes.map((f) => (
           <li>
@@ -101,4 +106,4 @@ const MARCADOR = {
     </section>
   )}
 </div>
-</details>
+</Detalle>

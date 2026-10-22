@@ -1,0 +1,15 @@
+{
+  "type": "Feature",
+  "properties": {
+    "nota": "Geometría de relleno sobre el agua. No señala ningún río ni lugar."
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [-69.4, -15.86],
+      [-69.34, -15.82],
+      [-69.28, -15.84],
+      [-69.22, -15.8]
+    ]
+  }
+}

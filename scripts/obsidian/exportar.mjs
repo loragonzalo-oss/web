@@ -1,14 +1,14 @@
 // Exportación desde la bóveda privada de Obsidian hacia src/content del repositorio.
 // Copia en un solo sentido: lee la bóveda y escribe en el repositorio. Nunca borra.
 import { createHash } from 'node:crypto';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { mkdir, readFile, writeFile, copyFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stringify } from 'yaml';
 import { leerBoveda, buscar } from './boveda.mjs';
 import { convertirCuerpo, EXT_IMAGEN, anclaEncabezado } from './convertir.mjs';
-import { TIPOS, validarFrontmatter, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog } from './controles.mjs';
+import { TIPOS, validarFrontmatter, validarGeometria, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog } from './controles.mjs';
 import { slugificar } from '../../src/lib/slug.ts';
 
 export const RAIZ_REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -122,6 +122,7 @@ export async function exportar({ boveda, repo = RAIZ_REPO, simular = false, forz
   for (const f of [...exportables].sort((a, b) => a.nota.rel.localeCompare(b.nota.rel))) {
     const archivos = [
       ...f.conversion.imagenes.map((img) => ({ destino: img.destino, origen: img.origen })),
+      ...f.conversion.geometrias,
       { destino: f.conversion.destino, contenido: Buffer.from(f.conversion.contenido, 'utf8') },
     ];
     for (const a of archivos) {
@@ -299,6 +300,22 @@ function convertir(f, { exportables, notas, adjuntos, forzar }) {
   if (tipo === 'blog' && nota.fm.imagen) datos.imagen = imagenFm(nota.fm.imagen);
   if (tipo === 'lugar' && datos.imagen) datos.imagen.archivo = imagenFm(nota.fm.imagen.archivo);
 
+  // Línea o polígono de un lugar: «geometria: "[[rio.geojson]]"» (o el nombre o la ruta del
+  // archivo en la bóveda). Se revisa y se copia a src/content/lugares/geometrias/<nota>.geojson.
+  const geometrias = [];
+  if (tipo === 'lugar' && datos.geometria !== undefined) {
+    const ref = datos.geometria.replace(/^!?\[\[|\]\]$/g, '').split('|')[0].trim();
+    const { archivo, ambiguo } = buscar(adjuntos, ref, nota);
+    if (!archivo) errores.push(`El archivo de geometría «${ref}» no está en la bóveda.`);
+    else if (!/\.geojson$/i.test(archivo.nombre)) errores.push(`«geometria» tiene que ser un archivo .geojson (es «${archivo.nombre}»).`);
+    else {
+      if (ambiguo) avisos.push(`Hay varios archivos llamados «${archivo.nombre}» en la bóveda; se usó ${archivo.rel}.`);
+      for (const e of validarGeometria(readFileSync(archivo.ruta, 'utf8'), datos.precision)) errores.push(`${archivo.rel}: ${e}`);
+      geometrias.push({ origen: archivo.ruta, destino: `${carpeta}/geometrias/${f.archivo}.geojson` });
+      datos.geometria = `geometrias/${f.archivo}.geojson`;
+    }
+  }
+
   // relacionados: «[[Nota]]» pasa al nombre del archivo exportado.
   if (tipo === 'lugar') {
     datos.relacionados = datos.relacionados.flatMap((ref) => {
@@ -340,6 +357,7 @@ function convertir(f, { exportables, notas, adjuntos, forzar }) {
     errores,
     avisos,
     imagenes: [...imagenes.values()],
+    geometrias,
     destino: `${carpeta}/${f.archivo}.md`,
     contenido: `---\n${ENCABEZADO}\n${frontmatter}---\n\n${cuerpo}`,
   };

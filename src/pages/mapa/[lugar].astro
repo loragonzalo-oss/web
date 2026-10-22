@@ -1,0 +1,45 @@
+---
+// Página propia de cada lugar del mapa: /mapa/<id>/. La ficha completa en HTML, legible sin
+// JavaScript, con su tarjeta para compartir. Regla 6: ninguna coordenada en el HTML, en los
+// metadatos ni en la tarjeta (tampoco las de un lugar exacto: la ubicación se ve en el mapa).
+import type { GetStaticPaths } from 'astro';
+import { getImage } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import FichaLugar from '../../components/FichaLugar.astro';
+import '../../styles/ficha.css';
+import { lugares, enlaceMapa, tipoLugar } from '../../lib/lugares';
+import { reglasCapas } from '../../lib/capas';
+import { url } from '../../lib/rutas';
+
+export const getStaticPaths = (async () => {
+  const lista = await lugares();
+  return lista.map((l) => ({ params: { lugar: l.id }, props: { l } }));
+}) satisfies GetStaticPaths;
+
+const { l } = Astro.props;
+const d = l.data;
+const tipo = tipoLugar(l);
+// Tarjeta para compartir: la foto de la ficha, si tiene; si no, la tarjeta tipográfica del título.
+const imagen = d.imagen
+  ? (await getImage({ src: d.imagen.archivo, width: 1200 })).src
+  : url(`/og/mapa/${l.id}.png`);
+const verEnMapa = { punto: 'Ver en el mapa', linea: 'Ver la línea en el mapa', poligono: 'Ver la zona en el mapa' };
+---
+<Base titulo={d.titulo} descripcion={d.resumen} imagen={imagen} tipo="article" noIndexar={d.draft}>
+  <style is:inline set:html={reglasCapas()}></style>
+  <article class="pagina-lugar">
+    <p class="interfaz pagina-lugar-volver"><a href={url('/mapa/')}>← Mapa del Lago Titikaka</a></p>
+    <FichaLugar lugar={l} pagina />
+    <p class="interfaz pagina-lugar-mapa">
+      <a href={enlaceMapa(l.id)}>{tipo ? verEnMapa[tipo] : 'Ver la ficha en el mapa (sin ubicación publicada)'}</a>
+    </p>
+  </article>
+</Base>
+
+<style>
+  .pagina-lugar { max-width: var(--ancho-lectura); }
+  .pagina-lugar-volver { font-size: var(--tam-chico); color: var(--color-texto-suave); margin-bottom: 1.5rem; }
+  .pagina-lugar :global(.ficha-titulo) { font-size: var(--tam-h1); margin: 0.4rem 0 0.6rem; }
+  .pagina-lugar :global(.ficha-resumen) { font-size: 1.15em; font-style: italic; }
+  .pagina-lugar-mapa { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-borde); }
+</style>
