@@ -23,6 +23,7 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
   - SENAMHI de Bolivia y de Perú (clima). Licencia: [PENDIENTE]. Formato: [PENDIENTE].
   - Observatorio Binacional. Licencia: [PENDIENTE]. Formato: [PENDIENTE].
   - Otras: [PENDIENTE].
+- [ ] Capa Gobiernos municipales: las 49 fichas del piloto (`src/content/lugares/bo-*.md` y `pe-*.md`, en borrador) tienen coordenada de Wikidata y los enlaces verificados del registro, pero siguen en [VERIFICAR]. Falta contrastar los nombres oficiales, resolver las entidades dudosas de Wikidata y comprobar sobre el fondo del mapa que cada punto cae en tierra firme junto al lago (las capturas de `docs/capturas/municipios/` se hicieron sin teselas). Detalle ficha por ficha: `docs/revision/municipios.md`.
 - [ ] [PENDIENTE: criterio de inclusión para empresas y emprendimientos]. Qué condiciones tiene que cumplir un emprendimiento comunitario o una empresa de turismo para tener ficha (quién lo propone, cómo se verifica, si se cobra o no, cómo se da de baja). Hasta que exista, no cargar fichas de esas dos capas.
 
 ## Decisiones del autor
