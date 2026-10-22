@@ -1,5 +1,5 @@
 /*
-  Sólo en modo de desarrollo (npm run dev): carga los cuatro temas para que el
+  Sólo en modo de desarrollo (npm run dev): carga todos los temas para que el
   selector cambie entre ellos sin recargar. El sitio publicado carga uno solo,
   el de TEMA en sitio.config.mjs.
 */
@@ -7,3 +7,5 @@
 @import './a.css';
 @import './b.css';
 @import './c.css';
+@import './noche.css';
+@import './crema.css';

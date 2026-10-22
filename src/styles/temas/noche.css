@@ -1,0 +1,74 @@
+/*
+  Dirección 1 · «Noche de altura». Propuesta del rediseño; no está elegida.
+  El recorrido vertical por un paisaje real: noche fría de altura, luz clara y un
+  solo acento cálido. De día, la misma luz de altura sobre piedra fría.
+  La composición (riel lateral, imagen a toda altura, una sola columna que baja)
+  está en src/styles/composiciones/noche.css y se carga con este tema.
+
+  Tipografías (autoalojadas, licencia SIL Open Font License 1.1):
+  - Cuerpo y títulos: Newsreader (Production Type). Hecha para leer en pantalla.
+  - Interfaz y riel: Instrument Sans (The Instrument Sans Project Authors).
+
+  Los valores --oscuro-* son los del modo oscuro. Contraste comprobado con
+  `npm run temas:contraste` (tabla en docs/temas-contraste.md).
+*/
+@import '@fontsource/newsreader/400.css';
+@import '@fontsource/newsreader/400-italic.css';
+@import '@fontsource/newsreader/600.css';
+@import '@fontsource/instrument-sans/400.css';
+@import '@fontsource/instrument-sans/600.css';
+@import '../composiciones/marco.css';
+@import '../composiciones/noche.css';
+
+[data-tema='noche'] {
+  --fuente-texto: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --fuente-interfaz: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tam-base: 1.1875rem;
+  --interlineado: 1.68;
+
+  /* Modo claro: luz de altura */
+  --color-fondo: #f2f5f8;
+  --color-superficie: #e2e8ee;
+  --color-texto: #0b1016;
+  --color-texto-suave: #465567;
+  --color-borde: #c3cdd8;
+  --color-acento: #7a5314;
+  --color-acento-hover: #553905;
+  --color-marco: #d3dce5;
+  --color-pendiente-fondo: #fbefc0;
+  --color-pendiente-texto: #5a4500;
+  --color-capa-icono: #ffffff;
+  --color-capa-contorno: #ffffff;
+  --color-capa-clima: #2d62a6;
+  --color-capa-ecologia: #3a7843;
+  --color-capa-biodiversidad: #0d7a7e;
+  --color-capa-cultura: #9a3e69;
+  --color-capa-antropologia: #83572e;
+  --color-capa-arqueologia: #5c4a9b;
+  --color-capa-turismo: #ad501d;
+  --color-capa-emprendimientos-comunitarios: #786611;
+  --color-capa-gobiernos-municipales: #4a5966;
+
+  /* Modo oscuro: noche fría */
+  --oscuro-color-fondo: #070b12;
+  --oscuro-color-superficie: #0f1722;
+  --oscuro-color-texto: #dfe9f2;
+  --oscuro-color-texto-suave: #93a4b6;
+  --oscuro-color-borde: #223041;
+  --oscuro-color-acento: #d8b787;
+  --oscuro-color-acento-hover: #ead3a8;
+  --oscuro-color-marco: #131d2a;
+  --oscuro-color-pendiente-fondo: #3a3210;
+  --oscuro-color-pendiente-texto: #f1da86;
+  --oscuro-color-capa-icono: #070b12;
+  --oscuro-color-capa-contorno: #070b12;
+  --oscuro-color-capa-clima: #82aee6;
+  --oscuro-color-capa-ecologia: #8cc293;
+  --oscuro-color-capa-biodiversidad: #5cc6c4;
+  --oscuro-color-capa-cultura: #e08cb2;
+  --oscuro-color-capa-antropologia: #cf9e72;
+  --oscuro-color-capa-arqueologia: #ab9ce6;
+  --oscuro-color-capa-turismo: #ee9b6c;
+  --oscuro-color-capa-emprendimientos-comunitarios: #d2bb5a;
+  --oscuro-color-capa-gobiernos-municipales: #9fb0be;
+}

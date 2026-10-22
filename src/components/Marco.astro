@@ -1,0 +1,18 @@
+---
+// Marco de foto con proporción fija, a la espera de las fotos del autor.
+// Sus estilos y su proporción los pone cada composición (src/styles/composiciones/marco.css
+// y aspect-ratio en noche.css o crema.css): la maqueta de base no lo usa. Sin foto de stock ni imagen generada: sólo el hueco y la
+// marca visible. Cada uso está anotado en PENDIENTES.md.
+import Pendiente from './Pendiente.astro';
+
+interface Props {
+  class?: string;
+  solo?: string;        // data-solo: direcciones que muestran este marco
+  texto?: string;
+}
+const { class: clase, solo, texto = 'foto del autor' } = Astro.props;
+---
+<figure class:list={['marco', clase]} data-solo={solo}>
+  <div class="marco-hueco"><Pendiente texto={texto} /></div>
+</figure>
+

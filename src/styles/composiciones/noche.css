@@ -1,0 +1,268 @@
+/*
+  Composición de la Dirección 1 · «Noche de altura». Se carga con el tema 'noche'
+  (src/styles/temas/noche.css) y sólo actúa con data-composicion="noche" en <html>.
+
+  Idea: el scroll como recorrido vertical. Lo memorable es el riel: la navegación vive en
+  una franja lateral fija con una escala de cotas (marcas cada 1.5rem), y la página en la
+  que uno está se marca con una cota en el acento cálido. Todo lo demás baja en una sola
+  columna, alineada a la izquierda, con mucho aire entre tramos y la imagen a toda altura.
+  En celular el riel se vuelve la barra de arriba de siempre.
+
+  Sin JavaScript. Los colores salen del tema; acá sólo medidas y disposición.
+*/
+html[data-composicion='noche'] {
+  --riel: 11.5rem;
+  --tramo: clamp(4.5rem, 2.5rem + 7vh, 8.5rem);   /* aire entre tramos de la página */
+  --tam-h1: clamp(2.6rem, 1.3rem + 4.4vw, 5.4rem);
+  --tam-h2: clamp(1.7rem, 1.25rem + 1.5vw, 2.4rem);
+  --tam-h3: 1.35rem;
+  --radio: 0;
+
+  h1, h2, h3 { font-weight: 400; letter-spacing: -0.012em; }
+  h1 { line-height: 1.02; letter-spacing: -0.02em; }
+
+  .flecha { display: none; }
+
+  /* Rótulos en minúscula de oración: sin versalitas forzadas. */
+  .relacionados h2.interfaz, .como-citar p.formato, fieldset.capas legend, .no-encontrada p.meta {
+    text-transform: none;
+    letter-spacing: 0.01em;
+  }
+  .meta { letter-spacing: 0.01em; }
+
+  /* ── Riel lateral (cabecera) ─────────────────────────────────────────────── */
+  @media (min-width: 64rem) {
+    body { padding-left: var(--riel); }
+    .salto:focus { left: calc(var(--riel) + 1rem); }
+
+    .cabecera {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 30;
+      width: var(--riel);
+      margin: 0;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-borde);
+      background: var(--color-fondo);
+    }
+    /* Escala de cotas sobre el borde del riel. */
+    .cabecera::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      width: 0.45rem;
+      background: repeating-linear-gradient(to bottom, var(--color-borde) 0 1px, transparent 1px 1.5rem);
+      pointer-events: none;
+    }
+    .cabecera-fila {
+      height: 100%;
+      max-width: none;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: space-between;
+      padding: 1.75rem 1.4rem 2rem;
+    }
+    .marca { flex-direction: column; gap: 0.35rem; }
+    .marca-nombre { font-size: 1.1rem; line-height: 1.2; font-weight: 400; }
+    .marca-apodo { font-style: italic; font-family: var(--fuente-texto); }
+    .menu-ancho { flex-direction: column; gap: 0.1rem; }
+    .menu-ancho li { position: relative; }
+    .menu-ancho a { display: block; padding: 0.4rem 0; }
+    .cabecera .menu-ancho a[aria-current='page'] { text-decoration: none; color: var(--color-acento); }
+    /* La cota de «estás acá»: una marca del acento que llega hasta la escala. */
+    .menu-ancho a[aria-current='page']::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -1.4rem;
+      width: 1.1rem;
+      height: 2px;
+      background: var(--color-acento);
+    }
+    .pie { margin-top: var(--tramo); }
+  }
+
+  @media (max-width: 63.99rem) {
+    .cabecera { margin-bottom: 0; border-bottom-color: transparent; }
+  }
+
+  /* ── Portada ─────────────────────────────────────────────────────────────── */
+  .portada {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .portada > .lectura { max-width: none; margin-inline: 0; }
+
+  .portada-foto {
+    display: block;
+    margin-inline: calc(-1 * var(--margen-lateral));
+    --marco-proporcion: 4 / 5;
+  }
+  .portada-foto .marco-hueco { border-inline: 0; border-top: 0; }
+
+  .portada > .presentacion {
+    position: relative;
+    margin-top: calc(-0.62 * var(--tam-h1));
+    margin-bottom: 0;
+    padding-bottom: var(--tramo);
+  }
+  .presentacion h1 { max-width: 11ch; }
+  .presentacion .apodo { font-size: clamp(1.25rem, 1rem + 0.8vw, 1.6rem); margin: 0.9rem 0 1rem; }
+
+  /* Secciones: cada una abre con una cota corta en el acento. */
+  .portada h2 {
+    margin: 0 0 1.75rem;
+    padding-top: 1.1rem;
+    position: relative;
+    font-size: var(--tam-h2);
+  }
+  .portada h2::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2.25rem;
+    height: 2px;
+    background: var(--color-acento);
+  }
+
+  .libro {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: var(--tramo);
+    display: grid;
+    gap: 1.75rem;
+  }
+  .libro-foto { display: block; --marco-proporcion: 4 / 5; }
+  .libro .etiqueta { text-transform: none; letter-spacing: 0.01em; margin-bottom: 0.4rem; }
+  .libro h2 { margin-top: 0; }
+
+  .ensayos-portada { display: block; margin-bottom: var(--tramo); }
+  .ensayos-portada-lista { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-borde); }
+  .ensayos-portada-lista li { padding: 1.4rem 0 1.5rem; border-bottom: 1px solid var(--color-borde); }
+  .ensayos-portada-lista h3 { margin: 0 0 0.4rem; font-size: clamp(1.4rem, 1.15rem + 0.9vw, 1.9rem); line-height: 1.15; }
+  .ensayos-portada-lista h3 a { color: var(--color-texto); text-decoration: none; }
+  .ensayos-portada-lista h3 a:hover { color: var(--color-acento); }
+  .ensayos-portada-lista p { margin: 0; color: var(--color-texto-suave); max-width: var(--ancho-lectura); }
+
+  .ultimas h3 { font-size: 1.3rem; }
+
+  @media (min-width: 64rem) {
+    /* El primer tramo ocupa casi toda la pantalla: foto a toda altura y el nombre encima de su borde. */
+    .portada {
+      grid-template-columns: minmax(0, 1fr) 9rem;
+      column-gap: 3rem;
+    }
+    .portada-foto, .presentacion { grid-column: 1 / -1; }
+    .portada-foto { margin-inline: calc(-1 * var(--margen-lateral)); }
+    .portada-foto .marco-hueco { aspect-ratio: auto; height: min(calc(100svh - 1.6 * var(--tam-h1)), 54rem); min-height: 22rem; }
+    .presentacion { padding-left: 0.1em; }
+
+    /* Riel de la portada: los tramos de la página, fijo a la derecha mientras se baja. */
+    .portada-riel {
+      display: block;
+      grid-column: 2;
+      grid-row: 3 / span 3;
+      align-self: start;
+      position: sticky;
+      top: 2.5rem;
+      font-size: var(--tam-chico);
+    }
+    .portada-riel ol {
+      list-style: none;
+      margin: 0;
+      padding: 0 0 0 1rem;
+      border-left: 1px solid var(--color-borde);
+    }
+    .portada-riel li { position: relative; }
+    .portada-riel a { display: block; padding: 0.45rem 0; color: var(--color-texto-suave); text-decoration: none; }
+    .portada-riel a::before {
+      content: '';
+      position: absolute;
+      left: -1rem;
+      top: 50%;
+      width: 0.6rem;
+      height: 1px;
+      background: var(--color-borde);
+    }
+    .portada-riel a:hover { color: var(--color-acento); }
+    .portada-riel a:hover::before { background: var(--color-acento); }
+
+    .libro, .ensayos-portada, .ultimas { grid-column: 1; }
+    .libro {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      column-gap: 3.5rem;
+      align-items: end;
+    }
+    .libro-foto { grid-row: 1; }
+    .libro-texto { grid-row: 1; padding-bottom: 0.5rem; }
+  }
+
+  /* ── Índice de ensayos: los textos bajan colgados de una línea, como cotas. ── */
+  .pagina-ensayos { max-width: none; margin: 0; }
+  .pagina-ensayos h1 { margin: clamp(1.5rem, 1rem + 4vh, 4rem) 0 var(--tramo); }
+  .pagina-ensayos .lista {
+    max-width: calc(var(--ancho-lectura) + 2rem);
+    border-left: 1px solid var(--color-borde);
+    padding-left: 2rem;
+  }
+  .pagina-ensayos .lista li {
+    position: relative;
+    padding: 0 0 3.25rem;
+    border-bottom: 0;
+  }
+  .pagina-ensayos .lista li::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 0.7em;
+    width: 1.25rem;
+    height: 2px;
+    background: var(--color-acento);
+  }
+  .pagina-ensayos .lista h2 { font-size: var(--tam-h2); line-height: 1.12; margin: 0.35rem 0 0.7rem; }
+
+  /* ── Texto largo ─────────────────────────────────────────────────────────── */
+  .cabecera-texto { margin: clamp(1.5rem, 1rem + 4vh, 4rem) 0 3rem; }
+  .cabecera-texto h1 { max-width: 16ch; margin-bottom: 1.25rem; }
+  .cabecera-texto .resumen { font-size: 1.3em; line-height: 1.45; }
+  .cuerpo h2 { margin-top: 2.6em; }
+  .cuerpo .figura img { border-radius: 0; }
+  .cuerpo .cita-destacada { border-top-width: 1px; border-bottom: 0; font-size: 1.5em; padding-top: 1.4rem; }
+  .indice-titulo, .cuerpo .footnotes > #footnote-label { text-transform: none; letter-spacing: 0.01em; font-size: var(--tam-chico); }
+
+  @media (min-width: 64rem) {
+    /* La tabla de contenidos pasa a la izquierda: otro riel, ahora dentro del texto. */
+    .texto-largo.con-indice {
+      grid-template-columns: 12rem minmax(0, var(--ancho-lectura));
+      justify-content: start;
+      column-gap: 3.5rem;
+    }
+    .texto-largo.con-indice .lectura { grid-column: 2; }
+    .texto-largo.con-indice .columna-indice { grid-column: 1; top: 2.5rem; padding-top: calc(clamp(1.5rem, 1rem + 4vh, 4rem) + 0.6rem); }
+    .texto-largo:not(.con-indice) .lectura { margin-left: calc(12rem + 3.5rem); }
+    .indice-lateral { border-left: 0; border-right: 1px solid var(--color-borde); padding: 0 1rem 0 0; }
+  }
+
+  /* ── /libro ──────────────────────────────────────────────────────────────── */
+  .pagina-libro { max-width: none; margin: 0; }
+  .pagina-libro-foto { display: block; margin-inline: calc(-1 * var(--margen-lateral)); --marco-proporcion: 4 / 5; }
+  .pagina-libro-foto .marco-hueco { border-inline: 0; border-top: 0; }
+  .pagina-libro-texto {
+    position: relative;
+    max-width: var(--ancho-lectura);
+    margin-top: -3rem;
+    padding: 1.5rem 1.5rem 0 0;
+    background: var(--color-fondo);
+  }
+  .pagina-libro-texto h1 { margin-top: 0.3rem; }
+
+  @media (min-width: 64rem) {
+    .pagina-libro-foto .marco-hueco { aspect-ratio: 21 / 9; }
+    .pagina-libro-texto { margin-top: -6rem; padding: 2.25rem 3rem 0 0; }
+  }
+}

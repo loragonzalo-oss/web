@@ -1,12 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
 import Pendiente from '../components/Pendiente.astro';
+import Marco from '../components/Marco.astro';
+import { DIRECCION, solo } from '../lib/direcciones';
 ---
 <Base titulo="Libro" descripcion="Libro sobre el Lago Titikaka, en preparación.">
-  <article class="lectura" data-pagefind-body>
-    <p class="meta">En preparación</p>
-    <h1>Un libro sobre el Lago Titikaka</h1>
-    <p><Pendiente texto="título definitivo del libro" /></p>
-    <p><Pendiente texto="texto de presentación del libro" /></p>
+  <article class="lectura pagina-libro" data-pagefind-body>
+    {DIRECCION.alguna && <Marco class="pagina-libro-foto" solo={solo('noche', 'crema')} />}
+    <div class="pagina-libro-texto">
+      <p class="meta">En preparación</p>
+      <h1>Un libro sobre el Lago Titikaka</h1>
+      <p><Pendiente texto="título definitivo del libro" /></p>
+      <p><Pendiente texto="texto de presentación del libro" /></p>
+    </div>
   </article>
 </Base>

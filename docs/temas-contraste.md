@@ -240,3 +240,121 @@ Los 52 pares pasan.
 | oscuro | Capa Emprendimientos comunitarios sobre fondo | `#dcbf4a` | `#121418` | 10.18:1 | 3:1 | sí |
 | oscuro | Capa Gobiernos municipales sobre fondo | `#a7b0bf` | `#121418` | 8.43:1 | 3:1 | sí |
 
+## Dirección 1 · Noche de altura
+
+Los 52 pares pasan.
+
+| Modo | Par | Primer plano | Fondo | Contraste | Mínimo | AA |
+|---|---|---|---|---|---|---|
+| claro | Texto sobre fondo | `#0b1016` | `#f2f5f8` | 17.45:1 | 4.5:1 | sí |
+| claro | Texto sobre superficie | `#0b1016` | `#e2e8ee` | 15.47:1 | 4.5:1 | sí |
+| claro | Texto suave sobre fondo | `#465567` | `#f2f5f8` | 6.96:1 | 4.5:1 | sí |
+| claro | Texto suave sobre superficie | `#465567` | `#e2e8ee` | 6.17:1 | 4.5:1 | sí |
+| claro | Enlace sobre fondo | `#7a5314` | `#f2f5f8` | 6.24:1 | 4.5:1 | sí |
+| claro | Enlace sobre superficie | `#7a5314` | `#e2e8ee` | 5.53:1 | 4.5:1 | sí |
+| claro | Enlace (cursor encima) sobre fondo | `#553905` | `#f2f5f8` | 9.72:1 | 4.5:1 | sí |
+| claro | Marca [PENDIENTE] | `#5a4500` | `#fbefc0` | 7.97:1 | 4.5:1 | sí |
+| claro | Ícono sobre capa Clima | `#ffffff` | `#2d62a6` | 6.16:1 | 3:1 | sí |
+| claro | Ícono sobre capa Ecología | `#ffffff` | `#3a7843` | 5.32:1 | 3:1 | sí |
+| claro | Ícono sobre capa Biodiversidad | `#ffffff` | `#0d7a7e` | 5.12:1 | 3:1 | sí |
+| claro | Ícono sobre capa Cultura | `#ffffff` | `#9a3e69` | 6.43:1 | 3:1 | sí |
+| claro | Ícono sobre capa Antropología | `#ffffff` | `#83572e` | 6.24:1 | 3:1 | sí |
+| claro | Ícono sobre capa Arqueología | `#ffffff` | `#5c4a9b` | 7.22:1 | 3:1 | sí |
+| claro | Ícono sobre capa Turismo | `#ffffff` | `#ad501d` | 5.33:1 | 3:1 | sí |
+| claro | Ícono sobre capa Emprendimientos comunitarios | `#ffffff` | `#786611` | 5.66:1 | 3:1 | sí |
+| claro | Ícono sobre capa Gobiernos municipales | `#ffffff` | `#4a5966` | 7.21:1 | 3:1 | sí |
+| claro | Capa Clima sobre fondo | `#2d62a6` | `#f2f5f8` | 5.63:1 | 3:1 | sí |
+| claro | Capa Ecología sobre fondo | `#3a7843` | `#f2f5f8` | 4.86:1 | 3:1 | sí |
+| claro | Capa Biodiversidad sobre fondo | `#0d7a7e` | `#f2f5f8` | 4.68:1 | 3:1 | sí |
+| claro | Capa Cultura sobre fondo | `#9a3e69` | `#f2f5f8` | 5.87:1 | 3:1 | sí |
+| claro | Capa Antropología sobre fondo | `#83572e` | `#f2f5f8` | 5.70:1 | 3:1 | sí |
+| claro | Capa Arqueología sobre fondo | `#5c4a9b` | `#f2f5f8` | 6.60:1 | 3:1 | sí |
+| claro | Capa Turismo sobre fondo | `#ad501d` | `#f2f5f8` | 4.87:1 | 3:1 | sí |
+| claro | Capa Emprendimientos comunitarios sobre fondo | `#786611` | `#f2f5f8` | 5.18:1 | 3:1 | sí |
+| claro | Capa Gobiernos municipales sobre fondo | `#4a5966` | `#f2f5f8` | 6.59:1 | 3:1 | sí |
+| oscuro | Texto sobre fondo | `#dfe9f2` | `#070b12` | 16.02:1 | 4.5:1 | sí |
+| oscuro | Texto sobre superficie | `#dfe9f2` | `#0f1722` | 14.64:1 | 4.5:1 | sí |
+| oscuro | Texto suave sobre fondo | `#93a4b6` | `#070b12` | 7.72:1 | 4.5:1 | sí |
+| oscuro | Texto suave sobre superficie | `#93a4b6` | `#0f1722` | 7.06:1 | 4.5:1 | sí |
+| oscuro | Enlace sobre fondo | `#d8b787` | `#070b12` | 10.36:1 | 4.5:1 | sí |
+| oscuro | Enlace sobre superficie | `#d8b787` | `#0f1722` | 9.47:1 | 4.5:1 | sí |
+| oscuro | Enlace (cursor encima) sobre fondo | `#ead3a8` | `#070b12` | 13.50:1 | 4.5:1 | sí |
+| oscuro | Marca [PENDIENTE] | `#f1da86` | `#3a3210` | 9.19:1 | 4.5:1 | sí |
+| oscuro | Ícono sobre capa Clima | `#070b12` | `#82aee6` | 8.58:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Ecología | `#070b12` | `#8cc293` | 9.62:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Biodiversidad | `#070b12` | `#5cc6c4` | 9.69:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Cultura | `#070b12` | `#e08cb2` | 8.04:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Antropología | `#070b12` | `#cf9e72` | 8.25:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Arqueología | `#070b12` | `#ab9ce6` | 8.10:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Turismo | `#070b12` | `#ee9b6c` | 8.95:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Emprendimientos comunitarios | `#070b12` | `#d2bb5a` | 10.32:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Gobiernos municipales | `#070b12` | `#9fb0be` | 8.85:1 | 3:1 | sí |
+| oscuro | Capa Clima sobre fondo | `#82aee6` | `#070b12` | 8.58:1 | 3:1 | sí |
+| oscuro | Capa Ecología sobre fondo | `#8cc293` | `#070b12` | 9.62:1 | 3:1 | sí |
+| oscuro | Capa Biodiversidad sobre fondo | `#5cc6c4` | `#070b12` | 9.69:1 | 3:1 | sí |
+| oscuro | Capa Cultura sobre fondo | `#e08cb2` | `#070b12` | 8.04:1 | 3:1 | sí |
+| oscuro | Capa Antropología sobre fondo | `#cf9e72` | `#070b12` | 8.25:1 | 3:1 | sí |
+| oscuro | Capa Arqueología sobre fondo | `#ab9ce6` | `#070b12` | 8.10:1 | 3:1 | sí |
+| oscuro | Capa Turismo sobre fondo | `#ee9b6c` | `#070b12` | 8.95:1 | 3:1 | sí |
+| oscuro | Capa Emprendimientos comunitarios sobre fondo | `#d2bb5a` | `#070b12` | 10.32:1 | 3:1 | sí |
+| oscuro | Capa Gobiernos municipales sobre fondo | `#9fb0be` | `#070b12` | 8.85:1 | 3:1 | sí |
+
+## Dirección 2 · Crema y tierra
+
+Los 52 pares pasan.
+
+| Modo | Par | Primer plano | Fondo | Contraste | Mínimo | AA |
+|---|---|---|---|---|---|---|
+| claro | Texto sobre fondo | `#1f1712` | `#e8e3da` | 13.81:1 | 4.5:1 | sí |
+| claro | Texto sobre superficie | `#1f1712` | `#dcd5c9` | 12.11:1 | 4.5:1 | sí |
+| claro | Texto suave sobre fondo | `#574a40` | `#e8e3da` | 6.68:1 | 4.5:1 | sí |
+| claro | Texto suave sobre superficie | `#574a40` | `#dcd5c9` | 5.86:1 | 4.5:1 | sí |
+| claro | Enlace sobre fondo | `#8c2a10` | `#e8e3da` | 6.70:1 | 4.5:1 | sí |
+| claro | Enlace sobre superficie | `#8c2a10` | `#dcd5c9` | 5.87:1 | 4.5:1 | sí |
+| claro | Enlace (cursor encima) sobre fondo | `#511400` | `#e8e3da` | 11.33:1 | 4.5:1 | sí |
+| claro | Marca [PENDIENTE] | `#523b00` | `#f6dfa0` | 8.05:1 | 4.5:1 | sí |
+| claro | Ícono sobre capa Clima | `#ffffff` | `#3d6493` | 6.10:1 | 3:1 | sí |
+| claro | Ícono sobre capa Ecología | `#ffffff` | `#507029` | 5.69:1 | 3:1 | sí |
+| claro | Ícono sobre capa Biodiversidad | `#ffffff` | `#2a7366` | 5.61:1 | 3:1 | sí |
+| claro | Ícono sobre capa Cultura | `#ffffff` | `#9a404e` | 6.53:1 | 3:1 | sí |
+| claro | Ícono sobre capa Antropología | `#ffffff` | `#87582a` | 6.07:1 | 3:1 | sí |
+| claro | Ícono sobre capa Arqueología | `#ffffff` | `#694e84` | 6.95:1 | 3:1 | sí |
+| claro | Ícono sobre capa Turismo | `#ffffff` | `#a95510` | 5.26:1 | 3:1 | sí |
+| claro | Ícono sobre capa Emprendimientos comunitarios | `#ffffff` | `#79650c` | 5.71:1 | 3:1 | sí |
+| claro | Ícono sobre capa Gobiernos municipales | `#ffffff` | `#5a5a50` | 6.97:1 | 3:1 | sí |
+| claro | Capa Clima sobre fondo | `#3d6493` | `#e8e3da` | 4.77:1 | 3:1 | sí |
+| claro | Capa Ecología sobre fondo | `#507029` | `#e8e3da` | 4.45:1 | 3:1 | sí |
+| claro | Capa Biodiversidad sobre fondo | `#2a7366` | `#e8e3da` | 4.39:1 | 3:1 | sí |
+| claro | Capa Cultura sobre fondo | `#9a404e` | `#e8e3da` | 5.11:1 | 3:1 | sí |
+| claro | Capa Antropología sobre fondo | `#87582a` | `#e8e3da` | 4.75:1 | 3:1 | sí |
+| claro | Capa Arqueología sobre fondo | `#694e84` | `#e8e3da` | 5.43:1 | 3:1 | sí |
+| claro | Capa Turismo sobre fondo | `#a95510` | `#e8e3da` | 4.11:1 | 3:1 | sí |
+| claro | Capa Emprendimientos comunitarios sobre fondo | `#79650c` | `#e8e3da` | 4.47:1 | 3:1 | sí |
+| claro | Capa Gobiernos municipales sobre fondo | `#5a5a50` | `#e8e3da` | 5.45:1 | 3:1 | sí |
+| oscuro | Texto sobre fondo | `#ede5da` | `#18120e` | 14.86:1 | 4.5:1 | sí |
+| oscuro | Texto sobre superficie | `#ede5da` | `#231b16` | 13.57:1 | 4.5:1 | sí |
+| oscuro | Texto suave sobre fondo | `#b2a495` | `#18120e` | 7.63:1 | 4.5:1 | sí |
+| oscuro | Texto suave sobre superficie | `#b2a495` | `#231b16` | 6.97:1 | 4.5:1 | sí |
+| oscuro | Enlace sobre fondo | `#ec8d68` | `#18120e` | 7.58:1 | 4.5:1 | sí |
+| oscuro | Enlace sobre superficie | `#ec8d68` | `#231b16` | 6.92:1 | 4.5:1 | sí |
+| oscuro | Enlace (cursor encima) sobre fondo | `#f5b498` | `#18120e` | 10.48:1 | 4.5:1 | sí |
+| oscuro | Marca [PENDIENTE] | `#f0d98a` | `#3e3412` | 8.80:1 | 4.5:1 | sí |
+| oscuro | Ícono sobre capa Clima | `#18120e` | `#8eabd3` | 7.88:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Ecología | `#18120e` | `#a6c47c` | 9.55:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Biodiversidad | `#18120e` | `#7cc0b1` | 8.86:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Cultura | `#18120e` | `#dc8f99` | 7.45:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Antropología | `#18120e` | `#d1a271` | 8.06:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Arqueología | `#18120e` | `#b8a0d0` | 7.93:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Turismo | `#18120e` | `#e7a062` | 8.48:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Emprendimientos comunitarios | `#18120e` | `#d3bb59` | 9.74:1 | 3:1 | sí |
+| oscuro | Ícono sobre capa Gobiernos municipales | `#18120e` | `#b0ae9f` | 8.31:1 | 3:1 | sí |
+| oscuro | Capa Clima sobre fondo | `#8eabd3` | `#18120e` | 7.88:1 | 3:1 | sí |
+| oscuro | Capa Ecología sobre fondo | `#a6c47c` | `#18120e` | 9.55:1 | 3:1 | sí |
+| oscuro | Capa Biodiversidad sobre fondo | `#7cc0b1` | `#18120e` | 8.86:1 | 3:1 | sí |
+| oscuro | Capa Cultura sobre fondo | `#dc8f99` | `#18120e` | 7.45:1 | 3:1 | sí |
+| oscuro | Capa Antropología sobre fondo | `#d1a271` | `#18120e` | 8.06:1 | 3:1 | sí |
+| oscuro | Capa Arqueología sobre fondo | `#b8a0d0` | `#18120e` | 7.93:1 | 3:1 | sí |
+| oscuro | Capa Turismo sobre fondo | `#e7a062` | `#18120e` | 8.48:1 | 3:1 | sí |
+| oscuro | Capa Emprendimientos comunitarios sobre fondo | `#d3bb59` | `#18120e` | 9.74:1 | 3:1 | sí |
+| oscuro | Capa Gobiernos municipales sobre fondo | `#b0ae9f` | `#18120e` | 8.31:1 | 3:1 | sí |
+

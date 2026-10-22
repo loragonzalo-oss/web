@@ -95,3 +95,12 @@ pre { overflow-x: auto; padding: 1em; background: var(--color-superficie); borde
   border-radius: var(--radio);
   margin-bottom: 1.5em;
 }
+
+/*
+  Piezas de composición de las direcciones del rediseño (marcos de foto, riel de la
+  portada, ensayos en la portada). Llevan data-solo="noche", "crema" o ambas, y sólo
+  existen en el marcado cuando hacen falta: en desarrollo (para cambiar de dirección sin
+  recargar) o cuando el tema publicado es esa dirección (src/lib/direcciones.ts).
+  Ocultas por defecto; cada composición (src/styles/composiciones/) muestra las suyas.
+*/
+[data-solo] { display: none; }

@@ -1,32 +1,72 @@
 ---
 import Base from '../layouts/Base.astro';
 import Pendiente from '../components/Pendiente.astro';
+import Marco from '../components/Marco.astro';
 import ListaEntradas from '../components/ListaEntradas.astro';
 import { SITIO } from '../lib/sitio';
 import { url } from '../lib/rutas';
-import { entradasBlog } from '../lib/contenido';
+import { entradasBlog, ensayos } from '../lib/contenido';
+import { DIRECCION, solo } from '../lib/direcciones';
 
 const ultimas = (await entradasBlog()).slice(0, 3);
+// Los ensayos en la portada sólo los muestran las direcciones del rediseño.
+const ultimosEnsayos = DIRECCION.alguna ? (await ensayos()).slice(0, 3) : [];
 ---
 <Base>
-  <section class="presentacion lectura">
-    <h1>{SITIO.nombre}</h1>
-    <p class="apodo">«{SITIO.apodo}»</p>
-    <p class="linea"><Pendiente texto="línea de presentación" /></p>
-  </section>
+  <div class="portada">
+    {DIRECCION.alguna && <Marco class="portada-foto" solo={solo('noche', 'crema')} />}
 
-  <section class="libro lectura" aria-labelledby="titulo-libro">
-    <p class="meta etiqueta">El libro · En preparación</p>
-    <h2 id="titulo-libro">Un libro sobre el Lago Titikaka</h2>
-    <p><Pendiente texto="título y descripción breve del libro" /></p>
-    <p class="interfaz"><a href={url('/libro/')}>Sobre el libro →</a></p>
-  </section>
+    <section class="presentacion lectura">
+      <h1>{SITIO.nombre}</h1>
+      <p class="apodo">«{SITIO.apodo}»</p>
+      <p class="linea"><Pendiente texto="línea de presentación" /></p>
+    </section>
 
-  <section class="ultimas lectura" aria-labelledby="titulo-blog">
-    <h2 id="titulo-blog">Últimas entradas del blog</h2>
-    <ListaEntradas entradas={ultimas} />
-    {ultimas.length > 0 && <p class="interfaz"><a href={url('/blog/')}>Todas las entradas →</a></p>}
-  </section>
+    {DIRECCION.noche && (
+      <nav class="portada-riel interfaz" data-solo={solo('noche')} aria-label="En esta página">
+        <ol>
+          <li><a href="#titulo-libro">El libro</a></li>
+          <li><a href="#titulo-ensayos-portada">Ensayos</a></li>
+          <li><a href="#titulo-blog">Blog</a></li>
+        </ol>
+      </nav>
+    )}
+
+    <section class="libro lectura" aria-labelledby="titulo-libro">
+      {DIRECCION.alguna && <Marco class="libro-foto" solo={solo('noche', 'crema')} />}
+      <div class="libro-texto">
+        <p class="meta etiqueta">El libro · En preparación</p>
+        <h2 id="titulo-libro">Un libro sobre el Lago Titikaka</h2>
+        <p><Pendiente texto="título y descripción breve del libro" /></p>
+        <p class="interfaz"><a href={url('/libro/')}>Sobre el libro <span class="flecha" aria-hidden="true">→</span></a></p>
+      </div>
+    </section>
+
+    {DIRECCION.alguna && (
+      <section class="ensayos-portada lectura" data-solo={solo('noche', 'crema')} aria-labelledby="titulo-ensayos-portada">
+        <h2 id="titulo-ensayos-portada">Ensayos</h2>
+        {ultimosEnsayos.length === 0 ? (
+          <p class="vacio">Todavía no hay ensayos publicados.</p>
+        ) : (
+          <ul class="ensayos-portada-lista">
+            {ultimosEnsayos.map((e) => (
+              <li>
+                <h3><a href={url(`/ensayos/${e.id}/`)}>{e.data.titulo}</a></h3>
+                {e.data.resumen && <p>{e.data.resumen}</p>}
+              </li>
+            ))}
+          </ul>
+        )}
+        <p class="interfaz"><a href={url('/ensayos/')}>Todos los ensayos</a></p>
+      </section>
+    )}
+
+    <section class="ultimas lectura" aria-labelledby="titulo-blog">
+      <h2 id="titulo-blog">Últimas entradas del blog</h2>
+      <ListaEntradas entradas={ultimas} />
+      {ultimas.length > 0 && <p class="interfaz"><a href={url('/blog/')}>Todas las entradas <span class="flecha" aria-hidden="true">→</span></a></p>}
+    </section>
+  </div>
 </Base>
 
 <style>

@@ -1,0 +1,101 @@
+---
+// Lámina de las dos direcciones del rediseño: /direcciones, sólo con npm run dev.
+// La agrega integracion-temas.mjs; no entra al sitio publicado.
+// Muestra las dos direcciones lado a lado con las capturas de docs/capturas/rediseno/
+// (npm run rediseno:capturas) y enlaces para verlas vivas.
+import Base from '../layouts/Base.astro';
+import { DIRECCIONES, TEMAS } from './temas.mjs';
+import { PAGINAS, DISPOSITIVOS } from './capturas-rediseno.mjs';
+import { TEMA } from '../../sitio.config.mjs';
+import { url } from '../lib/rutas';
+
+const capturas = import.meta.glob('../../docs/capturas/rediseno/*.png', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const captura = (nombre: string) => capturas[`../../docs/capturas/rediseno/${nombre}.png`];
+
+const COMPOSICION: Record<string, string[]> = {
+  noche: [
+    'Navegación: en escritorio, un riel fijo a la izquierda con una escala de cotas; la página actual se marca con una cota del acento cálido. En teléfono, la barra de siempre.',
+    'Portada: la foto a toda la altura de la pantalla y el nombre montado sobre su borde inferior; después, los tramos (libro, ensayos, blog) bajan en una sola columna, con un riel de la página a la derecha.',
+    'Índice de ensayos: los textos cuelgan de una línea vertical, cada uno con su cota.',
+    'Entrada larga: título muy grande, tabla de contenidos a la izquierda como otro riel, una sola columna de lectura.',
+    '/libro: foto apaisada 21:9 y el texto que se monta sobre ella.',
+  ],
+  crema: [
+    'Navegación: cabecera liviana, sin línea, con el menú en itálica de libro. Pie con una línea gruesa del color del texto.',
+    'Portada: el nombre en tipografía muy grande a todo lo ancho; debajo, una franja de foto apaisada de lado a lado; el libro con su foto vertical como tapa; ensayos y blog en fila, con el título en el margen izquierdo.',
+    'Índice de ensayos: «Ensayos» en itálica gigante, fijo en el margen izquierdo mientras baja la lista.',
+    'Entrada larga: párrafos de libro (sangría, sin espacio entre párrafos), el título, las figuras y las citas destacadas salen al margen izquierdo; la tabla de contenidos va en el margen derecho.',
+    '/libro: la foto vertical como tapa, fija a la izquierda, y el texto a la derecha.',
+  ],
+};
+
+const RUTAS = [
+  ['Portada', ''],
+  ['Ensayos', 'ensayos/'],
+  ['Entrada larga', 'blog/ejemplo-entrada-larga/'],
+  ['/libro', 'libro/'],
+  ['Prototipo', 'prototipos/profundidad/'],
+];
+
+const hayCapturas = Object.keys(capturas).length > 0;
+---
+<Base titulo="Direcciones del rediseño" noIndexar>
+  <div class="dir-intro lectura">
+    <h1>Direcciones del rediseño</h1>
+    <p>Página de desarrollo: sólo existe con <code>npm run dev</code> y no se publica. Las dos direcciones cambian la composición de la base editorial, no sólo colores y tipografías. Ninguna está elegida.</p>
+    <p class="meta">Tema publicado hoy: <strong>{TEMAS.find((t) => t.id === TEMA)?.nombre}</strong>. Para elegir una dirección se cambia una sola línea en <code>sitio.config.mjs</code>: <code>TEMA = 'noche'</code> o <code>TEMA = 'crema'</code>. Paso a paso en COMO-PUBLICAR.md, «Direcciones del rediseño».</p>
+  </div>
+
+  <div class="dir-columnas">
+    {DIRECCIONES.map((d) => (
+      <section class="dir-ficha" aria-labelledby={`dir-${d.id}`}>
+        <h2 id={`dir-${d.id}`}>{d.nombre}</h2>
+        <p>{d.inspiracion}</p>
+        <p class="meta">Cuerpo: {d.cuerpo.familia} ({d.cuerpo.autor}) · Interfaz: {d.interfaz.familia} ({d.interfaz.autor}) · {d.cuerpo.licencia}, autoalojadas. Contraste AA: <code>docs/temas-contraste.md</code>.</p>
+        <ul>{COMPOSICION[d.composicion].map((c) => <li>{c}</li>)}</ul>
+        <p class="meta">Verla viva: {RUTAS.map(([nombre, ruta], i) => <>{i > 0 && ' · '}<a href={`${url('/' + ruta)}?tema=${d.id}`}>{nombre}</a></>)}</p>
+      </section>
+    ))}
+  </div>
+
+  {!hayCapturas && <p class="vacio lectura">Todavía no hay capturas. Con el servidor de desarrollo corriendo, en otra terminal: <code>npm run rediseno:capturas</code>.</p>}
+
+  {hayCapturas && PAGINAS.map((p) => (
+    <section class="dir-pagina" aria-labelledby={`pag-${p.nombre}`}>
+      <h2 id={`pag-${p.nombre}`} class="lectura">{RUTAS.find(([, r]) => r === p.ruta)?.[0] ?? p.nombre}</h2>
+      {DISPOSITIVOS.map((disp) => ['claro', 'oscuro'].map((modo) => (
+        <div class="dir-fila">
+          <p class="dir-rotulo interfaz">{disp.nombre === 'telefono' ? 'Teléfono' : 'Escritorio'}, modo {modo}</p>
+          <div class={`dir-par dir-par-${disp.nombre}`}>
+            {DIRECCIONES.map((d) => {
+              const src = captura(`${p.nombre}-${d.id}-${disp.nombre}-${modo}`);
+              return (
+                <figure>
+                  {src
+                    ? <a href={src}><img src={src} alt={`${p.nombre}, ${d.nombre}, ${disp.nombre}, modo ${modo}`} loading="lazy" /></a>
+                    : <p class="vacio">Falta la captura.</p>}
+                  <figcaption class="meta">{d.nombre}</figcaption>
+                </figure>
+              );
+            })}
+          </div>
+        </div>
+      )))}
+    </section>
+  ))}
+</Base>
+
+<style is:inline>
+  .dir-columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 2rem; margin: 2rem 0 3rem; }
+  .dir-ficha { border-top: 2px solid var(--color-texto); padding-top: 1rem; }
+  .dir-ficha h2 { margin-top: 0; }
+  .dir-ficha li { margin-bottom: 0.5rem; }
+  .dir-pagina { margin: 3rem 0; padding-top: 1rem; border-top: 1px solid var(--color-borde); }
+  .dir-fila { margin: 1.5rem 0; }
+  .dir-rotulo { font-size: var(--tam-chico); color: var(--color-texto-suave); margin: 0 0 0.5rem; }
+  .dir-par { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; align-items: start; }
+  .dir-par-telefono { max-width: 40rem; }
+  .dir-par figure { margin: 0; }
+  .dir-par img { display: block; width: 100%; height: auto; max-height: 80rem; object-fit: cover; object-position: top; border: 1px solid var(--color-borde); }
+  .dir-par figcaption { margin-top: 0.3rem; }
+</style>

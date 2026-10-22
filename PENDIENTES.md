@@ -14,6 +14,12 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
 - [ ] [PENDIENTE: título definitivo del libro] — página /libro. Archivo: `src/pages/libro.astro`.
 - [ ] [PENDIENTE: texto de presentación del libro] — página /libro. Archivo: `src/pages/libro.astro`.
 - [ ] [PENDIENTE: correo de contacto] — página /contacto. Se completa en `src/lib/sitio.ts`, campo `correo`. Decidir si va correo a la vista o un formulario (y qué servicio).
+- [ ] [PENDIENTE: foto del autor] — marcos de foto de las dos direcciones del rediseño. Sólo se ven en desarrollo o si se elige `noche` o `crema`; con el tema provisorio no se publican. Componente: `src/components/Marco.astro`. Usos y proporciones:
+  - portada, foto principal (`src/pages/index.astro`, clase `portada-foto`): en `noche`, a toda la altura de la pantalla en escritorio y 4:5 en teléfono; en `crema`, franja apaisada 12:5 en escritorio y 4:3 en teléfono;
+  - portada, foto del libro (`libro-foto`): 4:5 en `noche`, 2:3 (como una tapa) en `crema`;
+  - /libro (`src/pages/libro.astro`, `pagina-libro-foto`): 21:9 en escritorio y 4:5 en teléfono en `noche`; 2:3 en `crema`.
+
+  Fotos propias del autor, nunca de stock ni generadas. Para cada una hace falta también la descripción (texto alternativo) y, si corresponde, el crédito. Cuando lleguen, el marco pasa a llevar la imagen optimizada con `astro:assets`.
 - [ ] [PENDIENTE: dominio] — dominio propio todavía no comprado/definido. Pasos en COMO-PUBLICAR.md, «Pasar al dominio propio». No crear `public/CNAME` hasta tenerlo.
 
 ### Mapa
@@ -35,6 +41,16 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
   - [ ] Imagen para compartir de las páginas que no son entradas ni ensayos (`public/og-default.png`): hoy es una tarjeta tipográfica con nombre, «Pacha Shunku» y «La Paz, Bolivia». Reemplazar cuando haya identidad visual (1200 × 630 px). También es el respaldo si falla la tarjeta automática.
   - [ ] Tarjetas automáticas de entradas y ensayos (`src/lib/og.ts`): toman los colores y las tipografías del tema publicado. Revisar su diseño cuando se cierre la identidad. El generador entiende colores en `#hex`, `rgb()` y `hsl()`; si un tema nuevo usa otro formato (por ejemplo `oklch()`), las tarjetas caen a `og-default.png` hasta adaptar el generador.
   - [ ] Cuando esté elegido: borrar los temas descartados y sus paquetes `@fontsource/*` de `package.json`, y rehacer las capturas de `docs/capturas/`.
+
+### Rediseño en dos capas (22-10-2026)
+
+- [ ] **Qué dirección queda**: 1 «Noche de altura» (`noche`) o 2 «Crema y tierra» (`crema`), o seguir con un tema de colores sobre la maqueta de siempre. Cómo verlas y cómo elegir: COMO-PUBLICAR.md, «Direcciones del rediseño». Se elige con la línea `TEMA` de `sitio.config.mjs`. Al elegir, revisar también el favicon y `public/og-default.png` (ver «Identidad visual»), y borrar la dirección descartada (su tema, su composición y sus `@fontsource/*`).
+- [ ] **Fotos del autor** para los marcos (ver «Datos del autor → Sitio»).
+- [ ] **Licencia y resolución de la batimetría de la ALT**, para que el prototipo «scroll es profundidad» deje la forma sintética y muestre el fondo real. Hasta entonces quedan visibles en el prototipo [PENDIENTE: profundidad con fuente] (riel y cada tramo) y [PENDIENTE: batimetría de la ALT, con licencia y resolución confirmadas por el autor] (fuentes). Archivos: `src/components/profundidad/Pieza.astro` y `src/lib/profundidad.ts`.
+- [ ] **Texto de cada tramo del prototipo**: [PENDIENTE: texto del autor para este tramo], cuatro veces (Superficie, Aguas someras, Aguas abiertas, Fondo; nombres de maqueta, se cambian en `src/lib/profundidad.ts`).
+- [ ] **Qué página real lleva la primera pieza inmersiva**, si el prototipo sirve. CLAUDE.md pide aprobación del autor página por página.
+- [ ] Ensayos en la portada: las dos direcciones muestran los tres últimos ensayos en la portada (la maqueta de siempre sólo muestra el blog). Confirmar si se quiere así.
+- [ ] Sitios de referencia: el entorno donde se hizo el rediseño bloquea los dominios de las referencias de Awwwards (everest.suraj.work, 1000whales.com, moncalisse.com, beautiful-imperfections.com, alethia.earth y los demás), así que el diseño salió de la descripción del encargo, no de mirar los sitios vivos. Conviene que el autor compare las direcciones con las referencias que eligió.
 
 ### «Sobre mí»
 
@@ -83,4 +99,6 @@ No son pendientes: explican decisiones de construcción para quien mantenga el s
 - El buscador (Pagefind) y su página `/buscar/` usan JavaScript del lado del cliente: es la excepción que admite CLAUDE.md («salvo que haga falta»). Todo lo demás sigue sin JavaScript, salvo el mapa.
 - `/buscar/` y la página 404 llevan `noindex` y no tienen dirección canónica.
 - La 404 funciona en GitHub Pages porque `dist/404.html` queda en la raíz de lo publicado. Con dominio propio sigue igual.
-- El selector de tema y la lámina `/temas` existen sólo con `npm run dev`; una prueba comprueba que el sitio construido no los trae.
+- El selector de tema y la lámina `/temas` existen sólo con `npm run dev`; una prueba comprueba que el sitio construido no los trae. Lo mismo la lámina `/direcciones`.
+- Los prototipos de piezas inmersivas (`/prototipos/…`) siguen la regla de los borradores: existen con `npm run dev` y en `npm run build:prueba`, nunca en `npm run build`. Así las pruebas y la medición de peso los cubren sin publicarlos.
+- La base editorial sigue sin JavaScript con cualquiera de los temas: las dos direcciones son sólo CSS. Peso por tipo de página en `docs/rediseno-peso.md`.

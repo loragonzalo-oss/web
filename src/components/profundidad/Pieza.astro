@@ -1,0 +1,185 @@
+---
+// Prototipo «scroll es profundidad»: el contenido, igual en las dos versiones.
+// - inmersiva: la escena con canvas y el riel que sigue el scroll (Escena.astro, con su script).
+// - liviana: el mismo texto, el mismo riel como lista de enlaces y el corte en SVG, sin JavaScript.
+// Todo el texto es HTML legible e indexable; la escena es decorativa (aria-hidden).
+import Pendiente from '../Pendiente.astro';
+import Escena from './Escena.astro';
+import { TRAMOS, perfilSvg } from '../../lib/profundidad';
+import { url } from '../../lib/rutas';
+
+interface Props { version: 'inmersiva' | 'liviana' }
+const { version } = Astro.props;
+const inmersiva = version === 'inmersiva';
+const otra = inmersiva ? url('/prototipos/profundidad/liviana/') : url('/prototipos/profundidad/');
+const perfil = perfilSvg();
+---
+<div class="pieza" data-version={version}>
+  <header class="pieza-intro">
+    <p class="meta">Prototipo de pieza inmersiva · página de desarrollo, no se publica</p>
+    <h1>Scroll es profundidad</h1>
+    <p>Maqueta de la interacción: al bajar con el scroll, la vista baja hacia el fondo del lago, y el riel de profundidad de la derecha marca el tramo y sirve para saltar entre tramos. No muestra datos reales.</p>
+    <p class="pieza-forma-aviso"><strong>Forma ilustrativa, no es el fondo del lago.</strong> La superficie es sintética, calculada con una fórmula.</p>
+    <p class="interfaz">
+      {inmersiva
+        ? <a href={otra}>Ver la versión liviana (mismo contenido, sin animación ni JavaScript)</a>
+        : <a href={otra}>Ver la versión inmersiva</a>}
+    </p>
+  </header>
+
+  <div class="pieza-cuerpo">
+    {inmersiva ? (
+      <Escena perfil={perfil} />
+    ) : (
+      <figure class="pieza-corte">
+        <svg viewBox="0 0 1000 400" role="img" aria-labelledby="corte-titulo">
+          <title id="corte-titulo">Corte de una forma sintética de cuenca, con ondas. No es el fondo del lago.</title>
+          <rect width="1000" height="400" class="corte-agua" />
+          <path d={perfil} class="corte-fondo" />
+          <line x1="0" y1="40" x2="1000" y2="40" class="corte-superficie" />
+        </svg>
+        <figcaption class="meta">Forma ilustrativa, no es el fondo del lago. Corte de la superficie sintética descrita en «Fuentes».</figcaption>
+      </figure>
+    )}
+
+    <nav class="pieza-riel interfaz" aria-label="Riel de profundidad">
+      <p class="riel-titulo">Profundidad</p>
+      <ol>
+        {TRAMOS.map((t, i) => (
+          <li style={`--i: ${i}`}>
+            <a href={`#tramo-${t.id}`}>{t.nombre}</a>
+          </li>
+        ))}
+      </ol>
+      <p class="riel-lectura"><Pendiente texto="profundidad con fuente" /></p>
+    </nav>
+
+    <ol class="pieza-tramos">
+      {TRAMOS.map((t) => (
+        <li>
+          <section class="tramo" id={`tramo-${t.id}`} aria-labelledby={`titulo-tramo-${t.id}`}>
+            <h2 id={`titulo-tramo-${t.id}`}>{t.nombre}</h2>
+            <p class="meta">Profundidad: <Pendiente texto="profundidad con fuente" /></p>
+            <p><Pendiente texto="texto del autor para este tramo" /></p>
+          </section>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <section class="pieza-fuentes" aria-labelledby="titulo-fuentes">
+    <h2 id="titulo-fuentes">Fuentes</h2>
+    <ul>
+      <li><strong>Forma del fondo:</strong> superficie sintética, una cuenca con ondas sumadas (función <code>hondura</code> en <code>src/lib/profundidad.ts</code>). Es una forma ilustrativa, no es el fondo del lago, y no tiene unidades.</li>
+      <li><strong>Profundidades:</strong> <Pendiente texto="batimetría de la ALT, con licencia y resolución confirmadas por el autor" />. Hasta entonces, el riel no muestra metros.</li>
+      <li><strong>Sonido:</strong> esta maqueta no tiene sonido.</li>
+      <li><strong>Lugares:</strong> la maqueta no muestra coordenadas ni lugares (regla 6 de CLAUDE.md).</li>
+    </ul>
+  </section>
+</div>
+
+<style>
+  .pieza {
+    --agua-claro: #2b5266;
+    --agua-hondo: #04070c;
+    --fondo-trazo: #9fc3d4;
+  }
+  .pieza-intro, .pieza-fuentes {
+    max-width: var(--ancho-lectura);
+    margin: 0 auto;
+    padding: 0 var(--margen-lateral);
+  }
+  .pieza-intro h1 { margin-bottom: 0.8rem; }
+  .pieza-forma-aviso { padding: 0.7rem 0.9rem; border: 1px solid var(--color-borde); background: var(--color-superficie); }
+  .pieza-fuentes { margin-top: 4rem; }
+  .pieza-fuentes li { margin-bottom: 0.6rem; }
+
+  .pieza-cuerpo { position: relative; margin-top: 2rem; }
+
+  /* Riel: lista de enlaces a los tramos. Fijo mientras se baja. */
+  .pieza-riel {
+    font-size: var(--tam-chico);
+  }
+  .riel-titulo { margin: 0 0 0.6rem; color: var(--color-texto-suave); }
+  .pieza-riel ol { list-style: none; margin: 0; padding: 0 0 0 1rem; border-left: 1px solid var(--color-borde); }
+  .pieza-riel li { position: relative; }
+  .pieza-riel a { display: block; padding: 0.55rem 0; min-height: 24px; color: var(--color-texto-suave); text-decoration: none; }
+  .pieza-riel a::before { content: ''; position: absolute; left: -1rem; top: 50%; width: 0.6rem; height: 1px; background: var(--color-borde); }
+  .pieza-riel a:hover, .pieza-riel a[aria-current] { color: var(--color-acento); }
+  .pieza-riel a[aria-current]::before { background: var(--color-acento); height: 2px; width: 0.9rem; }
+  .riel-lectura { margin: 0.8rem 0 0; }
+
+  .tramo h2 { margin-top: 0; }
+
+  /* Versión liviana: una columna de texto, el corte arriba y el riel como índice. */
+  [data-version='liviana'] .pieza-cuerpo { max-width: var(--ancho-lectura); margin-inline: auto; padding: 0 var(--margen-lateral); }
+  [data-version='liviana'] .pieza-riel { margin: 2rem 0; }
+  [data-version='liviana'] .pieza-tramos { list-style: none; margin: 0; padding: 0; }
+  [data-version='liviana'] .tramo { padding: 1.5rem 0; border-top: 1px solid var(--color-borde); }
+  .pieza-corte { margin: 0; }
+  .pieza-corte svg { display: block; width: 100%; height: auto; }
+  .corte-agua { fill: var(--agua-claro); }
+  .corte-fondo { fill: var(--agua-hondo); stroke: var(--fondo-trazo); stroke-width: 2; }
+  .corte-superficie { stroke: var(--fondo-trazo); stroke-width: 2; }
+  .pieza-corte figcaption { margin-top: 0.5rem; }
+
+  /* Versión inmersiva: escena y riel fijos; los tramos pasan por encima. */
+  [data-version='inmersiva'] .pieza-cuerpo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-version='inmersiva'] .pieza-cuerpo > :global(*) { grid-area: 1 / 1; }
+  [data-version='inmersiva'] .pieza-riel {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    justify-self: end;
+    z-index: 2;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 11rem;
+    padding: 1rem var(--margen-lateral) 1rem 1rem;
+    background: color-mix(in srgb, var(--color-fondo) 92%, transparent);
+    border-left: 1px solid var(--color-borde);
+  }
+  [data-version='inmersiva'] .pieza-riel ol { position: relative; }
+  /* Marcador continuo sobre la línea del riel. --p (avance del descenso, de 0 a 1) lo pone el script. */
+  [data-version='inmersiva'] .pieza-riel ol::after {
+    content: '';
+    position: absolute;
+    left: -0.35rem;
+    top: calc(var(--p, 0) * 100%);
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-top: -0.35rem;
+    border-radius: 50%;
+    background: var(--color-acento);
+  }
+  [data-version='inmersiva'] .pieza-tramos {
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--margen-lateral);
+    z-index: 1;
+  }
+  [data-version='inmersiva'] .pieza-tramos > li {
+    min-height: 115svh;
+    display: flex;
+    align-items: center;
+  }
+  [data-version='inmersiva'] .tramo {
+    max-width: min(30rem, calc(100% - 11rem));
+    padding: 1.4rem 1.6rem;
+    background: var(--color-fondo);
+    border: 1px solid var(--color-borde);
+  }
+  [data-version='inmersiva'] .pieza-tramos > li:first-child { min-height: 90svh; align-items: flex-start; padding-top: 12svh; }
+
+  @media (max-width: 40rem) {
+    [data-version='inmersiva'] .pieza-riel { width: 7.5rem; padding-left: 0.75rem; }
+    [data-version='inmersiva'] .riel-titulo { font-size: 0.8rem; }
+    [data-version='inmersiva'] .riel-lectura { font-size: 0.75rem; }
+    [data-version='inmersiva'] .tramo { max-width: calc(100% - 7rem); padding: 1rem 1.1rem; }
+  }
+</style>
