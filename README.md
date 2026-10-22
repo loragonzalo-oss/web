@@ -15,6 +15,8 @@ npm install
 npm run dev       # sitio local en http://localhost:4321/web/ (muestra borradores)
 npm run build     # construye el sitio en dist/ (sin borradores)
 npm run preview   # sirve dist/ localmente
+npm test          # pruebas del puente con Obsidian
+npm run desde-obsidian -- "<carpeta de la bóveda>" [--simular] [--forzar]
 ```
 
 ## Dónde está cada cosa
@@ -30,4 +32,5 @@ npm run preview   # sirve dist/ localmente
 | Capas del mapa (nombres) | `src/lib/capas.ts` |
 | Páginas | `src/pages/` |
 | Plantillas para Obsidian | `plantillas/` |
+| Exportación desde la bóveda de Obsidian | `scripts/obsidian/` |
 | Capturas de revisión | `docs/capturas/` |

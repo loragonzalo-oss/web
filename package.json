@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "desde-obsidian": "node scripts/obsidian/desde-obsidian.mjs",
+    "test": "node --test scripts/obsidian/prueba/exportar.test.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
@@ -15,5 +17,8 @@
     "@fontsource/source-serif-4": "^5.3.1",
     "astro": "^7.4.1",
     "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.1"
   }
 }

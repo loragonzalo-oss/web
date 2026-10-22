@@ -10,6 +10,7 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 
 - **Astro** con colecciones de contenido en markdown. Sin CMS, sin base de datos y sin JavaScript del lado del cliente salvo que haga falta.
 - Las entradas del blog y los ensayos son archivos .md en src/content/. El autor tiene que poder escribirlos en Obsidian y subirlos sin tocar código.
+- Puente con Obsidian: scripts/obsidian/ copia de la bóveda privada del autor hacia src/content, en un solo sentido (`npm run desde-obsidian`, guía en COMO-PUBLICAR.md). Nunca borra y nunca pisa sin preguntar. Sus controles siguen el esquema de src/content.config.ts: si se cambia un campo allá, se cambia en scripts/obsidian/controles.mjs. Pruebas con `npm test`.
 - Despliegue con GitHub Pages mediante GitHub Actions. Dominio propio configurado con CNAME.
 - RSS, sitemap y metadatos Open Graph para que los enlaces se vean bien en Facebook y X.
 
