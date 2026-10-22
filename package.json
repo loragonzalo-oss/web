@@ -18,7 +18,8 @@
     "lectura:capturas": "node src/desarrollo/capturas-lectura.mjs",
     "integracion:capturas": "node src/desarrollo/capturas-integracion.mjs",
     "rediseno:capturas": "node src/desarrollo/capturas-rediseno.mjs",
-    "rediseno:peso": "node src/desarrollo/medir-peso.mjs"
+    "rediseno:peso": "node src/desarrollo/medir-peso.mjs",
+    "lint:taste": "node scripts/revision/lint-taste.mjs src"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.4",
