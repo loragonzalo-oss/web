@@ -1,7 +1,9 @@
-// Revisión de las páginas principales en escritorio (1280 px) y celular (390 px):
+// Revisión de las páginas principales en escritorio (1280 px) y celular (390 px),
+// sobre la construcción de prueba (npm run build:prueba, que incluye los borradores de ejemplo):
 // sin desborde horizontal, sin errores de consola y sin errores de accesibilidad serios o críticos.
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { abrir } from './ayudas';
 
 const PAGINAS = [
   { nombre: 'portada', ruta: '' },
@@ -12,26 +14,11 @@ const PAGINAS = [
   { nombre: 'mapa', ruta: 'mapa/' },
   { nombre: 'buscar', ruta: 'buscar/' },
   { nombre: '404', ruta: 'esta-pagina-no-existe/' },
+  // Contenido de ejemplo (borradores): existen sólo en la construcción de prueba (npm run build:prueba).
+  { nombre: 'entrada-larga', ruta: 'blog/ejemplo-entrada-larga/' },
+  { nombre: 'serie', ruta: 'series/serie-de-ejemplo/' },
+  { nombre: 'archivo', ruta: 'blog/archivo/' },
 ];
-
-// Teselas transparentes en lugar de las de OpenStreetMap: la prueba no depende de un servidor
-// externo ni le suma tráfico.
-const TESELA = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-  'base64',
-);
-
-async function abrir(page: Page, ruta: string) {
-  const errores: string[] = [];
-  page.on('console', (m) => {
-    if (m.type() === 'error') errores.push(m.text());
-  });
-  page.on('pageerror', (e) => errores.push(e.message));
-  await page.route(/tile\.openstreetmap\.org/, (r) => r.fulfill({ contentType: 'image/png', body: TESELA }));
-  await page.goto(ruta);
-  await page.waitForLoadState('networkidle');
-  return errores;
-}
 
 for (const { nombre, ruta } of PAGINAS) {
   test.describe(nombre, () => {

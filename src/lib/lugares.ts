@@ -3,9 +3,7 @@ import { entradasBlog, ensayos } from './contenido';
 import { slugificar } from './slug';
 import { url } from './rutas';
 import { CAPAS, RADIO_APROXIMADO_M } from './capas';
-
-// Los borradores (draft: true) se ven sólo con `npm run dev`. Nunca se publican.
-const verBorradores = import.meta.env.DEV;
+import { verBorradores } from './borradores';
 
 export type Lugar = CollectionEntry<'lugares'>;
 

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build && pagefind --site dist",
+    "build:prueba": "astro build --mode prueba && pagefind --site dist",
     "preview": "astro preview",
     "test": "node --test scripts/obsidian/prueba/exportar.test.mjs",
     "desde-obsidian": "node scripts/obsidian/desde-obsidian.mjs",

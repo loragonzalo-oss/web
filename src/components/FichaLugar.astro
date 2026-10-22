@@ -7,12 +7,13 @@ import Pendiente from './Pendiente.astro';
 import { nombreCapa } from '../lib/capas';
 import { fechaLarga, fechaISO } from '../lib/fechas';
 import { resolverRelacionados, type Lugar } from '../lib/lugares';
+import { verBorradores } from '../lib/borradores';
 
 interface Props { lugar: Lugar }
 const { lugar } = Astro.props;
 const d = lugar.data;
 const { Content } = await render(lugar);
-const relacionados = (await resolverRelacionados(lugar)).filter((r) => r.href || import.meta.env.DEV);
+const relacionados = (await resolverRelacionados(lugar)).filter((r) => r.href || verBorradores);
 
 // Lo que se le dice al lector sobre el respaldo de la ficha.
 const MARCADOR = {

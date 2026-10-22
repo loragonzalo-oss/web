@@ -4,9 +4,11 @@ import { BASE } from '../sitio.config.mjs';
 
 const base = BASE.replace(/\/?$/, '/');
 
-test('el buscador responde desde la cabecera', async ({ page }) => {
+test('el buscador responde desde la cabecera', async ({ page, isMobile }) => {
   await page.goto('');
-  await page.getByRole('link', { name: 'Buscar' }).click();
+  // En celular, «Buscar» está dentro del menú compacto: primero se abre el menú.
+  if (isMobile) await page.locator('.menu-compacto summary').click();
+  await page.getByRole('link', { name: 'Buscar' }).filter({ visible: true }).click();
   await expect(page).toHaveURL(/\/buscar\/$/);
   const campo = page.getByRole('searchbox').or(page.getByPlaceholder('Buscar en el sitio')).first();
   await campo.fill('Titikaka');
