@@ -1,9 +1,19 @@
 ---
 titulo: "Municipalidad Provincial de Huancané"
 capa: gobiernos-municipales
-precision: oculta
+lat: -15.1997
+lon: -69.7631
+precision: exacta
 resumen: "Municipalidad provincial de la provincia Huancané, departamento de Puno, Perú."
+enlaces:
+  - texto: "Web oficial"
+    url: "http://www.munihuancane.gob.pe/"
+    verificado: 2026-10-21
 fuentes:
+  - autor: "Wikidata"
+    año: 2026
+    titulo: "Q3824385 · coordenada de la entidad municipal en Wikidata, consultada el 22-10-2026"
+    url: "https://www.wikidata.org/wiki/Q3824385"
   - autor: "Gonzalo R. Lora Veizaga"
     año: 2026
     titulo: "Registro de fuentes: municipios ribereños del lago (consulta del 21-10-2026)"
@@ -17,6 +27,4 @@ draft: true
 - Provincia: Huancané.
 - Tipo: municipalidad provincial.
 
-[VERIFICAR] Sin coordenadas: la sede municipal todavía no se consultó en Wikidata. Cuando se cargue la coordenada, pasar a «precision: exacta» y anotar el identificador de Wikidata en «fuentes».
-
-[VERIFICAR] Sin enlaces: la web oficial y la página de Facebook todavía no se abrieron para comprobar que cargan y que corresponden al municipio.
+Según el registro del autor (21-10-2026), la web se verificó en una subpágina.

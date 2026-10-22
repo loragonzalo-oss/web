@@ -1,9 +1,15 @@
 ---
 titulo: "Gobierno Autónomo Municipal de Pucarani"
 capa: gobiernos-municipales
-precision: oculta
+lat: -16.3997
+lon: -68.4775
+precision: exacta
 resumen: "Gobierno autónomo municipal de la provincia Los Andes, departamento de La Paz, Bolivia."
 fuentes:
+  - autor: "Wikidata"
+    año: 2026
+    titulo: "Q1472761 · coordenada de la entidad municipal en Wikidata, consultada el 22-10-2026"
+    url: "https://www.wikidata.org/wiki/Q1472761"
   - autor: "Gonzalo R. Lora Veizaga"
     año: 2026
     titulo: "Registro de fuentes: municipios ribereños del lago (consulta del 21-10-2026)"
@@ -17,6 +23,6 @@ draft: true
 - Provincia: Los Andes.
 - Tipo: gobierno autónomo municipal.
 
-[VERIFICAR] Sin coordenadas: la sede municipal todavía no se consultó en Wikidata. Cuando se cargue la coordenada, pasar a «precision: exacta» y anotar el identificador de Wikidata en «fuentes».
+[VERIFICAR] En Wikidata hay más de una entidad municipal con este nombre. La coordenada es la de Q1472761, elegida en la consulta del 22-10-2026; falta confirmar que corresponde a este municipio.
 
-[VERIFICAR] Sin enlaces: la web oficial y la página de Facebook todavía no se abrieron para comprobar que cargan y que corresponden al municipio.
+[VERIFICAR] Sin enlaces: el registro del autor no da ninguna dirección verificada el 21-10-2026 para este municipio.

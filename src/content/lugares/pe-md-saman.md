@@ -1,9 +1,15 @@
 ---
 titulo: "Municipalidad Distrital de Samán"
 capa: gobiernos-municipales
-precision: oculta
+lat: -15.2918
+lon: -70.0170
+precision: exacta
 resumen: "Municipalidad distrital de la provincia Azángaro, departamento de Puno, Perú."
 fuentes:
+  - autor: "Wikidata"
+    año: 2026
+    titulo: "Q3321996 · coordenada de la entidad municipal en Wikidata, consultada el 22-10-2026"
+    url: "https://www.wikidata.org/wiki/Q3321996"
   - autor: "Gonzalo R. Lora Veizaga"
     año: 2026
     titulo: "Registro de fuentes: municipios ribereños del lago (consulta del 21-10-2026)"
@@ -17,8 +23,6 @@ draft: true
 - Provincia: Azángaro.
 - Tipo: municipalidad distrital.
 
-[VERIFICAR] Sin coordenadas: la sede municipal todavía no se consultó en Wikidata. Cuando se cargue la coordenada, pasar a «precision: exacta» y anotar el identificador de Wikidata en «fuentes».
-
-[VERIFICAR] Sin enlaces: la web oficial y la página de Facebook todavía no se abrieron para comprobar que cargan y que corresponden al municipio.
+[VERIFICAR] Sin enlaces: el registro del autor da la web como verificada, pero sin fecha; sólo entran en la ficha los enlaces verificados el 21-10-2026.
 
 [VERIFICAR] Dudoso como ribereño según el registro: falta confirmar que el distrito tiene orilla sobre el lago.

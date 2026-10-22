@@ -1,9 +1,15 @@
 ---
 titulo: "Gobierno Autónomo Municipal de Ancoraimes"
 capa: gobiernos-municipales
-precision: oculta
+lat: -15.8333
+lon: -68.8333
+precision: exacta
 resumen: "Gobierno autónomo municipal de la provincia Omasuyos, departamento de La Paz, Bolivia."
 fuentes:
+  - autor: "Wikidata"
+    año: 2026
+    titulo: "Q224511 · coordenada de la entidad municipal en Wikidata, consultada el 22-10-2026"
+    url: "https://www.wikidata.org/wiki/Q224511"
   - autor: "Gonzalo R. Lora Veizaga"
     año: 2026
     titulo: "Registro de fuentes: municipios ribereños del lago (consulta del 21-10-2026)"
@@ -17,8 +23,6 @@ draft: true
 - Provincia: Omasuyos.
 - Tipo: gobierno autónomo municipal.
 
-[VERIFICAR] Sin coordenadas: la sede municipal todavía no se consultó en Wikidata. Cuando se cargue la coordenada, pasar a «precision: exacta» y anotar el identificador de Wikidata en «fuentes».
-
-[VERIFICAR] Sin enlaces: la web oficial y la página de Facebook todavía no se abrieron para comprobar que cargan y que corresponden al municipio.
+[VERIFICAR] Sin enlaces: el registro del autor no da ninguna dirección verificada el 21-10-2026 para este municipio.
 
 [VERIFICAR] Dudoso como ribereño según el registro: falta confirmar que el municipio tiene orilla sobre el lago.
