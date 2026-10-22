@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { stringify } from 'yaml';
 import { leerBoveda, buscar } from './boveda.mjs';
 import { convertirCuerpo, EXT_IMAGEN, anclaEncabezado } from './convertir.mjs';
-import { TIPOS, validarFrontmatter, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog, chocaConEnsayos } from './controles.mjs';
+import { TIPOS, validarFrontmatter, controlarCuerpo, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog, chocaConEnsayos } from './controles.mjs';
 import { slugificar } from '../../src/lib/slug.ts';
 
 export const RAIZ_REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -286,7 +286,13 @@ function convertir(f, { exportables, notas, adjuntos, forzar }) {
     },
   };
 
-  const cuerpo = convertirCuerpo(nota.cuerpo, ctx);
+  // `version_web: resumen`: el texto completo no sale de la bóveda (el repositorio es público).
+  const soloResumen = tipo === 'ensayo' && f.datos.version_web === 'resumen';
+  if (soloResumen && nota.cuerpo.trim()) {
+    avisos.push('Tiene «version_web: resumen»: se exportó sin el cuerpo. El texto completo queda en la bóveda.');
+  }
+  const cuerpo = soloResumen ? '' : convertirCuerpo(nota.cuerpo, ctx);
+  errores.push(...controlarCuerpo(tipo, f.datos, cuerpo, f.id));
   const datos = structuredClone(f.datos);
 
   // Imágenes del frontmatter: «imagen: "[[foto.jpg]]"» o «imagen: ./foto.jpg».

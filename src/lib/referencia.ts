@@ -9,6 +9,16 @@ import { slugificar } from './slug.ts';
 export const RESERVADAS_ENSAYOS = ['temas'];
 export const chocaConEnsayos = (id: string) => RESERVADAS_ENSAYOS.includes(id);
 
+// ── Versión web de resumen ───────────────────────────────────────────────────
+// Decisión del autor (22-10-2026): el texto completo de un ensayo con `version_web: resumen` no
+// entra al repositorio, que es público. Un ensayo así que se publica (draft: false) no lleva cuerpo.
+// Lo comprueban el build (src/pages/ensayos/[ensayo].astro) y el puente con Obsidian
+// (scripts/obsidian/controles.mjs), que además exporta esas notas sin cuerpo.
+export function errorCuerpoResumen(d: { version_web?: string; draft?: boolean }, cuerpo: string | undefined, nombre: string): string | undefined {
+  if (d.version_web !== 'resumen' || d.draft || !cuerpo?.trim()) return undefined;
+  return `El ensayo «${nombre}» tiene «version_web: resumen» y trae el texto completo. Con «resumen», el texto no entra al repositorio, que es público: dejá el cuerpo vacío (el texto queda en la bóveda) o cambiá a «version_web: completa».`;
+}
+
 // ── Lugares de publicación ───────────────────────────────────────────────────
 export const TIPOS_LUGAR = ['revista', 'libro', 'medio', 'red social', 'otro'] as const;
 export type TipoLugar = (typeof TIPOS_LUGAR)[number];

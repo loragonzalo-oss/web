@@ -3,7 +3,7 @@
 import { IDS_CAPAS, RECORTE } from '../../src/lib/capas.ts';
 import { slugificar } from '../../src/lib/slug.ts';
 import { normalizarDoi, normalizarPaginas } from '../../src/lib/revista.ts';
-import { TIPOS_LUGAR, normalizarTipoLugar, chocaConEnsayos } from '../../src/lib/referencia.ts';
+import { TIPOS_LUGAR, normalizarTipoLugar, chocaConEnsayos, errorCuerpoResumen } from '../../src/lib/referencia.ts';
 
 export const TIPOS = {
   blog: { carpeta: 'blog', ruta: 'blog' },
@@ -323,6 +323,15 @@ function validarLugar(fm, errores) {
 
 // Devuelve los datos del frontmatter que van al sitio, en el orden del esquema.
 // Lo que no está en el esquema (publicar, tipo, sensible, tags, aliases…) no sale de la bóveda.
+// Ensayo con `version_web: resumen`: el texto completo no entra al repositorio (decisión del autor,
+// 22-10-2026). exportar.mjs ya deja esas notas sin cuerpo; esto revisa lo que se va a escribir.
+// Mismo criterio y mismo mensaje que el build (src/lib/referencia.ts).
+export function controlarCuerpo(tipo, datos, cuerpo, nombre) {
+  if (tipo !== 'ensayo') return [];
+  const error = errorCuerpoResumen(datos, cuerpo, nombre);
+  return error ? [error] : [];
+}
+
 export function validarFrontmatter(tipo, fm) {
   const errores = [];
   const datos = { blog: validarBlog, ensayo: validarEnsayo, lugar: validarLugar }[tipo](fm, errores);

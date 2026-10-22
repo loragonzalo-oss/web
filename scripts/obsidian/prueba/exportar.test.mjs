@@ -11,6 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { exportar, RAIZ_REPO, REGISTRO } from '../exportar.mjs';
+import { controlarCuerpo } from '../controles.mjs';
 import { convertirCuerpo } from '../convertir.mjs';
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
@@ -324,6 +325,28 @@ test('ensayo como referencia: conserva los campos nuevos y copia la imagen con s
   assert.match(md, /^imagen:\n {2}archivo: \.\/imagenes\/ensayo-como-referencia\/imagen-de-prueba\.png\n {2}credito: Relleno, dominio público$/m);
   assert.ok(existsSync(path.join(repo, 'src/content/ensayos/imagenes/ensayo-como-referencia/imagen-de-prueba.png')));
   await rm(base, { recursive: true });
+});
+
+test('version_web: resumen: se exporta sin cuerpo y se avisa; el texto queda en la bóveda', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  const r = await exportar({ boveda, repo });
+  const md = await leer('src/content/ensayos/ensayo-como-referencia.md');
+  assert.doesNotMatch(md, /Lorem ipsum/);
+  assert.match(md, /^version_web: resumen\n[\s\S]*---\n\n$/m);
+  assert.ok(r.avisos.some((a) => a.nota === '200 Ensayos/Ensayo como referencia.md' && /se exportó sin el cuerpo/.test(a.texto)));
+  // La nota de la bóveda no se toca.
+  assert.match(await readFile(path.join(boveda, '200 Ensayos/Ensayo como referencia.md'), 'utf8'), /Lorem ipsum\./);
+  // Un ensayo completo conserva su cuerpo.
+  assert.match(await leer('src/content/ensayos/ensayo-de-prueba.md'), /Lorem ipsum\./);
+  await rm(base, { recursive: true });
+});
+
+test('controlarCuerpo: frena un ensayo de resumen publicado que trae cuerpo', () => {
+  const [error] = controlarCuerpo('ensayo', { version_web: 'resumen', draft: false }, 'Texto completo.', 'mi-ensayo');
+  assert.match(error, /«mi-ensayo» tiene «version_web: resumen» y trae el texto completo/);
+  assert.deepEqual(controlarCuerpo('ensayo', { version_web: 'resumen', draft: false }, '\n  \n', 'x'), []);
+  assert.deepEqual(controlarCuerpo('ensayo', { version_web: 'completa', draft: false }, 'Texto.', 'x'), []);
+  assert.deepEqual(controlarCuerpo('blog', { version_web: 'resumen', draft: false }, 'Texto.', 'x'), []);
 });
 
 test('ensayo como referencia: frena sin slug al publicar y con campos mal formados', async () => {

@@ -9,5 +9,3 @@ etiquetas: ["Tema de relleno B"]
 slug: relleno-ensayo-resumen
 draft: true
 ---
-
-CUERPO DE RELLENO QUE NO DEBE VERSE EN LA WEB. Con «version_web: resumen» este texto no se muestra.

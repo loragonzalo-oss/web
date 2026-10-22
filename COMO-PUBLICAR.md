@@ -137,6 +137,7 @@ El script revisa cada nota marcada antes de copiar nada. Si una falla, **no la e
 - **Dos notas que irían a la misma dirección** (por ejemplo, «Cuencas» y «cuencas»), o una entrada del blog que taparía una dirección que el blog ya usa (`archivo`, `etiquetas` o un número solo).
 - **Una `parte` de serie que no es un número entero** desde 1.
 - **En un ensayo, `paginas` o `doi` mal escritos** (ver «Ensayo», en «El encabezado»).
+- **En un ensayo que se publica, falta `slug`**, o `publicado_en`, `version_web` o `imagen` (sin `credito`) están mal escritos (ver «Publicar un ensayo como referencia»). Un ensayo con `version_web: resumen` no frena por traer texto: se exporta sin cuerpo y se avisa.
 
 ### Si un archivo cambió en el repositorio
 
@@ -327,7 +328,13 @@ En la página aparece el bloque «Publicado originalmente en», con la publicaci
 
 ### Cuándo usar `version_web: resumen`
 
-Cuando los derechos del texto los tiene la revista o la editorial. Con `version_web: resumen`, la página muestra el resumen, los datos de publicación y el enlace al original («Leer el texto completo»), pero no el texto, ni la opción de imprimir, ni el PDF. Se decide ensayo por ensayo; por defecto es `completa`. El cuerpo del archivo no se muestra, pero sigue en el repositorio: si no puede estar ahí, dejalo vacío.
+Cuando los derechos del texto los tiene la revista o la editorial. Con `version_web: resumen`, la página muestra el resumen, los datos de publicación y el enlace al original («Leer el texto completo»), pero no el texto, ni la opción de imprimir, ni el PDF. Se decide ensayo por ensayo; por defecto es `completa`.
+
+**El texto completo no entra al repositorio**, que es público (decisión del autor, 22-10-2026):
+
+- `npm run desde-obsidian` exporta esas notas sin el cuerpo y lo avisa en la salida («se exportó sin el cuerpo»). El texto completo queda en tu bóveda, sin tocar.
+- Si subís el archivo a mano, dejá vacío todo lo que va debajo del encabezado. Un ensayo con `version_web: resumen` y `draft: false` que trae cuerpo frena el build, con un mensaje que lo dice.
+- Para pasar un ensayo de `resumen` a `completa` (por ejemplo, cuando la revista libera los derechos), cambiá el campo en la bóveda y volvé a exportar: ahí sí sale el texto.
 
 ### Temas
 

@@ -26,6 +26,7 @@ doi: ""
 publicado_en: []
 # completa (por defecto) o resumen: con «resumen», la web muestra el resumen, los datos y el
 # enlace al original, pero no el texto ni el PDF (cuando los derechos los tiene la revista).
+# Con «resumen», el texto completo no entra al repositorio: el script exporta la nota sin cuerpo.
 version_web: completa
 # Temas, igual que en el blog. Salen como hashtags al compartir.
 etiquetas: []

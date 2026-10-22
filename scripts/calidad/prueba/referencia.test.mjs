@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   destinoCita, esRedSocial, lugaresPublicacion, textoCompartir, hashtag, normalizarTipoLugar,
-  enlaceLinkedIn, enlaceX, LARGO_COMPARTIR,
+  enlaceLinkedIn, enlaceX, LARGO_COMPARTIR, errorCuerpoResumen,
 } from '../../../src/lib/referencia.ts';
 
 const WEB = 'https://loragonzalo-oss.github.io/web/ensayos/relleno/';
@@ -83,4 +83,12 @@ test('texto para compartir: el del autor se respeta y se le agrega la dirección
 test('enlaces para compartir: sin scripts, sólo la dirección codificada', () => {
   assert.equal(enlaceLinkedIn(WEB), `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(WEB)}`);
   assert.match(enlaceX('Un título', WEB), /^https:\/\/x\.com\/intent\/post\?text=Un%20t%C3%ADtulo&url=https%3A%2F%2F/);
+});
+
+test('version_web: resumen publicado sin cuerpo; con cuerpo, el build frena', () => {
+  assert.match(errorCuerpoResumen({ version_web: 'resumen', draft: false }, 'Texto completo.', 'mi-ensayo'), /^El ensayo «mi-ensayo» tiene «version_web: resumen» y trae el texto completo\./);
+  assert.equal(errorCuerpoResumen({ version_web: 'resumen', draft: false }, '  \n', 'x'), undefined);
+  assert.equal(errorCuerpoResumen({ version_web: 'resumen', draft: false }, undefined, 'x'), undefined);
+  assert.equal(errorCuerpoResumen({ version_web: 'completa', draft: false }, 'Texto.', 'x'), undefined);
+  assert.equal(errorCuerpoResumen({ version_web: 'resumen', draft: true }, 'Texto.', 'x'), undefined);
 });

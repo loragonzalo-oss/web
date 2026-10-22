@@ -12,7 +12,7 @@ import { ensayos } from '../../lib/contenido';
 import { relacionados, rutaTexto } from '../../lib/lectura';
 import { urlDoi } from '../../lib/revista';
 import { slugificar } from '../../lib/slug';
-import { chocaConEnsayos, lugaresPublicacion, textoCompartir } from '../../lib/referencia';
+import { chocaConEnsayos, errorCuerpoResumen, lugaresPublicacion, textoCompartir } from '../../lib/referencia';
 import { compartirActivo } from '../../lib/compartir';
 
 // La dirección de un ensayo es /ensayos/<slug>/. Cada una de sus `direcciones_anteriores`
@@ -27,6 +27,10 @@ export const getStaticPaths = (async () => {
     usadas.set(id, quien);
   };
   for (const e of lista) reservar(e.id, e.id);
+  for (const e of lista) {
+    const error = errorCuerpoResumen(e.data, e.body, e.id);
+    if (error) throw new Error(error);
+  }
   const paginas = lista.map((e) => ({ params: { ensayo: e.id }, props: { e, redireccion: false as const } }));
   for (const e of lista) {
     for (const anterior of e.data.direcciones_anteriores.map(slugificar)) {
