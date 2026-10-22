@@ -30,7 +30,7 @@ export const RECORTE = { latMin: -17.0, latMax: -14.9, lonMin: -70.4, lonMax: -6
 // Vista inicial: el mapa se ajusta a este rectángulo, que contiene el lago entero.
 export const VISTA_LAGO: [[number, number], [number, number]] = [[-16.65, -70.1], [-15.15, -68.6]];
 
-// precision: aproximada. El punto se desplaza entre 1.2 y 2.5 km en una dirección
-// fija para cada lugar y se dibuja como una zona de 3 km de radio, que siempre
-// contiene la ubicación real.
+// precision: aproximada. El punto está desplazado a propósito: se corre entre 1.2 y
+// 2.5 km de las coordenadas del archivo (ya redondeadas a dos decimales), en una
+// dirección fija para cada lugar, y se dibuja con una zona de 3 km de radio alrededor.
 export const RADIO_APROXIMADO_M = 3000;
