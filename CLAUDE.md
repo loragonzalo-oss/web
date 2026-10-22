@@ -8,7 +8,7 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 
 ## Stack
 
-- **Astro** con colecciones de contenido en markdown. Sin CMS, sin base de datos y sin JavaScript del lado del cliente salvo que haga falta.
+- **Astro** con colecciones de contenido en markdown. Sin CMS ni base de datos. La base editorial (portada, blog, ensayos, /libro, perfil) va sin JavaScript del lado del cliente salvo que haga falta. Las piezas inmersivas son la excepción (ver «Piezas inmersivas» en Diseño).
 - Las entradas del blog y los ensayos son archivos .md en src/content/. El autor tiene que poder escribirlos en Obsidian y subirlos sin tocar código.
 - Puente con Obsidian: scripts/obsidian/ copia de la bóveda privada del autor hacia src/content, en un solo sentido (`npm run desde-obsidian`, guía en COMO-PUBLICAR.md). Nunca borra y nunca pisa sin preguntar. Sus controles siguen el esquema de src/content.config.ts: si se cambia un campo allá, se cambia en scripts/obsidian/controles.mjs. Pruebas con `npm test`.
 - Revisión antes de unir: `npm test`, `npm run temas:contraste`, `npm run build` y `npm run build:prueba` (incluye los borradores de ejemplo) seguido de `npm run revisar` (enlaces, Playwright y axe). Lo mismo corre en cada pull request (.github/workflows/revision.yml). Los borradores sólo se ven en desarrollo y en la construcción de prueba; nunca en `npm run build`.
@@ -34,6 +34,17 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 
 Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para el cuerpo, ancho de línea cómodo (unos 65-70 caracteres) y modo oscuro. La paleta e identidad visual del autor es un tema abierto. Las medidas compartidas van en src/styles/tokens.css; los colores y las tipografías, en un archivo por tema en src/styles/temas/. El tema publicado se elige con una sola línea (TEMA en sitio.config.mjs). Ningún tema se elige sin orden del autor. Tipografías sólo autoalojadas y con licencia libre (OFL); todo par de texto y fondo cumple contraste AA (el build lo comprueba).
 
+### Piezas inmersivas
+
+El sitio tiene dos capas. La base editorial queda liviana y estática. Las piezas inmersivas (relatos guiados por el scroll, WebGL, Three.js, GSAP, sonido) se permiten sólo en páginas puntuales que el autor apruebe una por una, y cumplen estas condiciones:
+
+1. Viven en su propia página o como isla de Astro. El JavaScript pesado nunca se carga en las páginas de la base editorial.
+2. Tienen una versión liviana con el mismo contenido en texto e imágenes, para conexiones móviles lentas, equipos modestos, lectores de pantalla y quien pida menos movimiento (prefers-reduced-motion).
+3. El texto de la pieza existe también como HTML legible e indexable.
+4. Todo dato que la pieza muestre (profundidades, cotas, cifras) lleva su fuente citada en la misma pieza. Los datos de terceros entran sólo con licencia confirmada.
+5. Si hay sonido, empieza apagado y lo activa el lector.
+6. Rige la regla 6: ninguna pieza expone coordenadas exactas de lugares sensibles.
+
 ## Manejo de archivos
 
 - No borrar ni sobrescribir contenido escrito por el autor sin preguntar.
@@ -47,3 +58,4 @@ Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para 
 - 22-10-2026: puente con Obsidian. scripts/obsidian/ copia de la bóveda privada hacia src/content en un solo sentido, sin borrar ni pisar sin preguntar; sus controles siguen el esquema de src/content.config.ts.
 - 22-10-2026: diseño. Los colores y las tipografías pasan de tokens.css a un archivo por tema en src/styles/temas/; el tema publicado se elige en sitio.config.mjs (TEMA). Tipografías autoalojadas con licencia OFL y contraste AA comprobado al construir.
 - 22-10-2026: integración de las ramas. Revisión antes de unir con la construcción de prueba (`npm run build:prueba`, con borradores) y las pruebas ampliadas.
+- 22-10-2026: piezas inmersivas. Decisión del autor: se permite JavaScript pesado (WebGL, Three.js, GSAP) en páginas puntuales que él apruebe, con versión liviana, texto en HTML, fuentes citadas y sonido apagado al inicio. La base editorial sigue sin JavaScript salvo que haga falta.
