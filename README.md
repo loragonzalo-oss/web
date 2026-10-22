@@ -15,8 +15,10 @@ npm install
 npm run dev       # sitio local en http://localhost:4321/web/ (muestra borradores)
 npm run build     # construye el sitio en dist/ (sin borradores)
 npm run preview   # sirve dist/ localmente
-npm run revisar   # enlaces internos, páginas y accesibilidad (después de build)
-npm test          # pruebas del puente con Obsidian
+npm test                 # pruebas del puente con Obsidian
+npm run temas:contraste  # contraste AA de los cuatro temas
+npm run build:prueba     # como build, pero con los borradores de ejemplo (nunca se publica)
+npm run revisar          # enlaces internos, páginas, funciones y accesibilidad (después de build:prueba)
 npm run desde-obsidian -- "<carpeta de la bóveda>" [--simular] [--forzar]
 ```
 
@@ -26,7 +28,9 @@ npm run desde-obsidian -- "<carpeta de la bóveda>" [--simular] [--forzar]
 |---|---|
 | Dirección del sitio (`site` y `base`) | `sitio.config.mjs` |
 | Nombre, redes, correo, menú | `src/lib/sitio.ts` |
-| Colores y tipografía | `src/styles/tokens.css` |
+| Tema publicado | `sitio.config.mjs` (`TEMA`) |
+| Colores y tipografías de cada tema | `src/styles/temas/` |
+| Medidas compartidas e íconos de capa | `src/styles/tokens.css` |
 | Entradas del blog | `src/content/blog/` |
 | Ensayos | `src/content/ensayos/` |
 | Lugares del mapa | `src/content/lugares/` |
