@@ -31,7 +31,7 @@ const imagenOG = imagen ? new URL(imagen, Astro.site).href : urlAbsoluta('/og-de
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{tituloCompleto}</title>
     <meta name="description" content={descripcion} />
-    <link rel="canonical" href={canonica} />
+    {!noIndexar && <link rel="canonical" href={canonica} />}
     {noIndexar && <meta name="robots" content="noindex" />}
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />

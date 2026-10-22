@@ -17,12 +17,12 @@ const { Content } = await render(e);
 <Base
   titulo={e.data.titulo}
   descripcion={e.data.resumen}
-  imagen={e.data.imagen?.src}
+  imagen={e.data.imagen?.src ?? url(`/og/blog/${e.id}.png`)}
   tipo="article"
   fecha={e.data.fecha}
   noIndexar={e.data.draft}
 >
-  <article class="lectura">
+  <article class="lectura" data-pagefind-body={e.data.draft ? undefined : true}>
     {e.data.draft && <p class="borrador-aviso">Borrador: sólo se ve en el modo de desarrollo. No se publica.</p>}
     <header>
       <p class="meta"><time datetime={fechaISO(e.data.fecha)}>{fechaLarga(e.data.fecha)}</time></p>
@@ -30,7 +30,7 @@ const { Content } = await render(e);
       {e.data.resumen && <p class="resumen">{e.data.resumen}</p>}
     </header>
     <div class="cuerpo"><Content /></div>
-    <footer>
+    <footer data-pagefind-ignore>
       {e.data.etiquetas.length > 0 && (
         <p class="meta etiquetas">
           {e.data.etiquetas.map((t) => <a href={url(`/blog/etiquetas/${slugEtiqueta(t)}/`)}>#{t}</a>)}

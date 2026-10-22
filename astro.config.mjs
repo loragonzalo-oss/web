@@ -8,7 +8,7 @@ export default defineConfig({
   base: BASE,
   trailingSlash: 'always',
   integrations: [
-    // /mapa/ queda fuera del sitemap mientras esté en construcción.
-    sitemap({ filter: (pagina) => !pagina.includes('/mapa/') }),
+    // /mapa/ queda fuera del sitemap mientras esté en construcción. /buscar/ lleva noindex.
+    sitemap({ filter: (pagina) => !pagina.includes('/mapa/') && !pagina.includes('/buscar/') }),
   ],
 });

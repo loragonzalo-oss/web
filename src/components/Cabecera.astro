@@ -19,6 +19,12 @@ const actual = Astro.url.pathname;
             <li><a href={destino} aria-current={activo ? 'page' : undefined}>{item.texto}</a></li>
           );
         })}
+        <li>
+          <a class="buscar" href={url('/buscar/')} aria-current={actual.startsWith(url('/buscar/')) ? 'page' : undefined}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 21 21" /></svg>
+            Buscar
+          </a>
+        </li>
       </ul>
     </nav>
   </div>
@@ -46,4 +52,6 @@ const actual = Astro.url.pathname;
   nav a { text-decoration: none; color: var(--color-texto-suave); font-size: 0.98rem; padding: 0.35rem 0; display: inline-block; }
   nav a:hover, nav a[aria-current='page'] { color: var(--color-acento); }
   nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: 0.4em; }
+  .buscar { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .buscar svg { flex: none; position: relative; top: 0.05em; }
 </style>

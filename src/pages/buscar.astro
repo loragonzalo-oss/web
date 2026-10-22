@@ -1,0 +1,88 @@
+---
+// Buscador interno con Pagefind. El índice se arma al final de `npm run build`
+// (ver package.json) y vive en dist/pagefind/. No usa servicios externos.
+// Sólo se indexa lo marcado con data-pagefind-body: entradas, ensayos, libro y sobre mí.
+// Los borradores no se construyen en el sitio publicado, así que nunca entran al índice.
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/rutas';
+---
+<Base titulo="Buscar" descripcion="Buscador del sitio: entradas del blog, ensayos y páginas." noIndexar>
+  <section class="lectura">
+    <h1>Buscar</h1>
+    <label class="buscador-etiqueta interfaz" for="buscador-campo" hidden>Palabras a buscar</label>
+    <div id="buscador" class="buscador interfaz" data-indice={url('/pagefind/')}>
+      <noscript><p class="vacio">El buscador necesita JavaScript.</p></noscript>
+    </div>
+    <p class="vacio interfaz" id="buscador-sin-indice" hidden>
+      El buscador todavía no tiene índice. Se arma al construir el sitio con <code>npm run build</code>;
+      con <code>npm run dev</code> no está disponible.
+    </p>
+  </section>
+</Base>
+
+<script>
+  const contenedor = document.getElementById('buscador')!;
+  const indice = contenedor.dataset.indice!;
+
+  function mostrarSinIndice() {
+    document.getElementById('buscador-sin-indice')!.hidden = false;
+  }
+
+  const estilo = document.createElement('link');
+  estilo.rel = 'stylesheet';
+  estilo.href = `${indice}pagefind-ui.css`;
+  document.head.append(estilo);
+
+  // Se comprueba primero que el índice exista, para no llenar la consola de errores en desarrollo.
+  fetch(`${indice}pagefind-ui.js`, { method: 'HEAD' })
+    .then((r) => {
+      if (!r.ok) return mostrarSinIndice();
+      const programa = document.createElement('script');
+      programa.src = `${indice}pagefind-ui.js`;
+      programa.onerror = mostrarSinIndice;
+      programa.onload = () => {
+        // PagefindUI lo define pagefind-ui.js
+        const ui = new (window as any).PagefindUI({
+          element: '#buscador',
+          bundlePath: indice,
+          showSubResults: true,
+          showImages: false,
+          autofocus: true,
+          translations: { placeholder: 'Buscar en el sitio' },
+        });
+        // Pagefind no pone etiqueta visible al campo: se le asocia la de arriba.
+        const campo = contenedor.querySelector('input');
+        if (campo) {
+          campo.id = 'buscador-campo';
+          document.querySelector<HTMLLabelElement>('.buscador-etiqueta')!.hidden = false;
+        }
+        const consulta = new URLSearchParams(location.search).get('q');
+        if (consulta) ui.triggerSearch(consulta);
+      };
+      document.body.append(programa);
+    })
+    .catch(mostrarSinIndice);
+</script>
+
+<style is:global>
+  /* Pagefind toma los colores y tipografías de tokens.css */
+  .buscador {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: var(--color-acento);
+    --pagefind-ui-text: var(--color-texto);
+    --pagefind-ui-background: var(--color-fondo);
+    --pagefind-ui-border: var(--color-borde);
+    --pagefind-ui-tag: var(--color-superficie);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: var(--radio);
+    --pagefind-ui-font: var(--fuente-interfaz);
+  }
+  .buscador-etiqueta { display: block; font-size: var(--tam-chico); color: var(--color-texto-suave); margin-bottom: 0.4rem; }
+  .buscador input, .buscador button { font-family: var(--fuente-interfaz); }
+  .buscador .pagefind-ui__search-clear { color: var(--color-texto-suave); background: transparent; }
+  .buscador .pagefind-ui__result-title { font-family: var(--fuente-texto); }
+  .buscador .pagefind-ui__result-link { color: var(--color-acento); }
+  .buscador .pagefind-ui__result-excerpt,
+  .buscador .pagefind-ui__message { color: var(--color-texto-suave); }
+  .buscador .pagefind-ui mark { background: var(--color-pendiente-fondo); color: var(--color-pendiente-texto); }
+</style>
