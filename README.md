@@ -16,6 +16,8 @@ npm run dev       # sitio local en http://localhost:4321/web/ (muestra borradore
 npm run build     # construye el sitio en dist/ (sin borradores)
 npm run preview   # sirve dist/ localmente
 npm run revisar   # enlaces internos, páginas y accesibilidad (después de build)
+npm test          # pruebas del puente con Obsidian
+npm run desde-obsidian -- "<carpeta de la bóveda>" [--simular] [--forzar]
 ```
 
 ## Dónde está cada cosa
@@ -34,4 +36,5 @@ npm run revisar   # enlaces internos, páginas y accesibilidad (después de buil
 | Imágenes para compartir (generador) | `src/lib/og.ts` |
 | Pruebas automáticas | `pruebas/`, `playwright.config.ts`, `scripts/calidad/` |
 | Revisión de pull requests | `.github/workflows/revision.yml` |
+| Exportación desde la bóveda de Obsidian | `scripts/obsidian/` |
 | Capturas de revisión | `docs/capturas/` |

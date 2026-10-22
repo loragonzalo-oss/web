@@ -47,6 +47,13 @@ Al resolver uno, se borra la línea y se reemplaza el marcador en el archivo ind
 - [ ] Puntos superpuestos: con el zoom inicial, puntos cercanos se pisan. La revisión de accesibilidad lo admite sólo porque cada punto tiene su equivalente en el listado de abajo (excepción «Equivalente» de WCAG 2.5.8, anotada en `pruebas/paginas.spec.ts`). Cuando haya contenido real, evaluar si hace falta agrupar puntos (*clustering*).
 - [ ] Las capturas `docs/capturas/mapa-*.png` se sacaron sin el fondo de OpenStreetMap (el entorno donde se hicieron bloquea `tile.openstreetmap.org`). Rehacerlas cuando haya contenido real, y comprobar ahí que los puntos de ejemplo caen sobre el agua.
 
+## Puente con Obsidian
+
+- [ ] Primera corrida en la computadora del autor: instalar Node y GitHub Desktop, `npm install` y una prueba con `--simular` (pasos en COMO-PUBLICAR.md, «Publicar desde Obsidian»). El script sólo se probó con la bóveda de relleno de `scripts/obsidian/prueba/`, no con la bóveda real.
+- [ ] Decidir si la capa Arqueología es siempre sensible. Hoy el script no deja exportar una ficha de esa capa con `precision: exacta`, sin excepción. Si hay fichas de arqueología que no son sensibles (un museo, por ejemplo), hay que decidir cómo se marcan.
+- [ ] Decidir si el campo `sensible` entra también en el esquema del sitio (`src/content.config.ts`). Hoy sólo lo lee el script: un archivo subido a mano no se controla por ese campo, sólo por `precision`.
+- [ ] Marcadores de borrador que frenan la exportación: hoy `[PENDIENTE]` y `[VERIFICAR]`. Si el autor usa otros, se agregan en `scripts/obsidian/controles.mjs`.
+
 ## Etapas siguientes
 
 - [ ] /mapa: el motor está hecho; falta el contenido real. Las nueve fichas de `src/content/lugares/ejemplo-*.md` son de relleno, con `draft: true`: borrarlas cuando haya lugares reales.

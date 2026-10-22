@@ -2,7 +2,190 @@
 
 Guía para escribir en Obsidian y publicar en la web. No hace falta tocar código.
 
-## Resumen en cuatro pasos
+Hay dos caminos:
+
+- **Desde la bóveda privada** (el habitual): escribís en tu bóveda de Obsidian, marcás las notas listas y un script las copia al repositorio, convierte lo propio de Obsidian y frena lo que no puede salir. Ver «Publicar desde Obsidian», justo abajo.
+- **A mano**: subís el archivo `.md` directamente a GitHub. Ver «Subir a mano: resumen en cuatro pasos» y las secciones que siguen.
+
+## Publicar desde Obsidian
+
+La bóveda es tuya y privada: vive en tu computadora, fuera del repositorio. El script la **lee** y **copia hacia** el repositorio; nunca escribe en la bóveda, nunca borra nada del repositorio y nunca pisa sin preguntar un archivo que alguien cambió en el repositorio.
+
+### Instalación (una sola vez)
+
+1. **Node.js**: instalá la versión LTS desde https://nodejs.org (hace falta la 22.18 o posterior). Se instala como cualquier programa.
+2. **GitHub Desktop**: instalalo desde https://desktop.github.com, entrá con tu cuenta de GitHub y cloná el repositorio `loragonzalo-oss/web` (*File → Clone repository*). Elegí una carpeta **fuera** de la bóveda de Obsidian, por ejemplo `Documentos/web`.
+3. **Dependencias**: en GitHub Desktop, *Repository → Open in Command Prompt* (en Mac, *Open in Terminal*). Se abre una terminal ya ubicada en la carpeta del repositorio. Escribí:
+
+   ```sh
+   npm install
+   ```
+
+   Tarda uno o dos minutos. Se hace una vez (y de nuevo sólo si un día el script avisa que falta algo).
+4. **La ruta de tu bóveda**: es la carpeta que elegiste al crear la bóveda en Obsidian. Para copiarla: en Windows, abrila en el Explorador, hacé clic en la barra de dirección y copiá; en Mac, arrastrá la carpeta a la ventana de la Terminal y la ruta se escribe sola.
+5. **Prueba**: en la terminal del paso 3,
+
+   ```sh
+   npm run desde-obsidian -- "C:\Users\Gonzalo\Mi bóveda" --simular
+   ```
+
+   con tu ruta entre comillas (las comillas hacen falta si la ruta tiene espacios; en Mac la ruta se ve como `"/Users/gonzalo/Documents/Mi bóveda"`). `--simular` sólo muestra qué haría: no escribe nada.
+
+### El encabezado en la bóveda
+
+A los campos de siempre se suman dos que el script lee y que **no salen de la bóveda**:
+
+- `publicar: true` — la nota sale de la bóveda hacia el repositorio. Si no está, o está en `false`, la nota no se toca.
+- `tipo: blog`, `tipo: ensayo` o `tipo: lugar` — a qué carpeta del sitio va.
+
+`publicar` y `draft` son cosas distintas: `publicar` decide si la nota sale de la bóveda; `draft` decide si, ya en el repositorio, se ve en el sitio. Una nota con `publicar: true` y `draft: true` viaja al repositorio como borrador y no se publica.
+
+Entrada de blog:
+
+```yaml
+---
+publicar: true
+tipo: blog
+titulo: "Título de la entrada"
+fecha: 2026-10-21
+resumen: "Una o dos frases. Aparece en el índice y al compartir en Facebook y X."
+etiquetas: [cuencas, agua]
+imagen: "[[foto-para-compartir.jpg]]"
+draft: false
+---
+```
+
+Obligatorios: `titulo` y `fecha`. `imagen` es opcional.
+
+Ensayo:
+
+```yaml
+---
+publicar: true
+tipo: ensayo
+titulo: "Título del ensayo"
+fecha: 2026-10-21
+resumen: "De qué trata, en dos o tres frases."
+publicacion: "Inmediaciones"
+enlace: "https://dirección-de-la-publicación-original"
+draft: false
+---
+```
+
+Obligatorios: `titulo`, `fecha` y `resumen`.
+
+Lugar del mapa:
+
+```yaml
+---
+publicar: true
+tipo: lugar
+titulo: "Nombre del lugar"
+capa: arqueologia
+sensible: false
+lat: -16.01
+lon: -69.12
+precision: aproximada
+resumen: "Una o dos frases."
+imagen:
+  archivo: "[[foto-del-lugar.jpg]]"
+  credito: "Foto: Nombre Apellido, 2025. CC BY 4.0"
+  descripcion: "Qué se ve en la foto."
+enlaces: []
+fuentes: []
+marcador: "[VERIFICAR]"
+relacionados:
+  - "[[Una entrada del blog]]"
+draft: false
+---
+```
+
+Obligatorios: `titulo`, `capa`, `resumen`, `marcador`, y `lat` y `lon` salvo con `precision: oculta`. Qué es cada campo: ver «Agregar un lugar al mapa», más abajo. `sensible` es el tercer campo que no sale de la bóveda (ver «Lugares sensibles», abajo).
+
+Las propiedades que no son del sitio (`tags`, `aliases`, `publicar`, `tipo`, `sensible` o cualquier otra que agregues) **se quedan en la bóveda**: al repositorio sólo pasan los campos de arriba.
+
+En `plantillas/` hay una plantilla por tipo con estos campos.
+
+### El flujo de cada semana
+
+1. Escribís en Obsidian como siempre. Cuando una nota está lista, `publicar: true` y `draft: false`.
+2. En GitHub Desktop, *Fetch origin* y, si aparece, *Pull origin*: así tu copia del repositorio tiene lo último (por ejemplo, una corrección que hiciste desde la página de GitHub).
+3. En la terminal (*Repository → Open in Command Prompt*), primero el ensayo general:
+
+   ```sh
+   npm run desde-obsidian -- "ruta de tu bóveda" --simular
+   ```
+
+   Leé el informe: qué archivos crearía o cambiaría, qué notas frena y por qué, y los avisos.
+4. Si está bien, la misma orden sin `--simular`. (En la terminal, la flecha hacia arriba repite la orden anterior.)
+5. Opcional: `npm run dev` y abrí http://localhost:4321/web/ para ver cómo queda. `Ctrl + C` lo cierra.
+6. En GitHub Desktop vas a ver los archivos nuevos o cambiados. Escribí una línea abajo a la izquierda («Entrada sobre …»), *Commit to main* y después *Push origin*.
+7. En unos dos minutos el sitio está actualizado (*Actions* en GitHub muestra el avance).
+
+Subí siempre también el archivo `scripts/obsidian/registro-exportacion.json`, que aparece en la lista de cambios: es la memoria del script para saber qué exportó.
+
+### Qué convierte
+
+| En la bóveda | En el sitio |
+|---|---|
+| `[[Otra nota]]`, `[[Otra nota\|otro texto]]`, `[[Otra nota#Un subtítulo]]` | Enlace a esa página, si la otra nota también se publica. |
+| `[[Una nota que no se publica]]` | Texto plano, sin enlace (nunca un enlace roto). Lo mismo si la otra nota es un borrador o la frenó un control. |
+| `![[foto.jpg]]` | La imagen se copia al repositorio (en `imagenes/<nombre-de-la-nota>/`) y queda como imagen normal. `![[foto.jpg\|Texto]]` usa «Texto» como descripción para quien no ve la imagen. |
+| `> [!nota] Título` (callout) | Bloque citado, con el título en negrita. |
+| `%% comentario %%` | Desaparece. Sirve para notas tuyas que no deben salir. |
+| `^abc123` (identificador de bloque) | Desaparece. |
+| `![[Otra nota]]` (nota incrustada) | Enlace a esa nota, o texto si no se publica. El sitio no incrusta notas. |
+| `relacionados: ["[[Una entrada]]"]` en un lugar | El nombre de la entrada o el ensayo exportado. Si no se publica, se quita. |
+
+Los enlaces que escribe el script son relativos (`../../ensayos/…`): siguen funcionando el día que se pase al dominio propio.
+
+### Qué frena una nota
+
+El script revisa cada nota marcada antes de copiar nada. Si una falla, **no la exporta** y dice en castellano qué corregir; las demás salen igual. Al final, la orden termina con error para que no pase inadvertido.
+
+- **Encabezado incompleto o mal escrito**: falta un campo obligatorio, una fecha no es `AAAA-MM-DD`, una capa no existe, etc. Son los mismos controles que hace el sitio al construirse, pero acá el aviso llega antes y en tu computadora.
+- **Lugar sensible con coordenadas de más** (regla 6, ver abajo).
+- **Marcadores de borrador**: `[PENDIENTE]`, `[PENDIENTE: …]`, `[VERIFICAR]` en el texto o en el encabezado de una nota que no tiene `draft: true`. Se completan, se marca la nota como borrador o, si de verdad tienen que salir así, se exporta con `--forzar`:
+
+  ```sh
+  npm run desde-obsidian -- "ruta de tu bóveda" --forzar
+  ```
+
+  `--forzar` sólo deja pasar los marcadores; no salta ningún otro control. El `marcador: "[VERIFICAR]"` de una ficha de lugar es un campo válido y no cuenta como borrador. Lo que está dentro de un `%% comentario %%` tampoco cuenta.
+- **Una imagen que no está en la bóveda.**
+- **Dos notas que irían a la misma dirección** (por ejemplo, «Cuencas» y «cuencas»).
+
+### Lugares sensibles
+
+Regla 6 de CLAUDE.md: las coordenadas exactas de un lugar sensible nunca entran al repositorio. Para el script, un lugar es sensible si está en la capa `arqueologia` o si su nota tiene `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible:
+
+- no puede tener `precision: exacta` (ni dejar `precision` vacío, que vale exacta);
+- con `precision: aproximada`, `lat` y `lon` llevan dos decimales como máximo;
+- con `precision: oculta`, no lleva `lat` ni `lon`;
+- no puede tener coordenadas con más de dos decimales en el texto ni en el encabezado (por ejemplo «-15.78123» o «15°47'12"»). Este control vale también para cualquier lugar `aproximada` u `oculta`.
+
+La ubicación exacta guardala en una nota aparte, sin `publicar`. Que esa nota privada enlace a la pública, y no al revés: un enlace a una nota que no se publica queda como texto con su nombre.
+
+### Si un archivo cambió en el repositorio
+
+El script recuerda qué escribió la última vez (en `scripts/obsidian/registro-exportacion.json`). Si un archivo del repositorio cambió después (por ejemplo, corregiste una errata desde la página de GitHub) o no lo creó el script, **pregunta** antes de reemplazarlo:
+
+```
+src/content/blog/mi-entrada.md cambió en el repositorio después de la última exportación (o no lo creó este script).
+¿Lo reemplazo con la versión de la bóveda? Se pierden los cambios hechos en el repositorio. [s/N]
+```
+
+`s` reemplaza; cualquier otra respuesta lo deja como está. Lo más simple es corregir siempre en la bóveda y volver a exportar.
+
+### Lo que el script nunca hace
+
+- **No borra.** Si una nota deja de tener `publicar: true`, su archivo sigue en el repositorio y en el sitio. El informe lo lista («exportados antes y que esta vez no salieron»): si ya no va, borralo a mano en GitHub Desktop o en la página de GitHub.
+- **No escribe en la bóveda.**
+- **No sube nada a GitHub.** Eso lo hacés vos con *Commit* y *Push*, después de mirar los cambios.
+
+No renombres una nota ya publicada: la dirección de la página sale del nombre de la nota, y el archivo viejo queda en el repositorio (el script lo va a listar para que lo borres). Si querés cambiar el título visible, cambiá `titulo` y dejá el nombre de la nota.
+
+## Subir a mano: resumen en cuatro pasos
 
 1. Escribís la entrada en Obsidian, con el encabezado (frontmatter) de abajo.
 2. Dejás `draft: false` cuando esté lista.
@@ -128,7 +311,7 @@ El sitio le pone las comillas « » (si ya las escribiste, no agrega otras). Com
 - `draft: true` = borrador. **No se publica.** Sólo se ve si alguien corre el sitio en su computadora con `npm run dev`.
 - `draft: false` = se publica en el próximo despliegue.
 
-En la carpeta `plantillas/` del repositorio hay tres plantillas listas (`entrada-blog.md`, `ensayo.md` y `lugar.md`). En Obsidian se activan en *Configuración → Plantillas → Ubicación de la carpeta de plantillas*.
+En la carpeta `plantillas/` del repositorio hay tres plantillas listas (`entrada-blog.md`, `ensayo.md` y `lugar.md`). Para usarlas, copiá esa carpeta a tu bóveda y elegila en Obsidian en *Configuración → Plantillas → Ubicación de la carpeta de plantillas*. Traen `publicar`, `tipo` (y `sensible`, en la de lugar), que el script lee y que no salen de la bóveda; si subís el archivo a mano, el sitio los ignora.
 
 ## Agregar un lugar al mapa
 
@@ -255,6 +438,8 @@ Cada tema es un archivo en `src/styles/temas/` (`provisorio.css`, `a.css`, `b.cs
 
 ## Configurar Obsidian una sola vez
 
+Esto vale sólo para subir a mano (opciones A y B). Con «Publicar desde Obsidian», los wikilinks y las imágenes se convierten solos y no hace falta cambiar nada.
+
 En *Configuración → Archivos y enlaces*:
 
 - **Usar [[Wikilinks]]**: desactivado. La web entiende enlaces markdown comunes, no wikilinks.
@@ -276,6 +461,8 @@ Así, cuando pegues una imagen, Obsidian escribe `![](foto.jpg)` y la web la enc
 Para corregir una entrada publicada: abrí el archivo en GitHub, tocá el lápiz (*Edit*), corregí y hacé *Commit changes*.
 
 ### Opción B: el repositorio como bóveda de Obsidian
+
+**Esta bóveda no puede ser tu bóveda privada.** Todo lo que se escribe en ella entra al repositorio, que es público, y la bóveda privada guarda ubicaciones exactas de lugares sensibles que nunca pueden entrar (CLAUDE.md, regla 6). Si usás esta opción, es una segunda bóveda, aparte, sólo para lo que ya está listo para publicarse. El script de «Publicar desde Obsidian» se niega a leer una bóveda que esté dentro del repositorio.
 
 1. Instalá GitHub Desktop y cloná el repositorio `loragonzalo-oss/web`.
 2. En Obsidian, *Abrir carpeta como bóveda* y elegí la carpeta `src/content` del repositorio clonado.
