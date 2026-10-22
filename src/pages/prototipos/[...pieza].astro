@@ -1,0 +1,22 @@
+---
+// Prototipos de piezas inmersivas. Páginas de desarrollo: existen con npm run dev y en la
+// construcción de prueba (npm run build:prueba, para medirlas y revisarlas), nunca en el
+// sitio publicado (npm run build), igual que los borradores.
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Pieza from '../../components/profundidad/Pieza.astro';
+import { verBorradores } from '../../lib/borradores';
+
+export const getStaticPaths = (() => {
+  if (!verBorradores) return [];
+  return [
+    { params: { pieza: 'profundidad' }, props: { version: 'inmersiva' as const } },
+    { params: { pieza: 'profundidad/liviana' }, props: { version: 'liviana' as const } },
+  ];
+}) satisfies GetStaticPaths;
+
+const { version } = Astro.props;
+---
+<Base titulo={`Scroll es profundidad (prototipo${version === 'liviana' ? ', versión liviana' : ''})`} noIndexar completo>
+  <Pieza version={version} />
+</Base>

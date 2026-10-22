@@ -1,0 +1,179 @@
+---
+// Escena de la versión inmersiva: decorativa (aria-hidden), fija mientras se baja.
+// Sin JavaScript, o con prefers-reduced-motion, o con ahorro de datos, queda el corte en SVG.
+// Con JavaScript, un canvas 2D dibuja la superficie sintética y la vista baja con el scroll.
+// No hay sonido. Ver src/lib/profundidad.ts.
+interface Props { perfil: string }
+const { perfil } = Astro.props;
+---
+<div class="pieza-escena" aria-hidden="true">
+  <svg class="escena-corte" viewBox="0 0 1000 400" preserveAspectRatio="none">
+    <path d={perfil} />
+  </svg>
+  <canvas class="escena-lienzo"></canvas>
+  <p class="escena-rotulo">Forma ilustrativa, no es el fondo del lago</p>
+</div>
+
+<style>
+  .pieza-escena {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100svh;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--agua-claro), var(--agua-hondo) calc(var(--p, 0) * 100%));
+  }
+  .escena-corte {
+    position: absolute;
+    inset: auto 0 0 0;
+    width: 100%;
+    height: 55%;
+  }
+  .escena-corte path { fill: var(--agua-hondo); stroke: var(--fondo-trazo); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .escena-lienzo { display: none; position: absolute; inset: 0; width: 100%; height: 100%; }
+  :global(.pieza[data-escena='lienzo']) .escena-lienzo { display: block; }
+  :global(.pieza[data-escena='lienzo']) .escena-corte { display: none; }
+  @media (max-width: 40rem) {
+    .escena-rotulo { right: 8rem; left: var(--margen-lateral); bottom: 0.75rem; }
+  }
+  .escena-rotulo {
+    position: absolute;
+    right: calc(11rem + var(--margen-lateral));
+    bottom: 1rem;
+    margin: 0;
+    padding: 0.3rem 0.6rem;
+    font-family: var(--fuente-interfaz);
+    font-size: var(--tam-chico);
+    background: var(--color-fondo);
+    color: var(--color-texto);
+  }
+</style>
+
+<script>
+  import { hondura, TRAMOS } from '../../lib/profundidad';
+
+  const pieza = document.querySelector<HTMLElement>('.pieza[data-version="inmersiva"]');
+  const cuerpo = pieza?.querySelector<HTMLElement>('.pieza-cuerpo');
+  const lienzo = pieza?.querySelector<HTMLCanvasElement>('.escena-lienzo');
+
+  if (pieza && cuerpo && lienzo) {
+    const reducir = matchMedia('(prefers-reduced-motion: reduce)');
+    const ahorro = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+    const ctx = lienzo.getContext('2d');
+    let p = 0;
+    let pendiente = false;
+
+    // Avance del descenso: 0 arriba del cuerpo de la pieza, 1 al llegar a su final.
+    const avance = () => {
+      const r = cuerpo.getBoundingClientRect();
+      const recorrido = Math.max(1, r.height - innerHeight);
+      return Math.min(1, Math.max(0, -r.top / recorrido));
+    };
+
+    const usarLienzo = () => !!ctx && !reducir.matches && !ahorro;
+
+    const mezclar = (a: number[], b: number[], t: number) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+    const AGUA_CLARO = [43, 82, 102];
+    const AGUA_HONDO = [4, 7, 12];
+    const CIELO = [201, 214, 223];
+    const TRAZO = [159, 195, 212];
+
+    function dibujar() {
+      pendiente = false;
+      if (!ctx) return;
+      const escala = Math.min(devicePixelRatio || 1, 2);
+      const W = lienzo!.clientWidth;
+      const H = lienzo!.clientHeight;
+      if (lienzo!.width !== Math.round(W * escala) || lienzo!.height !== Math.round(H * escala)) {
+        lienzo!.width = Math.round(W * escala);
+        lienzo!.height = Math.round(H * escala);
+      }
+      ctx.setTransform(escala, 0, 0, escala, 0, 0);
+
+      const fondo = mezclar(AGUA_CLARO, AGUA_HONDO, p);
+      ctx.fillStyle = `rgb(${fondo})`;
+      ctx.fillRect(0, 0, W, H);
+
+      // La superficie del agua sube y sale de la vista al bajar.
+      const linea = H * (0.2 - p * 0.9);
+      if (linea > 0) {
+        ctx.fillStyle = `rgb(${CIELO})`;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        for (let x = 0; x <= W; x += 8) ctx.lineTo(x, linea + Math.sin(x / 38) * 3);
+        ctx.lineTo(W, 0);
+        ctx.fill();
+      }
+
+      // Partículas en suspensión: suben al bajar, y dan la sensación de descenso.
+      ctx.fillStyle = `rgba(${TRAZO}, 0.35)`;
+      for (let n = 0; n < 70; n++) {
+        const px = ((n * 97.3) % 101) / 101;
+        const py = ((n * 53.9) % 89) / 89;
+        const vel = 0.6 + ((n * 31) % 7) / 6;
+        const y = (((py - p * vel * 1.6) % 1) + 1) % 1;
+        ctx.fillRect(px * W, y * H, 1.5, 1.5);
+      }
+
+      // El fondo sintético: líneas de lejos a cerca; cada una tapa a las de atrás.
+      const FILAS = 36;
+      const PASO = 10;
+      const base = H * (1.08 - p * 0.72);
+      for (let k = 0; k < FILAS; k++) {
+        const z = k / (FILAS - 1);
+        const y0 = base + z * H * 0.38;
+        const relieve = H * 0.2 * (0.55 + z);
+        const abre = W * (0.6 + 0.55 * z);
+        ctx.beginPath();
+        for (let sx = -PASO; sx <= W + PASO; sx += PASO) {
+          const x = ((sx - W / 2) / abre) * 1.2;
+          const h = Math.abs(x) > 1 ? 0 : hondura(x, z);
+          const sy = y0 - (1 - h) * relieve;
+          if (sx === -PASO) ctx.moveTo(sx, sy);
+          else ctx.lineTo(sx, sy);
+        }
+        ctx.lineTo(W + PASO, H + 10);
+        ctx.lineTo(-PASO, H + 10);
+        ctx.closePath();
+        ctx.fillStyle = `rgb(${fondo})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(${TRAZO}, ${((0.15 + 0.65 * z) * (0.45 + 0.55 * p)).toFixed(3)})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+
+    function actualizar() {
+      p = avance();
+      pieza!.style.setProperty('--p', p.toFixed(4));
+      marcarTramo();
+      if (usarLienzo() && !pendiente) {
+        pendiente = true;
+        requestAnimationFrame(dibujar);
+      }
+    }
+
+    function elegirEscena() {
+      if (usarLienzo()) pieza!.dataset.escena = 'lienzo';
+      else delete pieza!.dataset.escena;
+      actualizar();
+    }
+
+    // El riel marca el último tramo cuyo comienzo ya pasó la mitad de la pantalla.
+    const tramos = [...pieza.querySelectorAll<HTMLElement>('.pieza-tramos > li')];
+    const enlaces = TRAMOS.map((t) => pieza.querySelector<HTMLAnchorElement>(`.pieza-riel a[href="#tramo-${t.id}"]`));
+    let actual = -1;
+    function marcarTramo() {
+      let i = 0;
+      tramos.forEach((li, j) => { if (li.getBoundingClientRect().top <= innerHeight / 2) i = j; });
+      if (i === actual) return;
+      actual = i;
+      enlaces.forEach((a, j) => (j === i ? a?.setAttribute('aria-current', 'location') : a?.removeAttribute('aria-current')));
+    }
+
+    addEventListener('scroll', actualizar, { passive: true });
+    addEventListener('resize', actualizar);
+    reducir.addEventListener('change', elegirEscena);
+    elegirEscena();
+  }
+</script>

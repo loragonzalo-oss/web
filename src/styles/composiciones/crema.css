@@ -1,0 +1,170 @@
+/*
+  Composición de la Dirección 2 · «Crema y tierra». Se carga con el tema 'crema'
+  (src/styles/temas/crema.css) y sólo actúa con data-composicion="crema" en <html>.
+
+  Idea: la página de libro y el paisaje apaisado. Retícula asimétrica de 12 columnas,
+  todo alineado a la izquierda. Lo memorable es la tipografía grande de la portada y del
+  índice de ensayos, con la imagen de lado a lado justo debajo: el lugar entra como una
+  franja horizontal. Los bloques de la portada se leen de izquierda a derecha, en fila.
+  En los textos largos, párrafos de libro (sangría, sin espacio entre párrafos), figuras
+  y citas que salen al margen izquierdo, y la tabla de contenidos en el margen derecho.
+
+  Sin JavaScript. Los colores salen del tema; acá sólo medidas y disposición.
+*/
+html[data-composicion='crema'] {
+  --canal: clamp(1rem, 0.5rem + 1.6vw, 2.25rem);       /* separación entre columnas */
+  --tramo: clamp(4rem, 2.5rem + 5vw, 7.5rem);
+  --sangria: clamp(4rem, -6rem + 14vw, 9rem);           /* lo que figuras y títulos salen al margen */
+  --tam-h1: clamp(2.5rem, 1.5rem + 3.6vw, 4.6rem);
+  --tam-h2: clamp(1.6rem, 1.3rem + 1.1vw, 2.2rem);
+  --tam-h3: 1.4rem;
+  --radio: 0;
+
+  h1, h2, h3 { font-weight: 400; }
+  h1 { line-height: 0.98; letter-spacing: -0.02em; }
+  h2 { font-style: italic; letter-spacing: -0.005em; }
+
+  .flecha { display: none; }
+
+  /* Rótulos en minúscula de oración: sin versalitas forzadas. */
+  .relacionados h2.interfaz, .como-citar p.formato, fieldset.capas legend, .no-encontrada p.meta {
+    text-transform: none;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Cabecera y pie ──────────────────────────────────────────────────────── */
+  .cabecera { border-bottom: 0; margin-bottom: clamp(1.5rem, 1rem + 2vw, 3rem); }
+  .cabecera-fila { padding-top: 1.6rem; padding-bottom: 1rem; }
+  .marca-nombre { font-weight: 400; font-size: 1.35rem; letter-spacing: -0.01em; }
+  .marca-apodo { font-family: var(--fuente-texto); font-style: italic; font-size: 1.05rem; }
+  .menu-ancho { gap: 0.25rem 1.4rem; }
+  .menu-ancho a { font-family: var(--fuente-texto); font-style: italic; font-size: 1.15rem; color: var(--color-texto); }
+  .menu-ancho a[aria-current='page'] { color: var(--color-acento); text-decoration-thickness: 1px; }
+  .pie { border-top: 2px solid var(--color-texto); margin-top: var(--tramo); }
+
+  /* ── Portada ─────────────────────────────────────────────────────────────── */
+  .portada {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--canal);
+  }
+  .portada > * { grid-column: 1 / -1; }
+  .portada > .lectura { max-width: none; margin-inline: 0; }
+
+  .portada > .presentacion { grid-row: 1; margin-bottom: clamp(2rem, 1rem + 3vw, 3.5rem); }
+  .presentacion h1 {
+    font-size: clamp(3.1rem, 0.8rem + 8.4vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+    margin-bottom: 1.5rem;
+  }
+  .presentacion .apodo { font-size: clamp(1.35rem, 1.1rem + 0.9vw, 1.9rem); margin: 0 0 0.75rem; }
+
+  .portada-foto {
+    display: block;
+    grid-row: 2;
+    margin-inline: calc(-1 * var(--margen-lateral));
+    --marco-proporcion: 4 / 3;
+  }
+  .portada-foto .marco-hueco { border-inline: 0; }
+
+  .portada > .libro {
+    background: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    margin-block: var(--tramo);
+    display: grid;
+    gap: 1.75rem;
+  }
+  .libro-foto { display: block; --marco-proporcion: 2 / 3; max-width: 24rem; }
+  .libro .etiqueta { text-transform: none; letter-spacing: 0; font-size: var(--tam-chico); }
+  .libro h2 { font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem); line-height: 1.05; margin: 0.4rem 0 1.2rem; font-style: normal; }
+
+  .portada h2 { margin-top: 0; }
+  .ensayos-portada { display: block; margin-bottom: var(--tramo); }
+  .ensayos-portada-lista, .portada .ultimas .lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.5rem; }
+  .ensayos-portada-lista li { border-top: 1px solid var(--color-texto); padding-top: 0.9rem; }
+  .ensayos-portada-lista h3 { margin: 0 0 0.5rem; font-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.9rem); line-height: 1.1; }
+  .ensayos-portada-lista h3 a, .portada .ultimas h3 a { color: var(--color-texto); text-decoration: none; }
+  .ensayos-portada-lista h3 a:hover, .portada .ultimas h3 a:hover { color: var(--color-acento); }
+  .ensayos-portada-lista p { margin: 0; color: var(--color-texto-suave); }
+  .portada .ultimas .lista li { border-top: 1px solid var(--color-texto); border-bottom: 0; padding: 0.9rem 0 0; }
+  .portada .ultimas h3 { font-size: 1.35rem; line-height: 1.15; }
+
+  @media (min-width: 52rem) {
+    /* La presentación: el nombre a todo lo ancho; abajo, el apodo a la izquierda y la línea a la derecha. */
+    .portada > .presentacion { display: grid; grid-template-columns: subgrid; align-items: baseline; }
+    .presentacion h1 { grid-column: 1 / -1; }
+    .presentacion .apodo { grid-column: 1 / 6; }
+    .presentacion .linea { grid-column: 7 / -1; margin: 0; }
+    .portada-foto { --marco-proporcion: 12 / 5; }
+
+    .portada > .libro { grid-template-columns: subgrid; align-items: center; }
+    .libro-foto { grid-column: 2 / 6; max-width: none; }
+    .libro-texto { grid-column: 7 / 12; }
+
+    /* Ensayos y blog: el título en el margen izquierdo y los textos en fila, de izquierda a derecha. */
+    .portada > .ensayos-portada, .portada > .ultimas { display: grid; grid-template-columns: subgrid; align-items: start; }
+    .ensayos-portada > h2, .ultimas > h2 { grid-column: 1 / 4; }
+    .ensayos-portada > :not(h2), .ultimas > :not(h2) { grid-column: 4 / -1; }
+    .ensayos-portada-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--canal); }
+    .portada .ultimas .lista { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--canal); }
+    .ensayos-portada > p, .ultimas > p { margin-top: 1.75rem; }
+  }
+
+  /* ── Índice de ensayos: el título grande queda fijo en el margen mientras baja la lista. ── */
+  .pagina-ensayos { max-width: none; margin: 0; display: grid; gap: 1.5rem; }
+  .pagina-ensayos h1 { font-size: clamp(3rem, 1rem + 7vw, 7.5rem); font-style: italic; line-height: 0.9; margin: 0 0 1rem; }
+  .pagina-ensayos .lista { max-width: var(--ancho-lectura); }
+  .pagina-ensayos .lista li { border-bottom: 0; border-top: 1px solid var(--color-texto); padding: 1rem 0 2.5rem; }
+  .pagina-ensayos .lista h2 { font-size: var(--tam-h2); line-height: 1.1; margin: 0.4rem 0 0.7rem; font-style: normal; }
+  @media (min-width: 64rem) {
+    .pagina-ensayos { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--canal); align-items: start; }
+    .pagina-ensayos h1 { position: sticky; top: 2rem; }
+  }
+
+  /* ── Texto largo ─────────────────────────────────────────────────────────── */
+  .cabecera-texto { margin-bottom: 2.5rem; }
+  .cabecera-texto h1 { font-size: clamp(2.6rem, 1.4rem + 4vw, 5rem); margin: 0.6rem 0 1.2rem; }
+  .cabecera-texto .resumen { font-size: 1.2em; line-height: 1.4; }
+
+  /* Párrafos de libro: sin espacio entre ellos y con sangría en la primera línea. */
+  .cuerpo > p { margin: 0; }
+  .cuerpo > p + p { text-indent: 1.4em; }
+  .cuerpo > :not(p) + p { margin-top: 1.3em; }
+  .cuerpo > p + :not(p) { margin-top: 1.6em; }
+  .cuerpo h2 { margin-top: 2.2em; }
+  .cuerpo .figura img { border-radius: 0; }
+  .cuerpo .cita-destacada { border-top: 0; border-bottom: 0; border-left: 3px solid var(--color-acento); padding: 0.2rem 0 0.2rem 1.25rem; font-size: 1.45em; }
+  .indice-titulo, .cuerpo .footnotes > #footnote-label { text-transform: none; letter-spacing: 0; font-size: var(--tam-chico); }
+  .indice-lateral { border-left: 0; padding-left: 0; }
+  .indice-lateral a { font-family: var(--fuente-texto); font-size: 1.05rem; }
+
+  @media (min-width: 64rem) {
+    /* El texto se corre a la derecha y deja un margen izquierdo; la tabla de contenidos, a la derecha. */
+    .texto-largo, .texto-largo.con-indice {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, var(--ancho-lectura)) 13rem;
+      column-gap: 3rem;
+      align-items: start;
+    }
+    .texto-largo .lectura, .texto-largo.con-indice .lectura { grid-column: 2; grid-row: 1; margin: 0; max-width: none; }
+    .texto-largo.con-indice .columna-indice { grid-column: 3; padding-top: 1rem; }
+  }
+  @media (min-width: 80rem) {
+    .cabecera-texto h1,
+    .cuerpo .figura,
+    .cuerpo .cita-destacada { margin-left: calc(-1 * var(--sangria)); }
+  }
+
+  /* ── /libro: la foto como tapa, fija a la izquierda; el texto a la derecha. ── */
+  .pagina-libro { max-width: none; margin: 0; display: grid; gap: 2rem; }
+  .pagina-libro-foto { display: block; --marco-proporcion: 2 / 3; max-width: 26rem; }
+  .pagina-libro-texto h1 { font-size: clamp(2.6rem, 1.4rem + 4vw, 5rem); margin: 0.5rem 0 1.5rem; }
+  @media (min-width: 52rem) {
+    .pagina-libro { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--canal); align-items: start; }
+    .pagina-libro-foto { grid-column: 1 / 6; max-width: none; position: sticky; top: 2rem; }
+    .pagina-libro-texto { grid-column: 7 / -1; max-width: var(--ancho-lectura); padding-top: 2rem; }
+  }
+}

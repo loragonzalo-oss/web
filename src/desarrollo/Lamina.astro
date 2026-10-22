@@ -10,6 +10,7 @@ import { lugares } from '../lib/lugares';
 import { TEMAS } from './temas.mjs';
 import { leerTema, revisarTema } from './contraste.mjs';
 import { TEMA } from '../../sitio.config.mjs';
+import { url } from '../lib/rutas';
 
 const todos = await lugares();
 const lugar = todos.find((l) => l.id === 'ejemplo-arqueologia') ?? todos[0];
@@ -36,7 +37,7 @@ const temas = TEMAS.map((t) => {
   <style is:inline set:html={reglasCapas()}></style>
   <div class="lamina-intro lectura">
     <h1>Lámina de temas</h1>
-    <p>Página de desarrollo: sólo existe con <code>npm run dev</code> y no se publica. Muestra las cuatro opciones de identidad visual, cada una en modo claro y oscuro. Ninguna está elegida.</p>
+    <p>Página de desarrollo: sólo existe con <code>npm run dev</code> y no se publica. Muestra todas las opciones de identidad visual (los temas de color y las dos direcciones del rediseño), cada una en modo claro y oscuro. Ninguna está elegida. Las direcciones cambian también la composición: para compararlas, <a href={url("/direcciones/")}>la lámina de las direcciones</a>.</p>
     <p class="meta">Tema publicado hoy: <strong>{TEMAS.find((t) => t.id === TEMA)?.nombre}</strong> (<code>TEMA</code> en <code>sitio.config.mjs</code>). Para ver el sitio entero con otro tema, usá el selector de abajo a la izquierda. Contraste completo: <code>docs/temas-contraste.md</code>.</p>
     <nav class="lamina-indice interfaz" aria-label="Temas">
       {temas.map((t) => <a href={`#tema-${t.id}`}>{t.nombre}</a>)}

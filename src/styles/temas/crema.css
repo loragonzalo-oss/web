@@ -1,0 +1,75 @@
+/*
+  Dirección 2 · «Crema y tierra». Propuesta del rediseño; no está elegida.
+  La página de libro: fondo crema de piedra, texto pardo y un acento rojo de tierra
+  quemada. De noche, la misma tierra a oscuras.
+  La composición (retícula asimétrica con margen de notas, imagen apaisada de lado a
+  lado, bloques en fila) está en src/styles/composiciones/crema.css y se carga con este tema.
+
+  Tipografías (autoalojadas, licencia SIL Open Font License 1.1):
+  - Cuerpo y títulos: EB Garamond (Georg Duffner y Octavio Pardo).
+  - Interfaz: Work Sans (Wei Huang).
+
+  Los valores --oscuro-* son los del modo oscuro. Contraste comprobado con
+  `npm run temas:contraste` (tabla en docs/temas-contraste.md).
+*/
+@import '@fontsource/eb-garamond/400.css';
+@import '@fontsource/eb-garamond/400-italic.css';
+@import '@fontsource/eb-garamond/600.css';
+@import '@fontsource/work-sans/400.css';
+@import '@fontsource/work-sans/600.css';
+@import '../composiciones/marco.css';
+@import '../composiciones/crema.css';
+
+[data-tema='crema'] {
+  --fuente-texto: 'EB Garamond', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --fuente-interfaz: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tam-base: 1.3125rem;   /* EB Garamond tiene el ojo chico: 21 px rinden como 19 */
+  --tam-chico: 0.92rem;
+  --interlineado: 1.58;
+
+  /* Modo claro: crema de piedra */
+  --color-fondo: #e8e3da;
+  --color-superficie: #dcd5c9;
+  --color-texto: #1f1712;
+  --color-texto-suave: #574a40;
+  --color-borde: #c2b6a6;
+  --color-acento: #8c2a10;
+  --color-acento-hover: #511400;
+  --color-marco: #d6cdbf;
+  --color-pendiente-fondo: #f6dfa0;
+  --color-pendiente-texto: #523b00;
+  --color-capa-icono: #ffffff;
+  --color-capa-contorno: #f4efe6;
+  --color-capa-clima: #3d6493;
+  --color-capa-ecologia: #507029;
+  --color-capa-biodiversidad: #2a7366;
+  --color-capa-cultura: #9a404e;
+  --color-capa-antropologia: #87582a;
+  --color-capa-arqueologia: #694e84;
+  --color-capa-turismo: #a95510;
+  --color-capa-emprendimientos-comunitarios: #79650c;
+  --color-capa-gobiernos-municipales: #5a5a50;
+
+  /* Modo oscuro: tierra a oscuras */
+  --oscuro-color-fondo: #18120e;
+  --oscuro-color-superficie: #231b16;
+  --oscuro-color-texto: #ede5da;
+  --oscuro-color-texto-suave: #b2a495;
+  --oscuro-color-borde: #3d3029;
+  --oscuro-color-acento: #ec8d68;
+  --oscuro-color-acento-hover: #f5b498;
+  --oscuro-color-marco: #2a211b;
+  --oscuro-color-pendiente-fondo: #3e3412;
+  --oscuro-color-pendiente-texto: #f0d98a;
+  --oscuro-color-capa-icono: #18120e;
+  --oscuro-color-capa-contorno: #18120e;
+  --oscuro-color-capa-clima: #8eabd3;
+  --oscuro-color-capa-ecologia: #a6c47c;
+  --oscuro-color-capa-biodiversidad: #7cc0b1;
+  --oscuro-color-capa-cultura: #dc8f99;
+  --oscuro-color-capa-antropologia: #d1a271;
+  --oscuro-color-capa-arqueologia: #b8a0d0;
+  --oscuro-color-capa-turismo: #e7a062;
+  --oscuro-color-capa-emprendimientos-comunitarios: #d3bb59;
+  --oscuro-color-capa-gobiernos-municipales: #b0ae9f;
+}

@@ -1,7 +1,8 @@
 // Temas visuales.
 // - Al construir el sitio: carga sólo el tema de TEMA (sitio.config.mjs) y comprueba
 //   que cumpla el contraste AA. Si no lo cumple, el sitio no se construye.
-// - Con npm run dev: carga los cuatro temas, muestra el selector y agrega la lámina /temas.
+// - Con npm run dev: carga todos los temas, muestra el selector y agrega las láminas /temas
+//   y /direcciones (las dos direcciones del rediseño lado a lado).
 //   Nada de esto llega al sitio publicado.
 import { fileURLToPath } from 'node:url';
 import { IDS_TEMAS } from './temas.mjs';
@@ -29,6 +30,7 @@ export default function temas({ tema }) {
         });
         if (desarrollo) {
           injectRoute({ pattern: '/temas', entrypoint: fileURLToPath(new URL('./Lamina.astro', import.meta.url)) });
+          injectRoute({ pattern: '/direcciones', entrypoint: fileURLToPath(new URL('./Direcciones.astro', import.meta.url)) });
         }
       },
     },

@@ -1,0 +1,13 @@
+/*
+  Marco de foto (src/components/Marco.astro), común a las dos direcciones.
+  La proporción la fija cada composición con --marco-proporcion.
+*/
+.marco { margin: 0; }
+.marco-hueco {
+  aspect-ratio: var(--marco-proporcion, 3 / 2);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--color-marco, var(--color-superficie));
+  border: 1px solid var(--color-borde);
+}

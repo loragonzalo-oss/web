@@ -21,10 +21,12 @@ En los dos casos, el encabezado de cada archivo es el mismo: ver «El encabezado
 8. [Imágenes para compartir](#imágenes-para-compartir)
 9. [El buscador](#el-buscador)
 10. [Identidad visual: ver los temas y elegir uno](#identidad-visual-ver-los-temas-y-elegir-uno)
-11. [Si algo falla](#si-algo-falla)
-12. [Revisiones automáticas](#revisiones-automáticas)
-13. [Primera publicación: activar GitHub Pages](#primera-publicación-activar-github-pages)
-14. [Pasar al dominio propio](#pasar-al-dominio-propio)
+11. [Direcciones del rediseño: verlas y elegir una](#direcciones-del-rediseño-verlas-y-elegir-una)
+12. [Prototipo de pieza inmersiva: «scroll es profundidad»](#prototipo-de-pieza-inmersiva-scroll-es-profundidad)
+13. [Si algo falla](#si-algo-falla)
+14. [Revisiones automáticas](#revisiones-automáticas)
+15. [Primera publicación: activar GitHub Pages](#primera-publicación-activar-github-pages)
+16. [Pasar al dominio propio](#pasar-al-dominio-propio)
 
 ## Publicar desde Obsidian
 
@@ -470,7 +472,7 @@ Ni el selector ni la lámina existen en el sitio publicado.
 Se cambia **una sola línea**, en `sitio.config.mjs`:
 
 ```js
-export const TEMA = 'provisorio';   // 'provisorio', 'a', 'b' o 'c'
+export const TEMA = 'provisorio';   // 'provisorio', 'a', 'b', 'c', 'noche' o 'crema'
 ```
 
 Por ejemplo, `export const TEMA = 'b';` publica el tema Totora. Al construir, el sitio carga sólo ese tema y sus tipografías, y comprueba el contraste AA (las tarjetas para compartir también toman sus colores y tipografías): si alguien cambia un color y algún par de texto y fondo no llega a 4.5:1, el sitio no se construye y el error dice cuál.
@@ -481,6 +483,50 @@ Cada tema es un archivo en `src/styles/temas/` (`provisorio.css`, `a.css`, `b.cs
 
 - `npm run temas:contraste` vuelve a medir los cuatro temas y reescribe `docs/temas-contraste.md`.
 - `npm run temas:capturas` (con `npm run dev` corriendo en otra terminal) rehace las capturas.
+
+## Direcciones del rediseño: verlas y elegir una
+
+Los temas A, B y C cambian colores y tipografías sobre la misma maqueta. Las dos **direcciones** van más lejos: cada una es un tema más su propia composición (portada, jerarquía, escala tipográfica, aire entre bloques, uso de la imagen y navegación). Ninguna está elegida; el sitio publicado sigue con el tema provisorio.
+
+| Dirección | Idea | Cuerpo (serifa) | Interfaz |
+|---|---|---|---|
+| 1 · Noche de altura (`noche`) | Recorrido vertical: noche fría, luz clara, un acento cálido. Riel lateral con escala de cotas como navegación; foto a toda altura; una sola columna que baja | Newsreader | Instrument Sans |
+| 2 · Crema y tierra (`crema`) | Página de libro: crema de piedra y rojo de tierra. Retícula asimétrica, nombre en tipografía muy grande, franja de foto apaisada, bloques en fila, párrafos con sangría | EB Garamond | Work Sans |
+
+Las dos tienen modo claro y oscuro, tipografías con licencia SIL Open Font License 1.1 dentro del sitio y contraste AA comprobado (`docs/temas-contraste.md`). No agregan JavaScript: todo es CSS. Las fotos todavía no están: donde va una foto hay un marco con la proporción definida y la marca visible [PENDIENTE: foto del autor].
+
+### Verlas
+
+Con el sitio corriendo (`npm run dev`):
+
+- **Selector de tema**, abajo a la izquierda: «Dirección 1 · Noche de altura» y «Dirección 2 · Crema y tierra» cambian la página entera, composición incluida, sin recargar.
+- **Lámina de las direcciones**: http://localhost:4321/web/direcciones/ muestra las dos lado a lado, con capturas de portada, índice de ensayos, entrada larga, /libro y el prototipo, en escritorio y teléfono, claro y oscuro, y enlaces para verlas vivas.
+- **Capturas sin correr nada**: `docs/capturas/rediseno/` (`portada-noche-escritorio-oscuro.png`, `libro-crema-telefono-claro.png`, etc.). Para rehacerlas, con `npm run dev` corriendo: `npm run rediseno:capturas`.
+
+### Elegir una
+
+Igual que un tema, con **una sola línea** en `sitio.config.mjs`:
+
+```js
+export const TEMA = 'noche';   // o 'crema'
+```
+
+Al construir, el sitio carga sólo esa dirección (colores, tipografías y composición) y sólo el marcado que pide (los marcos de foto, el riel de la portada). Con cualquier otro tema, el sitio publicado no lleva nada de las direcciones.
+
+Dónde está cada cosa, por si hay que ajustar: colores y tipografías en `src/styles/temas/noche.css` y `crema.css`; composición en `src/styles/composiciones/noche.css` y `crema.css`; las piezas de marcado propias de las direcciones llevan `data-solo` y se arman según `src/lib/direcciones.ts`.
+
+## Prototipo de pieza inmersiva: «scroll es profundidad»
+
+Una maqueta de la interacción: al bajar con el scroll, la vista baja hacia el fondo del lago, y un **riel de profundidad** a la derecha marca el tramo y sirve para saltar entre tramos. Es una página de desarrollo: existe con `npm run dev` y en la construcción de prueba (`npm run build:prueba`), **nunca en el sitio publicado**.
+
+- Versión inmersiva: http://localhost:4321/web/prototipos/profundidad/
+- Versión liviana (mismo texto, el riel como lista de enlaces y un corte fijo en SVG, sin JavaScript): http://localhost:4321/web/prototipos/profundidad/liviana/
+
+Lo que **no** tiene, a propósito: datos reales. La forma del fondo es sintética, calculada con una fórmula, y está rotulada en pantalla como «forma ilustrativa, no es el fondo del lago». El riel no muestra metros: donde iría la cifra dice [PENDIENTE: profundidad con fuente]. La batimetría de la ALT entra cuando confirmes la licencia y la resolución (PENDIENTES.md).
+
+Cumple las condiciones de «Piezas inmersivas» de CLAUDE.md: página propia; versión liviana con el mismo contenido (y la inmersiva se vuelve liviana sola si el equipo pide menos movimiento o ahorro de datos); todo el texto en HTML; fuentes citadas al pie de la pieza; sin sonido; sin coordenadas. Pesa 2.4 KB de JavaScript, escrito dentro de la página (un canvas 2D, sin bibliotecas); la medición completa por tipo de página está en `docs/rediseno-peso.md` y se rehace con `npm run build:prueba && npm run rediseno:peso`.
+
+Si el prototipo sirve, el paso siguiente es decidir qué página real lo lleva (tiene que aprobarla el autor, una por una) y con qué datos.
 
 ## Si algo falla
 
@@ -495,7 +541,7 @@ La revisión tiene siete pasos. Si uno sale en rojo, los siguientes no corren.
 **1. Pruebas del puente con Obsidian** (`npm test`). Prueban el script de exportación con una bóveda de relleno (`scripts/obsidian/prueba/`), nunca con la tuya.
 - *Si falla:* alguien cambió el script o el esquema del sitio y ya no coinciden. Es para quien mantiene el código.
 
-**2. Contraste de los temas** (`npm run temas:contraste`). Mide los cuatro temas, en claro y en oscuro.
+**2. Contraste de los temas** (`npm run temas:contraste`). Mide todos los temas (también las dos direcciones del rediseño), en claro y en oscuro.
 - *Si falla:* un color de `src/styles/temas/` no llega al contraste AA. El error dice qué par y cuánto le falta.
 
 **3. Construir el sitio que se publica.** Arma el sitio completo, igual que el despliegue, y el índice del buscador.
@@ -506,12 +552,12 @@ La revisión tiene siete pasos. Si uno sale en rojo, los siguientes no corren.
 
 **5 y 6. Construir el sitio de prueba y revisar sus enlaces.** El sitio de prueba (`npm run build:prueba`) es igual al publicado pero **incluye los borradores**, para que las revisiones tengan entradas, series y lugares de ejemplo aunque todavía no haya contenido real. Nunca se publica.
 
-**7. Páginas en escritorio y celular, funciones y accesibilidad.** Sobre el sitio de prueba, abre en un navegador la portada, el blog, los ensayos, «Sobre mí», contacto, el mapa, el buscador, la página de error, una entrada larga con notas y tabla de contenidos, un ensayo publicado en revista, una serie y el archivo del blog, en pantalla de computadora (1280 px de ancho) y de celular (390 px). En cada una comprueba:
+**7. Páginas en escritorio y celular, funciones y accesibilidad.** Sobre el sitio de prueba, abre en un navegador la portada, el blog, los ensayos, «Sobre mí», contacto, el mapa, el buscador, la página de error, una entrada larga con notas y tabla de contenidos, un ensayo publicado en revista, una serie, el archivo del blog y el prototipo de pieza inmersiva (sus dos versiones), en pantalla de computadora (1280 px de ancho) y de celular (390 px). En cada una comprueba:
 - *Que no haya desborde horizontal*: que nada sea más ancho que la pantalla y obligue a mover la página de costado. Pasa, por ejemplo, con una tabla muy ancha o una dirección web larga sin espacios. El error nombra el elemento que se sale.
 - *Que no haya errores en la consola*: errores de programación de la página. Si aparece uno después de un cambio de contenido, conviene avisar a quien mantiene el código.
 - *Accesibilidad*: con la herramienta axe, en modo claro y en modo oscuro, revisa que la página se pueda usar con lector de pantalla, con teclado y con poca visión. Falla sólo con problemas serios o críticos. Los más comunes: una imagen sin descripción (en un lugar del mapa, el campo `descripcion` de la imagen), un texto con poco contraste contra el fondo (pasa al cambiar colores de un tema) o un enlace sin texto.
 
-Además prueba que las funciones anden juntas: «Buscar» en el menú de computadora y en el de celular, el buscador encuentra resultados, la tabla de contenidos y las notas al pie llevan a su lugar, la ficha del mapa se abre y se cierra, cada entrada tiene su tarjeta para compartir y el sitio publicado no trae el selector de temas.
+Además prueba que las funciones anden juntas: «Buscar» en el menú de computadora y en el de celular, el buscador encuentra resultados, la tabla de contenidos y las notas al pie llevan a su lugar, la ficha del mapa se abre y se cierra, cada entrada tiene su tarjeta para compartir, el sitio publicado no trae el selector de temas y el prototipo cumple lo comprobable de «Piezas inmersivas» (rótulo de forma ilustrativa, riel, sin sonido, sin animación con menos movimiento, versión liviana sin JavaScript).
 - *Si falla:* abrí la revisión en *Actions*; el paso en rojo dice qué página, en qué pantalla y qué problema. Al final de la página de la revisión hay un archivo «informe-pruebas» con el detalle.
 
 **Para correr las mismas revisiones en la computadora** (hace falta haber instalado todo con `npm install`):

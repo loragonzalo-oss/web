@@ -16,7 +16,9 @@
     "temas:contraste": "node src/desarrollo/contraste.mjs",
     "temas:capturas": "node src/desarrollo/capturas-temas.mjs",
     "lectura:capturas": "node src/desarrollo/capturas-lectura.mjs",
-    "integracion:capturas": "node src/desarrollo/capturas-integracion.mjs"
+    "integracion:capturas": "node src/desarrollo/capturas-integracion.mjs",
+    "rediseno:capturas": "node src/desarrollo/capturas-rediseno.mjs",
+    "rediseno:peso": "node src/desarrollo/medir-peso.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.4",
@@ -24,12 +26,16 @@
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/alegreya": "^5.3.0",
     "@fontsource/alegreya-sans": "^5.3.0",
+    "@fontsource/eb-garamond": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/instrument-sans": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/literata": "^5.3.0",
+    "@fontsource/newsreader": "^5.3.0",
     "@fontsource/source-sans-3": "^5.3.1",
     "@fontsource/source-serif-4": "^5.3.1",
     "@fontsource/spectral": "^5.3.0",
+    "@fontsource/work-sans": "^5.3.0",
     "astro": "^7.4.1",
     "leaflet": "^1.9.4",
     "satori": "^0.63.2",

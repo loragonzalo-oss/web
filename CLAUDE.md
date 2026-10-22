@@ -32,7 +32,7 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 
 ## Diseño
 
-Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para el cuerpo, ancho de línea cómodo (unos 65-70 caracteres) y modo oscuro. La paleta e identidad visual del autor es un tema abierto. Las medidas compartidas van en src/styles/tokens.css; los colores y las tipografías, en un archivo por tema en src/styles/temas/. El tema publicado se elige con una sola línea (TEMA en sitio.config.mjs). Ningún tema se elige sin orden del autor. Tipografías sólo autoalojadas y con licencia libre (OFL); todo par de texto y fondo cumple contraste AA (el build lo comprueba).
+Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para el cuerpo, ancho de línea cómodo (unos 65-70 caracteres) y modo oscuro. La paleta e identidad visual del autor es un tema abierto. Las medidas compartidas van en src/styles/tokens.css; los colores y las tipografías, en un archivo por tema en src/styles/temas/. El tema publicado se elige con una sola línea (TEMA en sitio.config.mjs). Ningún tema se elige sin orden del autor. Las direcciones del rediseño (noche, crema) son temas que además traen su composición, en src/styles/composiciones/; su marcado propio lleva data-solo y sólo se arma en desarrollo o cuando esa dirección es la publicada (src/lib/direcciones.ts). Tipografías sólo autoalojadas y con licencia libre (OFL); todo par de texto y fondo cumple contraste AA (el build lo comprueba).
 
 ### Piezas inmersivas
 
@@ -59,3 +59,4 @@ El sitio tiene dos capas. La base editorial queda liviana y estática. Las pieza
 - 22-10-2026: diseño. Los colores y las tipografías pasan de tokens.css a un archivo por tema en src/styles/temas/; el tema publicado se elige en sitio.config.mjs (TEMA). Tipografías autoalojadas con licencia OFL y contraste AA comprobado al construir.
 - 22-10-2026: integración de las ramas. Revisión antes de unir con la construcción de prueba (`npm run build:prueba`, con borradores) y las pruebas ampliadas.
 - 22-10-2026: piezas inmersivas. Decisión del autor: se permite JavaScript pesado (WebGL, Three.js, GSAP) en páginas puntuales que él apruebe, con versión liviana, texto en HTML, fuentes citadas y sonido apagado al inicio. La base editorial sigue sin JavaScript salvo que haga falta.
+- 22-10-2026: rediseño en dos capas. Una dirección es un tema más su composición (src/styles/composiciones/). Los prototipos de piezas inmersivas viven en /prototipos/ y siguen la regla de los borradores: dev y build:prueba, nunca el build publicado.

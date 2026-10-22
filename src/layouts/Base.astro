@@ -4,6 +4,7 @@ import Cabecera from '../components/Cabecera.astro';
 import Pie from '../components/Pie.astro';
 import SelectorTema from '../desarrollo/SelectorTema.astro';
 import { TEMA } from '../../sitio.config.mjs';
+import { composicionDe } from '../desarrollo/temas.mjs';
 import { SITIO } from '../lib/sitio';
 import { url, urlAbsoluta } from '../lib/rutas';
 
@@ -14,15 +15,16 @@ interface Props {
   tipo?: 'website' | 'article';
   fecha?: Date;
   noIndexar?: boolean;
+  completo?: boolean;       // sin el ancho máximo del sitio (piezas inmersivas)
 }
 
-const { titulo, descripcion = SITIO.descripcion, imagen, tipo = 'website', fecha, noIndexar = false } = Astro.props;
+const { titulo, descripcion = SITIO.descripcion, imagen, tipo = 'website', fecha, noIndexar = false, completo = false } = Astro.props;
 const tituloCompleto = titulo ? `${titulo} · ${SITIO.nombre}` : `${SITIO.nombre} · «${SITIO.apodo}»`;
 const canonica = new URL(Astro.url.pathname, Astro.site).href;
 const imagenOG = imagen ? new URL(imagen, Astro.site).href : urlAbsoluta('/og-default.png', Astro.site);
 ---
 <!doctype html>
-<html lang={SITIO.idioma} data-tema={TEMA}>
+<html lang={SITIO.idioma} data-tema={TEMA} data-composicion={composicionDe(TEMA)}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -58,7 +60,7 @@ const imagenOG = imagen ? new URL(imagen, Astro.site).href : urlAbsoluta('/og-de
   <body>
     <a class="salto" href="#contenido">Saltar al contenido</a>
     <Cabecera />
-    <main id="contenido" class="contenedor">
+    <main id="contenido" class:list={[completo ? 'completo' : 'contenedor']}>
       <slot />
     </main>
     <Pie />

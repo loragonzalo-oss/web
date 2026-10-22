@@ -56,6 +56,7 @@
   --color-borde: var(--oscuro-color-borde);
   --color-acento: var(--oscuro-color-acento);
   --color-acento-hover: var(--oscuro-color-acento-hover);
+  --color-marco: var(--oscuro-color-marco, var(--oscuro-color-superficie));
   --color-pendiente-fondo: var(--oscuro-color-pendiente-fondo);
   --color-pendiente-texto: var(--oscuro-color-pendiente-texto);
   --mapa-filtro-teselas: var(--oscuro-mapa-filtro-teselas);
@@ -81,7 +82,8 @@
     --color-borde: var(--oscuro-color-borde);
     --color-acento: var(--oscuro-color-acento);
     --color-acento-hover: var(--oscuro-color-acento-hover);
-    --color-pendiente-fondo: var(--oscuro-color-pendiente-fondo);
+    --color-marco: var(--oscuro-color-marco, var(--oscuro-color-superficie));
+  --color-pendiente-fondo: var(--oscuro-color-pendiente-fondo);
     --color-pendiente-texto: var(--oscuro-color-pendiente-texto);
     --mapa-filtro-teselas: var(--oscuro-mapa-filtro-teselas);
     --color-capa-icono: var(--oscuro-color-capa-icono);

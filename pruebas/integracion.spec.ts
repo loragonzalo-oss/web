@@ -4,6 +4,8 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { abrir } from './ayudas';
+import { TEMA } from '../sitio.config.mjs';
+import { TEMAS } from '../src/desarrollo/temas.mjs';
 
 const graves = async (page: import('@playwright/test').Page) => {
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
@@ -27,8 +29,18 @@ test('la cabecera lleva Buscar en el menú ancho o en el compacto', async ({ pag
 
 test('el sitio construido no lleva el selector de tema', async ({ page }) => {
   await abrir(page, '');
-  await expect(page.locator('html')).toHaveAttribute('data-tema', 'provisorio');
+  await expect(page.locator('html')).toHaveAttribute('data-tema', TEMA);
   expect(await page.locator('.selector-tema, [data-selector-tema]').count()).toBe(0);
+});
+
+test('el sitio construido sólo lleva el marcado de la dirección publicada', async ({ page }) => {
+  await abrir(page, '');
+  const composicion = TEMAS.find((t) => t.id === TEMA)?.composicion ?? 'base';
+  await expect(page.locator('html')).toHaveAttribute('data-composicion', composicion);
+  const ajenas = await page.locator('[data-solo]').evaluateAll((els, c) => els.filter((e) => !e.getAttribute('data-solo')!.split(' ').includes(c)).length, composicion);
+  expect(ajenas, 'piezas de otra dirección en el marcado').toBe(0);
+  const respuesta = await page.goto('direcciones/');
+  expect(respuesta?.status(), 'la lámina /direcciones no se publica').toBe(404);
 });
 
 test('entrada larga: tabla de contenidos, notas de ida y vuelta, serie y tarjeta OG', async ({ page, isMobile }) => {
