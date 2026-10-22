@@ -1,8 +1,10 @@
 ---
 titulo: "Bahía de Cohana"
 capa: ecologia
-precision: oculta
-resumen: "Cuerpo receptor de la contaminación de la cuenca Katari en el Lago Menor, según el PDCKyLMT y el Diagnóstico Institucional de la ALT."
+lat: -15.60
+lon: -69.35
+precision: exacta
+resumen: "[Ubicación de relleno, no es la real] Cuerpo receptor de la contaminación de la cuenca Katari en el Lago Menor, según el PDCKyLMT y el Diagnóstico Institucional de la ALT."
 fuentes:
   - autor: "Ministerio de Medio Ambiente y Agua, Viceministro de Recursos Hídricos y Riego"
     año: 2018
@@ -13,6 +15,8 @@ fuentes:
 marcador: "[VERIFICAR]"
 draft: true
 ---
+**Ubicación de relleno, no es la real.** El punto está en una grilla de prueba sobre el Lago Mayor, sólo para ver la estructura del mapa. La ubicación real de este lugar no está en el corpus.
+
 **Qué es.** Bahía del Lago Menor del Titicaca donde descargan las aguas del río Katari (PDCKyLMT, líneas 2754-2755). El Diagnóstico Institucional de la ALT identifica a la cuenca Katari como «la principal fuente de contaminación para la Bahía de Cohana y el Lago Menor» (Diagnóstico ALT, líneas 20823-20825).
 
 **Papel en la cadena: cuerpo receptor.** El PDCKyLMT cita estudios de 2006 (SENAMHI, Prefectura del Departamento de La Paz, IBTEN y UOBLT) que señalan que «en la Bahía de Cohana existe una alta contaminación por patógenos como bacterias, virus y parásitos», con «altos contenidos de nitrógeno y fosforo» (PDCKyLMT, líneas 2929-2932). Estima que «entre 800 Tn/año de residuos sólidos se acumulan en la Bahía de Cohana» (CGE, 2013, citado en el plan; PDCKyLMT, líneas 2869-2870) y describe la eutrofización de sus aguas (PDCKyLMT, líneas 3229-3232). Registra además la presión de la ganadería lechera en la bahía (PDCKyLMT, líneas 2765-2767).
@@ -27,6 +31,6 @@ draft: true
 
 **Pendientes de esta ficha.**
 
-- [VERIFICAR] «coordenada pendiente»: ninguna de las dos fuentes da coordenadas geográficas ni UTM de este lugar.
+- [VERIFICAR] «coordenada pendiente» (lat y lon de esta rama son de relleno): ninguna de las dos fuentes da coordenadas geográficas ni UTM de este lugar.
 - [VERIFICAR] Actores: el Cuadro 19 (Matriz de corresponsabilidad, PDCKyLMT, líneas 8940-9952) llegó desarmado en la conversión del PDF a texto y sus códigos no se pueden atar a cada actor. Los actores de esta ficha salen del Cuadro 20, y la correspondencia entre mesa técnica y línea de acción se dedujo del orden del texto. Confirmar contra el PDF original.
 - [VERIFICAR] Capa: va en Ecología de forma provisoria; no hay una capa para presiones y obras de saneamiento (propuesta en la revisión del encargo).
