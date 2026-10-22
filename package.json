@@ -19,6 +19,7 @@
     "integracion:capturas": "node src/desarrollo/capturas-integracion.mjs",
     "rediseno:capturas": "node src/desarrollo/capturas-rediseno.mjs",
     "rediseno:peso": "node src/desarrollo/medir-peso.mjs",
+    "lint:taste": "node scripts/revision/lint-taste.mjs src",
     "ensayos:pdf": "node scripts/ensayos/pdf.mjs",
     "ensayos:capturas": "node src/desarrollo/capturas-ensayos.mjs"
   },
