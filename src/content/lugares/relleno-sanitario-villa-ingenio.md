@@ -1,8 +1,10 @@
 ---
 titulo: "Relleno sanitario de Villa Ingenio"
 capa: ecologia
-precision: oculta
-resumen: "Sitio de disposición final de los residuos sólidos de El Alto y fuente de lixiviados hacia el río Seke, según el PDCKyLMT."
+lat: -15.60
+lon: -69.25
+precision: exacta
+resumen: "[Ubicación de relleno, no es la real] Sitio de disposición final de los residuos sólidos de El Alto y fuente de lixiviados hacia el río Seke, según el PDCKyLMT."
 fuentes:
   - autor: "Ministerio de Medio Ambiente y Agua, Viceministro de Recursos Hídricos y Riego"
     año: 2018
@@ -10,6 +12,8 @@ fuentes:
 marcador: "[VERIFICAR]"
 draft: true
 ---
+**Ubicación de relleno, no es la real.** El punto está en una grilla de prueba sobre el Lago Mayor, sólo para ver la estructura del mapa. La ubicación real de este lugar no está en el corpus.
+
 **Qué es.** Según el PDCKyLMT, El Alto «produce 216.836 Tn/año de residuos sólidos» (INE, 2016, citado en el plan) y «la disposición final de los mismos se realiza en el relleno sanitario de Villa Ingenio» (PDCKyLMT, líneas 2872-2874).
 
 **Papel en la cadena: fuente de lixiviados.** En Villa Ingenio «se producen lixiviados que contaminan al río Seke, que finalmente llegan al lago Titicaca» (PDCKyLMT, líneas 2874-2875).
@@ -20,6 +24,6 @@ draft: true
 
 **Pendientes de esta ficha.**
 
-- [VERIFICAR] «coordenada pendiente»: ninguna de las dos fuentes da coordenadas geográficas ni UTM de este lugar.
+- [VERIFICAR] «coordenada pendiente» (lat y lon de esta rama son de relleno): ninguna de las dos fuentes da coordenadas geográficas ni UTM de este lugar.
 - [VERIFICAR] Actores: el Cuadro 19 (Matriz de corresponsabilidad, PDCKyLMT, líneas 8940-9952) llegó desarmado en la conversión del PDF a texto y sus códigos no se pueden atar a cada actor. Los actores de esta ficha salen del Cuadro 20, y la correspondencia entre mesa técnica y línea de acción se dedujo del orden del texto. Confirmar contra el PDF original.
 - [VERIFICAR] Capa: va en Ecología de forma provisoria; no hay una capa para presiones y obras de saneamiento (propuesta en la revisión del encargo).

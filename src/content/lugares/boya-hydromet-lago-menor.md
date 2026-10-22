@@ -1,8 +1,10 @@
 ---
 titulo: "Boya HydroMet del Lago Menor"
 capa: ecologia
-precision: oculta
-resumen: "Boya automática de monitoreo meteorológico y de calidad del agua instalada en el sector boliviano del Lago Menor; hoy fuera de operación según el Diagnóstico Institucional de la ALT."
+lat: -15.65
+lon: -69.20
+precision: exacta
+resumen: "[Ubicación de relleno, no es la real] Boya automática de monitoreo meteorológico y de calidad del agua instalada en el sector boliviano del Lago Menor; hoy fuera de operación según el Diagnóstico Institucional de la ALT."
 fuentes:
   - autor: "Gonzalo Lora Veizaga, CT BID BO-T1425"
     año: 2025
@@ -13,6 +15,8 @@ fuentes:
 marcador: "[VERIFICAR]"
 draft: true
 ---
+**Ubicación de relleno, no es la real.** El punto está en una grilla de prueba sobre el Lago Mayor, sólo para ver la estructura del mapa. La ubicación real de este lugar no está en el corpus.
+
 **Qué es.** Según el Diagnóstico Institucional de la ALT, una boya «fija, automática y autónoma (fabricada por XYLEM Inc.) en el sector boliviano del Lago Menor», con datos en tiempo real de parámetros atmosféricos y de calidad del agua (clorofila-a, ficocianina, oxígeno disuelto, turbidez y otros); la fuente la describe como «la primera estación meteorológica desplegada sobre el Lago Titicaca» (Diagnóstico ALT, líneas 16439-16448).
 
 **Papel en la cadena: monitoreo del cuerpo receptor.** Forma parte de la estrategia de monitoreo combinado para «investigar y vigilar la eutrofización en el Lago Menor» (Diagnóstico ALT, líneas 16436-16437).
@@ -23,7 +27,7 @@ draft: true
 
 **Pendientes de esta ficha.**
 
-- [VERIFICAR] «coordenada pendiente»: ninguna de las dos fuentes da coordenadas geográficas ni UTM de este lugar.
+- [VERIFICAR] «coordenada pendiente» (lat y lon de esta rama son de relleno): ninguna de las dos fuentes da coordenadas geográficas ni UTM de este lugar.
 - [VERIFICAR] Actores: el Cuadro 19 (Matriz de corresponsabilidad, PDCKyLMT, líneas 8940-9952) llegó desarmado en la conversión del PDF a texto y sus códigos no se pueden atar a cada actor. Los actores de esta ficha salen del Cuadro 20, y la correspondencia entre mesa técnica y línea de acción se dedujo del orden del texto. Confirmar contra el PDF original.
 - [VERIFICAR] Capa: va en Ecología de forma provisoria; no hay una capa para presiones y obras de saneamiento (propuesta en la revisión del encargo).
 - [VERIFICAR] El PDCKyLMT no menciona esta boya; la ficha sale del Diagnóstico Institucional de la ALT, y los actores del PDCKyLMT corresponden al tema (monitoreo de calidad de agua), no a este equipo.
