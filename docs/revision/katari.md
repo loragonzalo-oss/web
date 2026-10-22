@@ -36,7 +36,7 @@ Las 14 fichas van con `capa: ecologia` de forma provisoria, `precision: oculta`,
 
 **Cuenta: 0 fichas con coordenada del corpus y 14 pendientes.** Ninguna de las dos fuentes da coordenadas geográficas ni UTM de estos lugares. La única coordenada puntual que trae el PDCKyLMT es la de la estación meteorológica Tiawanacu del SENAMHI (16° 34' 07'' S, 68° 40' 42'' W; líneas 1018-1023, sin datum). Esa estación no forma parte de la cadena de contaminación y saneamiento y queda fuera de este encargo. Las líneas 646-647 dan los límites de la cuenca, no un punto.
 
-Como ninguna ficha tiene coordenadas, **no hay capturas** en `docs/capturas/katari/`: las fichas no tienen punto en el mapa y sólo aparecen en el listado de la página del mapa.
+Como ninguna ficha tiene coordenadas, las fichas no tienen punto en el mapa: aparecen sólo en el listado, debajo del mapa. Igual hay capturas de la construcción de prueba en `docs/capturas/katari/` (escritorio y celular): vista general, listado y ficha abierta de la PTAR de Puchukollo. Los puntos que se ven en el mapa son las fichas de ejemplo. El fondo sale vacío porque desde el entorno donde se hicieron las capturas no se llega a las teselas de OpenStreetMap.
 
 ## Por qué todas llevan [VERIFICAR]
 
