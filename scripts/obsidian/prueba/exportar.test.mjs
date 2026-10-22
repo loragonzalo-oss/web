@@ -267,3 +267,28 @@ test('la orden de terminal con --simular: informa, no escribe y sale con error s
   assert.equal(existsSync(path.join(RAIZ_REPO, REGISTRO)), registroAntes);
   await rm(base, { recursive: true });
 });
+
+test('series: conserva «serie» y «parte», y frena una «parte» que no es un entero', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  const nota = (parte) => `---\npublicar: true\ntipo: blog\ntitulo: "Parte de serie"\nfecha: 2026-10-02\nserie: "Serie de prueba"\nparte: ${parte}\ndraft: false\n---\n\nLorem ipsum.\n`;
+  await writeFile(path.join(boveda, '100 Blog', 'Parte de serie.md'), nota(2));
+  await writeFile(path.join(boveda, '100 Blog', 'Parte mal numerada.md'), nota('dos'));
+  const r = await exportar({ boveda, repo });
+  const salida = await leer('src/content/blog/parte-de-serie.md');
+  assert.match(salida, /^serie: Serie de prueba$/m);
+  assert.match(salida, /^parte: 2$/m);
+  assert.match(frenada(r, '100 Blog/Parte mal numerada.md').motivos.join('\n'), /«parte» tiene que ser un número entero/);
+  await rm(base, { recursive: true });
+});
+
+test('frena una entrada que taparía una dirección del blog (archivo, etiquetas, un número)', async () => {
+  const { base, boveda, repo } = await preparar();
+  const nota = '---\npublicar: true\ntipo: blog\ntitulo: "Choque"\nfecha: 2026-10-02\ndraft: false\n---\n\nLorem ipsum.\n';
+  await writeFile(path.join(boveda, '100 Blog', 'Archivo.md'), nota);
+  await writeFile(path.join(boveda, '100 Blog', '2.md'), nota);
+  const r = await exportar({ boveda, repo });
+  assert.match(frenada(r, '100 Blog/Archivo.md').motivos.join('\n'), /ya la usa el blog/);
+  assert.match(frenada(r, '100 Blog/2.md').motivos.join('\n'), /ya la usa el blog/);
+  assert.ok(!existsSync(path.join(repo, 'src/content/blog/archivo.md')));
+  await rm(base, { recursive: true });
+});

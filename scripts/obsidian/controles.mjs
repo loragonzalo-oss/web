@@ -22,6 +22,11 @@ function normalizarMarcador(v) {
   return MARCADORES[clave] ?? null;
 }
 
+// Direcciones que ya usa el blog (/blog/archivo/, /blog/etiquetas/, /blog/2/…): una entrada
+// con ese nombre las taparía. Mismo criterio que src/pages/blog/[entrada].astro.
+export const RESERVADAS_BLOG = ['archivo', 'etiquetas'];
+export const chocaConBlog = (id) => RESERVADAS_BLOG.includes(id) || /^\d+$/.test(id);
+
 // Lee los campos uno por uno y junta los errores en castellano.
 function lector(fm, errores) {
   return {
@@ -48,6 +53,18 @@ function lector(fm, errores) {
         return undefined;
       }
       return String(v);
+    },
+    // Series (src/content.config.ts): `serie` es un nombre y `parte`, un entero positivo.
+    serie() {
+      const serie = this.texto('serie', false);
+      const v = fm.parte;
+      let parte;
+      if (!vacio(v)) {
+        const n = Number(typeof v === 'string' ? v.trim() : v);
+        if (Number.isInteger(n) && n > 0) parte = n;
+        else errores.push(`«parte» tiene que ser un número entero desde 1 (es «${v}»).`);
+      }
+      return { serie, parte };
     },
     draft() {
       const v = fm.draft;
@@ -78,6 +95,7 @@ function validarBlog(fm, errores) {
     imagen: undefined, // la completa exportar.mjs después de copiar la imagen
     slug: l.texto('slug', false),
     draft: l.draft(),
+    ...l.serie(),
   };
 }
 
@@ -93,6 +111,7 @@ function validarEnsayo(fm, errores) {
     enlace,
     slug: l.texto('slug', false),
     draft: l.draft(),
+    ...l.serie(),
   };
 }
 

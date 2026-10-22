@@ -11,6 +11,7 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 - **Astro** con colecciones de contenido en markdown. Sin CMS, sin base de datos y sin JavaScript del lado del cliente salvo que haga falta.
 - Las entradas del blog y los ensayos son archivos .md en src/content/. El autor tiene que poder escribirlos en Obsidian y subirlos sin tocar código.
 - Puente con Obsidian: scripts/obsidian/ copia de la bóveda privada del autor hacia src/content, en un solo sentido (`npm run desde-obsidian`, guía en COMO-PUBLICAR.md). Nunca borra y nunca pisa sin preguntar. Sus controles siguen el esquema de src/content.config.ts: si se cambia un campo allá, se cambia en scripts/obsidian/controles.mjs. Pruebas con `npm test`.
+- Revisión antes de unir: `npm test`, `npm run temas:contraste`, `npm run build` y `npm run build:prueba` (incluye los borradores de ejemplo) seguido de `npm run revisar` (enlaces, Playwright y axe). Lo mismo corre en cada pull request (.github/workflows/revision.yml). Los borradores sólo se ven en desarrollo y en la construcción de prueba; nunca en `npm run build`.
 - Despliegue con GitHub Pages mediante GitHub Actions. Dominio propio configurado con CNAME.
 - RSS, sitemap y metadatos Open Graph para que los enlaces se vean bien en Facebook y X.
 
@@ -43,4 +44,6 @@ Sobrio, editorial, pensado para leer textos largos: tipografía con serifa para 
 
 - 21-10-2026: versión inicial.
 - 21-10-2026: regla 6, lugares sensibles del mapa. Las coordenadas exactas no entran al repositorio; el esquema de `lugares` lo hace cumplir al construir el sitio.
+- 22-10-2026: puente con Obsidian. scripts/obsidian/ copia de la bóveda privada hacia src/content en un solo sentido, sin borrar ni pisar sin preguntar; sus controles siguen el esquema de src/content.config.ts.
 - 22-10-2026: diseño. Los colores y las tipografías pasan de tokens.css a un archivo por tema en src/styles/temas/; el tema publicado se elige en sitio.config.mjs (TEMA). Tipografías autoalojadas con licencia OFL y contraste AA comprobado al construir.
+- 22-10-2026: integración de las ramas. Revisión antes de unir con la construcción de prueba (`npm run build:prueba`, con borradores) y las pruebas ampliadas.

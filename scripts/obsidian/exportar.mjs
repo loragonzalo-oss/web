@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { stringify } from 'yaml';
 import { leerBoveda, buscar } from './boveda.mjs';
 import { convertirCuerpo, EXT_IMAGEN, anclaEncabezado } from './convertir.mjs';
-import { TIPOS, validarFrontmatter, esSensible, buscarMarcadoresBorrador, buscarCoordenadas } from './controles.mjs';
+import { TIPOS, validarFrontmatter, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog } from './controles.mjs';
 import { slugificar } from '../../src/lib/slug.ts';
 
 export const RAIZ_REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -83,6 +83,9 @@ export async function exportar({ boveda, repo = RAIZ_REPO, simular = false, forz
     ficha.archivo = slugificar(nota.nombre);
     ficha.id = datos.slug ? slugificar(datos.slug) : ficha.archivo;
     if (!ficha.archivo) ficha.errores.push('El nombre de la nota no sirve para armar una dirección: usá letras o números.');
+    else if (tipo === 'blog' && chocaConBlog(ficha.id)) {
+      ficha.errores.push(`La dirección /blog/${ficha.id}/ ya la usa el blog. Cambiá el nombre de la nota o poné otro «slug».`);
+    }
   }
 
   // Dos notas que irían al mismo archivo o a la misma dirección.
