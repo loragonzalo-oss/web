@@ -4,6 +4,7 @@ import { entradasBlog, ensayos } from './contenido';
 import { SITIO } from './sitio';
 import { slugificar } from './slug';
 import { url } from './rutas';
+import { urlDoi } from './revista';
 
 export type Texto = CollectionEntry<'blog'> | CollectionEntry<'ensayos'>;
 
@@ -54,8 +55,10 @@ export function indice(encabezados: MarkdownHeading[]): Seccion[] {
 // ── Cómo citar ───────────────────────────────────────────────────────────────
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
+// La cita APA va en tramos: los que tienen `cursiva: true` se muestran en cursiva.
+export interface Tramo { texto: string; cursiva?: boolean }
 export interface Cita {
-  apa: { antes: string; cursiva: string; despues: string };
+  apa: Tramo[];
   bibtex: string;
 }
 
@@ -64,7 +67,9 @@ function escaparBibtex(s: string): string {
 }
 
 // APA 7. Entrada de blog: el nombre del blog va en cursiva y el título no.
-// Ensayo: el título va en cursiva; si salió en una publicación, va en cursiva la publicación.
+// Ensayo inédito: el título va en cursiva. Ensayo en una revista: van en cursiva la revista
+// y el volumen: «Título. *Revista*, *12*(3), 45–67. https://doi.org/…». Con DOI, la cita
+// lleva el DOI en lugar de la dirección.
 export function cita(t: Texto, direccion: string): Cita {
   const { apellidos, iniciales, nombres } = SITIO.autorCita;
   const f = t.data.fecha;
@@ -74,17 +79,34 @@ export function cita(t: Texto, direccion: string): Cita {
   const titulo = t.data.titulo.trim();
   const autor = `${apellidos}, ${iniciales}`;
   const conPunto = (s: string) => (/[.?!]$/.test(s) ? s : `${s}.`);
-  const publicacion = t.collection === 'ensayos' ? t.data.publicacion?.trim() : undefined;
-  const destino = (t.collection === 'ensayos' && t.data.enlace) || direccion;
+  const ensayo = t.collection === 'ensayos' ? t.data : undefined;
+  const publicacion = ensayo?.publicacion?.trim();
+  const destino = (ensayo?.doi && urlDoi(ensayo.doi)) || ensayo?.enlace || direccion;
 
-  let apa: Cita['apa'];
+  let apa: Tramo[];
   if (t.collection === 'blog') {
-    apa = { antes: `${autor} (${anio}, ${dia} de ${mes}). ${conPunto(titulo)} `, cursiva: SITIO.nombreBlog, despues: `. ${direccion}` };
+    apa = [
+      { texto: `${autor} (${anio}, ${dia} de ${mes}). ${conPunto(titulo)} ` },
+      { texto: SITIO.nombreBlog, cursiva: true },
+      { texto: `. ${direccion}` },
+    ];
   } else if (publicacion) {
-    apa = { antes: `${autor} (${anio}). ${conPunto(titulo)} `, cursiva: publicacion, despues: `. ${destino}` };
+    apa = [{ texto: `${autor} (${anio}). ${conPunto(titulo)} ` }, { texto: publicacion, cursiva: true }];
+    if (ensayo?.volumen) {
+      apa.push({ texto: ', ' }, { texto: ensayo.volumen, cursiva: true });
+      if (ensayo.numero) apa.push({ texto: `(${ensayo.numero})` });
+    } else if (ensayo?.numero) {
+      apa.push({ texto: `, (${ensayo.numero})` });
+    }
+    if (ensayo?.paginas) apa.push({ texto: `, ${ensayo.paginas}` });
+    apa.push({ texto: `. ${destino}` });
   } else {
     const cursiva = titulo.replace(/\.$/, '');
-    apa = { antes: `${autor} (${anio}, ${dia} de ${mes}). `, cursiva, despues: `${/[?!]$/.test(cursiva) ? '' : '.'} ${SITIO.nombre}. ${direccion}` };
+    apa = [
+      { texto: `${autor} (${anio}, ${dia} de ${mes}). ` },
+      { texto: cursiva, cursiva: true },
+      { texto: `${/[?!]$/.test(cursiva) ? '' : '.'} ${SITIO.nombre}. ${direccion}` },
+    ];
   }
 
   const primeraPalabra = slugificar(titulo).split('-').find((p) => p.length > 3) ?? 'texto';
@@ -92,18 +114,26 @@ export function cita(t: Texto, direccion: string): Cita {
   const campos: [string, string][] = [
     ['author', `${apellidos}, ${nombres}`],
     ['title', titulo],
-    ['date', f.toISOString().slice(0, 10)],
   ];
   let tipo = 'online';
-  if (t.collection === 'blog') campos.push(['organization', SITIO.nombreBlog]);
-  else if (publicacion) {
+  if (publicacion) {
+    // Artículo de revista: campos de BibTeX clásico, que entiende cualquier gestor.
     tipo = 'article';
-    campos.push(['journaltitle', publicacion]);
+    campos.push(['journal', publicacion], ['year', String(anio)]);
+    if (ensayo?.volumen) campos.push(['volume', ensayo.volumen]);
+    if (ensayo?.numero) campos.push(['number', ensayo.numero]);
+    if (ensayo?.paginas) campos.push(['pages', ensayo.paginas.replace('–', '--')]);
+    if (ensayo?.doi) campos.push(['doi', ensayo.doi]);
+  } else {
+    campos.push(['date', f.toISOString().slice(0, 10)]);
+    if (t.collection === 'blog') campos.push(['organization', SITIO.nombreBlog]);
   }
-  campos.push(['url', destino], ['langid', 'spanish']);
+  // Con DOI, `url` queda para la publicación original o, si no hay, esta página.
+  campos.push(['url', ensayo?.doi ? ensayo.enlace || direccion : destino], ['langid', 'spanish']);
   const ancho = Math.max(...campos.map(([k]) => k.length));
+  const crudo = new Set(['url', 'doi']);
   const cuerpo = campos
-    .map(([k, v]) => `  ${k.padEnd(ancho)} = {${k === 'url' ? v : escaparBibtex(v)}}`)
+    .map(([k, v]) => `  ${k.padEnd(ancho)} = {${crudo.has(k) ? v : escaparBibtex(v)}}`)
     .join(',\n');
   return { apa, bibtex: `@${tipo}{${clave},\n${cuerpo}\n}` };
 }

@@ -292,3 +292,20 @@ test('frena una entrada que taparía una dirección del blog (archivo, etiquetas
   assert.ok(!existsSync(path.join(repo, 'src/content/blog/archivo.md')));
   await rm(base, { recursive: true });
 });
+
+test('ensayo en revista: conserva volumen, número, páginas y DOI, y frena los mal escritos', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  const nota = (extra) => `---\npublicar: true\ntipo: ensayo\ntitulo: "Ensayo en revista"\nfecha: 2026-10-02\nresumen: "Relleno."\npublicacion: "Revista de Relleno"\n${extra}draft: false\n---\n\nLorem ipsum.\n`;
+  await writeFile(path.join(boveda, '200 Ensayos', 'Ensayo en revista.md'), nota('volumen: 12\nnumero: 3\npaginas: 45 - 67\ndoi: "https://doi.org/10.0000/relleno.1"\n'));
+  await writeFile(path.join(boveda, '200 Ensayos', 'Ensayo con DOI malo.md'), nota('paginas: "cuarenta"\ndoi: "no-es-un-doi"\n'));
+  const r = await exportar({ boveda, repo });
+  const salida = await leer('src/content/ensayos/ensayo-en-revista.md');
+  assert.match(salida, /^volumen: "?12"?$/m);
+  assert.match(salida, /^numero: "?3"?$/m);
+  assert.match(salida, /^paginas: "?45–67"?$/m);
+  assert.match(salida, /^doi: "?10\.0000\/relleno\.1"?$/m);
+  const motivos = frenada(r, '200 Ensayos/Ensayo con DOI malo.md').motivos.join('\n');
+  assert.match(motivos, /«paginas» se escribe/);
+  assert.match(motivos, /«doi» no es un DOI válido/);
+  await rm(base, { recursive: true });
+});

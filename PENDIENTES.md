@@ -15,7 +15,6 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
 - [ ] [PENDIENTE: texto de presentación del libro] — página /libro. Archivo: `src/pages/libro.astro`.
 - [ ] [PENDIENTE: correo de contacto] — página /contacto. Se completa en `src/lib/sitio.ts`, campo `correo`. Decidir si va correo a la vista o un formulario (y qué servicio).
 - [ ] [PENDIENTE: dominio] — dominio propio todavía no comprado/definido. Pasos en COMO-PUBLICAR.md, «Pasar al dominio propio». No crear `public/CNAME` hasta tenerlo.
-- [ ] [VERIFICAR] «Sobre mí» dice «Coordinó el programa binacional GIRH-TDPS (PNUD, 2017-2019)». Confirmar el verbo y el cargo: si el rol fue otro que la coordinación, se corrige en `src/pages/sobre-mi.astro`. (Anotado en la integración del 22-10-2026; el texto viene del encargo inicial y no se tocó.)
 
 ### Mapa
 
@@ -44,8 +43,6 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
 
 ### Lectura y blog
 
-- [ ] «Cómo citar este texto»: el nombre del blog en la cita APA es «Blog de Gonzalo R. Lora Veizaga» y el autor va como «Lora Veizaga, G. R.». Confirmar ambos (se cambian en `src/lib/sitio.ts`, `nombreBlog` y `autorCita`).
-- [ ] Ensayos con `publicacion`: la cita APA nombra la publicación (por ejemplo, *Inmediaciones*), pero sin volumen, número ni páginas, porque el encabezado no los tiene. Decidir si se agregan esos campos.
 - [ ] Tiempo de lectura: se calcula a 200 palabras por minuto. Ajustable en `src/lib/lectura.ts` (`PALABRAS_POR_MINUTO`).
 - [ ] Buscador: en entradas y ensayos se indexan el título, el resumen y el cuerpo; quedan fuera la tabla de contenidos, la navegación de la serie, «Cómo citar» y el pie (`src/layouts/Lectura.astro`). Si se quiere que algo de eso aparezca en las búsquedas, se cambia ahí. (Decisión tomada al integrar las ramas de lectura y de calidad, 22-10-2026.)
 
@@ -72,10 +69,10 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
 - [ ] Rehacer las capturas del mapa (`docs/capturas/mapa-*.png`, `docs/capturas/temas/mapa-*.png` y `docs/capturas/integracion/mapa-*.png`) cuando haya contenido real: se sacaron sin el fondo de OpenStreetMap, porque el entorno donde se hicieron bloquea `tile.openstreetmap.org`. Comprobar ahí que los puntos de ejemplo caen sobre el agua.
 - [ ] Borrar el contenido de ejemplo cuando haya contenido real. Todo está en `draft: true`, así que no se publica:
   - `src/content/blog/ejemplo-entrada-uno.md`, `ejemplo-entrada-dos.md`, `ejemplo-entrada-larga.md`, `ejemplo-entrada-serie.md` y `ejemplo-figura.png` (con ellos desaparece la «Serie de ejemplo»);
-  - `src/content/ensayos/ejemplo-ensayo.md`;
+  - `src/content/ensayos/ejemplo-ensayo.md` y `ejemplo-ensayo-revista.md`;
   - las nueve fichas `src/content/lugares/ejemplo-*.md`.
 
-  Las pruebas de `pruebas/` abren `blog/ejemplo-entrada-larga/`, `series/serie-de-ejemplo/` y la ficha de un lugar de ejemplo: al borrar los ejemplos, apuntarlas a contenido real (`pruebas/paginas.spec.ts` y `pruebas/integracion.spec.ts`).
+  Las pruebas de `pruebas/` abren `blog/ejemplo-entrada-larga/`, `series/serie-de-ejemplo/`, `ensayos/ejemplo-ensayo-revista/` y la ficha de un lugar de ejemplo: al borrar los ejemplos, apuntarlas a contenido real (`pruebas/paginas.spec.ts` y `pruebas/integracion.spec.ts`).
 
 ## Notas técnicas
 

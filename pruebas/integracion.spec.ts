@@ -70,3 +70,20 @@ test('mapa: «Ver en el mapa» abre la ficha, que pasa la revisión de accesibil
   await expect(panel).toBeHidden();
   expect(errores).toEqual([]);
 });
+
+test('ensayo en revista: datos en la ficha y cita APA y BibTeX con volumen, número, páginas y DOI', async ({ page }) => {
+  await abrir(page, 'ensayos/ejemplo-ensayo-revista/');
+  const publicacion = page.locator('.publicacion');
+  await expect(publicacion).toContainText('Revista de Relleno, vol. 12, n.º 3, pp. 45–67');
+  await expect(publicacion.getByRole('link', { name: '10.0000/relleno.2026.003' })).toHaveAttribute('href', 'https://doi.org/10.0000/relleno.2026.003');
+
+  await page.locator('.como-citar summary').click();
+  const apa = page.locator('.cita-apa');
+  await expect(apa).toHaveText('Lora Veizaga, G. R. (2026). Ensayo de ejemplo en una revista. Revista de Relleno, 12(3), 45–67. https://doi.org/10.0000/relleno.2026.003');
+  await expect(apa.locator('em')).toHaveText(['Revista de Relleno', '12']);
+  const bibtex = await page.locator('.como-citar pre').textContent();
+  expect(bibtex).toMatch(/^@article\{/);
+  for (const linea of ['journal = {Revista de Relleno}', 'volume  = {12}', 'number  = {3}', 'pages   = {45--67}', 'doi     = {10.0000/relleno.2026.003}']) {
+    expect(bibtex).toContain(linea);
+  }
+});

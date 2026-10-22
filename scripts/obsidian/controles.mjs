@@ -2,6 +2,7 @@
 // si se cambia un campo allá, hay que cambiarlo acá también.
 import { IDS_CAPAS, RECORTE } from '../../src/lib/capas.ts';
 import { slugificar } from '../../src/lib/slug.ts';
+import { normalizarDoi, normalizarPaginas } from '../../src/lib/revista.ts';
 
 export const TIPOS = {
   blog: { carpeta: 'blog', ruta: 'blog' },
@@ -103,12 +104,29 @@ function validarEnsayo(fm, errores) {
   const l = lector(fm, errores);
   const enlace = l.texto('enlace', false);
   if (enlace !== undefined && !esUrl(enlace)) errores.push(`«enlace» no es una dirección web válida: «${enlace}».`);
+  // Datos de revista (opcionales). Mismo criterio que el esquema: páginas con raya corta, DOI sin dirección.
+  let paginas = l.texto('paginas', false);
+  if (paginas !== undefined) {
+    const p = normalizarPaginas(paginas);
+    if (!p) errores.push(`«paginas» se escribe «45-67» o «45» (es «${paginas}»).`);
+    paginas = p;
+  }
+  let doi = l.texto('doi', false);
+  if (doi !== undefined) {
+    const d = normalizarDoi(doi);
+    if (!d) errores.push(`«doi» no es un DOI válido: «${doi}». Se escribe «10.1234/abcd» o «https://doi.org/10.1234/abcd».`);
+    doi = d;
+  }
   return {
     titulo: l.texto('titulo', true),
     fecha: l.fecha('fecha', true),
     resumen: l.texto('resumen', true),
     publicacion: l.texto('publicacion', false),
     enlace,
+    volumen: l.texto('volumen', false),
+    numero: l.texto('numero', false),
+    paginas,
+    doi,
     slug: l.texto('slug', false),
     draft: l.draft(),
     ...l.serie(),

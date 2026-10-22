@@ -133,6 +133,7 @@ El script revisa cada nota marcada antes de copiar nada. Si una falla, **no la e
 - **Una imagen que no está en la bóveda.**
 - **Dos notas que irían a la misma dirección** (por ejemplo, «Cuencas» y «cuencas»), o una entrada del blog que taparía una dirección que el blog ya usa (`archivo`, `etiquetas` o un número solo).
 - **Una `parte` de serie que no es un número entero** desde 1.
+- **En un ensayo, `paginas` o `doi` mal escritos** (ver «Ensayo», en «El encabezado»).
 
 ### Si un archivo cambió en el repositorio
 
@@ -240,6 +241,22 @@ draft: false
 
 `publicacion` y `enlace` son opcionales. Si el ensayo es inédito, dejalos vacíos o borralos. Cuando están, el lugar de publicación aparece en /ensayos y arriba del ensayo, con enlace a la publicación original si hay `enlace`.
 
+Si el ensayo salió en una revista, se pueden sumar sus datos (todos opcionales):
+
+```yaml
+publicacion: "Nombre de la revista"
+volumen: 12
+numero: 3
+paginas: 45-67
+doi: "10.1234/abcd.2026.003"
+```
+
+- `paginas`: el rango con guion (`45-67`) o una sola página (`45`). El sitio pone la raya corta del rango.
+- `doi`: solo (`10.1234/abcd`) o como dirección (`https://doi.org/10.1234/abcd`); las dos formas sirven.
+- Arriba del ensayo aparecen como «Publicado en *Revista*, vol. 12, n.º 3, pp. 45–67 · DOI 10.1234/abcd».
+- La cita los usa: en APA, «*Revista*, *12*(3), 45–67. https://doi.org/10.1234/abcd» (con DOI, la cita lleva el DOI en lugar de la dirección); en BibTeX, un `@article` con `journal`, `volume`, `number`, `pages` y `doi`.
+- Si `paginas` o `doi` están mal escritos, el sitio no se construye y el error dice cuál (el script de Obsidian lo frena antes).
+
 También acepta `serie` y `parte`, igual que el blog.
 
 ### Series
@@ -273,7 +290,7 @@ No hace falta escribir nada para esto:
 
 - **Tiempo de lectura**, arriba del texto (a unas 200 palabras por minuto).
 - **Tabla de contenidos** («En este texto»), cuando el texto tiene tres subtítulos o más (`##` y `###`). En computadora va al costado; en celular, plegada arriba del texto.
-- **Cómo citar este texto**, al pie, en formato APA y BibTeX, armado con el título, la fecha y, en los ensayos, `publicacion` y `enlace`.
+- **Cómo citar este texto**, al pie, en formato APA y BibTeX, armado con el título, la fecha y, en los ensayos, `publicacion`, `enlace` y los datos de revista (`volumen`, `numero`, `paginas`, `doi`). Autor «Lora Veizaga, G. R.»; en el blog, el medio es «Blog de Gonzalo R. Lora Veizaga».
 - **Textos relacionados**, al pie de cada entrada del blog: las que comparten más etiquetas.
 - **Archivo** del blog por año, en `/blog/archivo/`.
 - Al **imprimir** una entrada o un ensayo salen sólo el texto y las notas, con la dirección de la página y la fecha al final.
@@ -489,7 +506,7 @@ La revisión tiene siete pasos. Si uno sale en rojo, los siguientes no corren.
 
 **5 y 6. Construir el sitio de prueba y revisar sus enlaces.** El sitio de prueba (`npm run build:prueba`) es igual al publicado pero **incluye los borradores**, para que las revisiones tengan entradas, series y lugares de ejemplo aunque todavía no haya contenido real. Nunca se publica.
 
-**7. Páginas en escritorio y celular, funciones y accesibilidad.** Sobre el sitio de prueba, abre en un navegador la portada, el blog, los ensayos, «Sobre mí», contacto, el mapa, el buscador, la página de error, una entrada larga con notas y tabla de contenidos, una serie y el archivo del blog, en pantalla de computadora (1280 px de ancho) y de celular (390 px). En cada una comprueba:
+**7. Páginas en escritorio y celular, funciones y accesibilidad.** Sobre el sitio de prueba, abre en un navegador la portada, el blog, los ensayos, «Sobre mí», contacto, el mapa, el buscador, la página de error, una entrada larga con notas y tabla de contenidos, un ensayo publicado en revista, una serie y el archivo del blog, en pantalla de computadora (1280 px de ancho) y de celular (390 px). En cada una comprueba:
 - *Que no haya desborde horizontal*: que nada sea más ancho que la pantalla y obligue a mover la página de costado. Pasa, por ejemplo, con una tabla muy ancha o una dirección web larga sin espacios. El error nombra el elemento que se sale.
 - *Que no haya errores en la consola*: errores de programación de la página. Si aparece uno después de un cambio de contenido, conviene avisar a quien mantiene el código.
 - *Accesibilidad*: con la herramienta axe, en modo claro y en modo oscuro, revisa que la página se pueda usar con lector de pantalla, con teclado y con poca visión. Falla sólo con problemas serios o críticos. Los más comunes: una imagen sin descripción (en un lugar del mapa, el campo `descripcion` de la imagen), un texto con poco contraste contra el fondo (pasa al cambiar colores de un tema) o un enlace sin texto.

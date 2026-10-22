@@ -10,7 +10,7 @@ const { apa, bibtex } = cita(texto, direccion);
   <summary>Cómo citar este texto</summary>
   <div id="como-citar" class="como-citar-cuerpo">
     <p class="formato">APA (7.ª edición)</p>
-    <p class="cita-apa">{apa.antes}<em>{apa.cursiva}</em>{apa.despues}</p>
+    <p class="cita-apa">{apa.map((t) => (t.cursiva ? <em>{t.texto}</em> : t.texto))}</p>
     <p class="formato">BibTeX</p>
     <pre><code>{bibtex}</code></pre>
   </div>

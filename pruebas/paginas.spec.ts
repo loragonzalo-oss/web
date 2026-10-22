@@ -18,6 +18,7 @@ const PAGINAS = [
   { nombre: 'entrada-larga', ruta: 'blog/ejemplo-entrada-larga/' },
   { nombre: 'serie', ruta: 'series/serie-de-ejemplo/' },
   { nombre: 'archivo', ruta: 'blog/archivo/' },
+  { nombre: 'ensayo-revista', ruta: 'ensayos/ejemplo-ensayo-revista/' },
 ];
 
 for (const { nombre, ruta } of PAGINAS) {

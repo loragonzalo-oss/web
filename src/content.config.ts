@@ -3,6 +3,7 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { slugificar } from './lib/slug';
 import { IDS_CAPAS, RECORTE } from './lib/capas';
+import { normalizarDoi, normalizarPaginas } from './lib/revista';
 
 // La dirección de cada texto sale del nombre del archivo (sin carpetas), o de `slug`
 // en el frontmatter si se quiere fijar otra. Así se puede ordenar en carpetas sin
@@ -39,7 +40,30 @@ const blog = defineCollection({
     }),
 });
 
-// Frontmatter de los ensayos. `publicacion` es el lugar donde salió (revista, libro, medio).
+// Datos de revista (opcionales). Un número suelto en YAML («volumen: 12») llega como número.
+const textoOpcional = z.preprocess((v) => {
+  const x = vacio(v);
+  return typeof x === 'number' ? String(x) : x;
+}, z.string().trim().min(1).optional());
+const revista = {
+  volumen: textoOpcional,
+  numero: textoOpcional,
+  paginas: textoOpcional.transform((v, ctx) => {
+    if (v === undefined) return undefined;
+    const p = normalizarPaginas(v);
+    if (!p) ctx.addIssue({ code: 'custom', message: `«paginas» se escribe «45-67» o «45» (es «${v}»).` });
+    return p;
+  }),
+  doi: textoOpcional.transform((v, ctx) => {
+    if (v === undefined) return undefined;
+    const d = normalizarDoi(v);
+    if (!d) ctx.addIssue({ code: 'custom', message: `«doi» no es un DOI válido: «${v}». Se escribe «10.1234/abcd» o «https://doi.org/10.1234/abcd».` });
+    return d;
+  }),
+};
+
+// Frontmatter de los ensayos. `publicacion` es el lugar donde salió (revista, libro, medio);
+// `volumen`, `numero`, `paginas` y `doi`, los datos de la revista, si los hay.
 const ensayos = defineCollection({
   loader: glob({ base: './src/content/ensayos', pattern: '**/*.md', generateId: generarId }),
   schema: z.object({
@@ -48,6 +72,7 @@ const ensayos = defineCollection({
     resumen: z.string(),
     publicacion: z.string().optional(),  // vacío = sin lugar de publicación
     enlace: z.union([z.url(), z.literal('')]).optional(),
+    ...revista,
     slug: z.string().optional(),
     draft: z.boolean().default(false),
     ...serie,

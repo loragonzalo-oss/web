@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import Lectura from '../../layouts/Lectura.astro';
 import { url } from '../../lib/rutas';
 import { ensayos } from '../../lib/contenido';
+import { detalleRevista, urlDoi } from '../../lib/revista';
 
 export const getStaticPaths = (async () => {
   const lista = await ensayos();
@@ -12,11 +13,13 @@ export const getStaticPaths = (async () => {
 
 const { e } = Astro.props;
 const { Content, headings } = await render(e);
+const detalle = detalleRevista(e.data);
 ---
 <Lectura texto={e} encabezados={headings} rotulo="Ensayo">
   {e.data.publicacion && (
     <p slot="cabecera" class="meta publicacion">
-      Publicado en <em>{e.data.publicacion}</em>
+      Publicado en <em>{e.data.publicacion}</em>{detalle && `, ${detalle}`}
+      {e.data.doi && <> · DOI <a href={urlDoi(e.data.doi)}>{e.data.doi}</a></>}
       {e.data.enlace && <> · <a href={e.data.enlace}>ver la publicación original</a></>}
     </p>
   )}
