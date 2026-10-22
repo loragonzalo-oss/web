@@ -15,7 +15,8 @@
     "revisar": "npm run revisar:enlaces && npm run revisar:pruebas",
     "temas:contraste": "node src/desarrollo/contraste.mjs",
     "temas:capturas": "node src/desarrollo/capturas-temas.mjs",
-    "lectura:capturas": "node src/desarrollo/capturas-lectura.mjs"
+    "lectura:capturas": "node src/desarrollo/capturas-lectura.mjs",
+    "integracion:capturas": "node src/desarrollo/capturas-integracion.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.4",
