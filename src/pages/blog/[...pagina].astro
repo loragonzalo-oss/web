@@ -29,7 +29,8 @@ const siguiente = actual < ultima ? `/blog/${actual + 1}/` : undefined;
   <section class="lectura">
     <h1>Blog</h1>
     <p class="meta enlaces">
-      <a href={url('/blog/etiquetas/')}>Etiquetas</a> · <a href={url('/rss.xml')}>RSS</a>
+      <a href={url('/blog/archivo/')}>Archivo</a> · <a href={url('/blog/etiquetas/')}>Etiquetas</a> ·
+      <a href={url('/series/')}>Series</a> · <a href={url('/rss.xml')}>RSS</a>
     </p>
     <ListaEntradas entradas={entradas} />
     <Paginacion actual={actual} ultima={ultima} anterior={anterior} siguiente={siguiente} />

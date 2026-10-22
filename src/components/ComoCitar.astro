@@ -1,0 +1,37 @@
+---
+// «Cómo citar este texto»: APA 7 y BibTeX, generados del frontmatter.
+import { cita, type Texto } from '../lib/lectura';
+
+interface Props { texto: Texto; direccion: string }
+const { texto, direccion } = Astro.props;
+const { apa, bibtex } = cita(texto, direccion);
+---
+<details class="como-citar interfaz">
+  <summary>Cómo citar este texto</summary>
+  <div id="como-citar" class="como-citar-cuerpo">
+    <p class="formato">APA (7.ª edición)</p>
+    <p class="cita-apa">{apa.antes}<em>{apa.cursiva}</em>{apa.despues}</p>
+    <p class="formato">BibTeX</p>
+    <pre><code>{bibtex}</code></pre>
+  </div>
+</details>
+
+<style>
+  .como-citar {
+    margin: 2.5rem 0 0;
+    border-top: 1px solid var(--color-borde);
+    border-bottom: 1px solid var(--color-borde);
+    font-size: var(--tam-chico);
+  }
+  summary { cursor: pointer; padding: 0.8rem 0; color: var(--color-acento); }
+  .como-citar-cuerpo { padding-bottom: 1rem; }
+  .formato { margin: 0.8rem 0 0.3rem; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: var(--color-texto-suave); }
+  .cita-apa {
+    margin: 0;
+    padding-left: 2em;
+    text-indent: -2em;      /* sangría francesa, como en una lista de referencias */
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  pre { margin: 0; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; user-select: all; }
+</style>

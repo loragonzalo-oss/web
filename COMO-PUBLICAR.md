@@ -39,7 +39,8 @@ draft: false
 Campos opcionales:
 
 - `imagen: ./foto.jpg` — imagen para compartir en redes. Ruta relativa al archivo.
-- `slug: otra-direccion` — si querés que la dirección no sea el nombre del archivo.
+- `slug: otra-direccion` — si querés que la dirección no sea el nombre del archivo. No uses `archivo`, `etiquetas` ni un número solo: son direcciones que ya usa el blog y el sitio no se construye.
+- `serie: "Nombre de la serie"` y `parte: 2` — ver «Series», más abajo.
 
 ### Ensayo
 
@@ -54,7 +55,69 @@ draft: false
 ---
 ```
 
-`publicacion` y `enlace` son opcionales. Si el ensayo es inédito, dejalos vacíos o borralos.
+`publicacion` y `enlace` son opcionales. Si el ensayo es inédito, dejalos vacíos o borralos. Cuando están, el lugar de publicación aparece en /ensayos y arriba del ensayo, con enlace a la publicación original si hay `enlace`.
+
+También acepta `serie` y `parte`, igual que el blog.
+
+### Series
+
+Una serie es un grupo de textos que se leen en orden. Se arma sola: todos los textos (del blog o ensayos) con el mismo `serie` forman una serie.
+
+```yaml
+serie: "Cuencas andinas"
+parte: 2
+```
+
+- `serie`: el nombre, escrito siempre igual en todos los textos de la serie (las mayúsculas y las tildes no cuentan: «Cuencas andinas» y «cuencas andinas» son la misma).
+- `parte` (opcional): el lugar del texto en la serie (1, 2, 3…). Si falta, se ordena por fecha.
+
+Cada serie tiene su página en `/series/nombre-de-la-serie/`, con sus textos en orden, y cada texto de la serie muestra la lista y los enlaces «anterior» y «siguiente». Todas las series están en `/series/`.
+
+### Lo que el sitio agrega solo
+
+No hace falta escribir nada para esto:
+
+- **Tiempo de lectura**, arriba del texto (a unas 200 palabras por minuto).
+- **Tabla de contenidos** («En este texto»), cuando el texto tiene tres subtítulos o más (`##` y `###`). En computadora va al costado; en celular, plegada arriba del texto.
+- **Cómo citar este texto**, al pie, en formato APA y BibTeX, armado con el título, la fecha y, en los ensayos, `publicacion` y `enlace`.
+- **Textos relacionados**, al pie de cada entrada del blog: las que comparten más etiquetas.
+- **Archivo** del blog por año, en `/blog/archivo/`.
+- Al **imprimir** una entrada o un ensayo salen sólo el texto y las notas, con la dirección de la página y la fecha al final.
+
+Las comillas, rayas y puntos suspensivos quedan exactamente como los escribís: el sitio no los cambia.
+
+## Notas, figuras y citas destacadas
+
+Se escriben en el cuerpo del texto, con sintaxis que Obsidian también entiende.
+
+**Notas al pie.** Una llamada `[^1]` en el texto y, en cualquier lugar del archivo (conviene al final), la nota:
+
+```markdown
+El lago tiene dos cuencas[^1].
+
+[^1]: Texto de la nota.
+```
+
+La llamada lleva a la nota y la flecha de la nota vuelve a la llamada. Se numeran solas en el orden en que aparecen; en lugar de `1` se puede usar una palabra (`[^fuente]`).
+
+**Figuras.** Una imagen sola en su párrafo se muestra con pie y crédito. Los dos van entre comillas después de la ruta, separados por una barra vertical:
+
+```markdown
+![Qué se ve en la imagen, para quien no la ve](./foto.jpg "Pie de foto | Foto: Nombre Apellido, 2025. CC BY 4.0")
+```
+
+- Lo que va entre corchetes es el texto alternativo (para lectores de pantalla).
+- Antes de la barra, el pie; después, el crédito: autor y licencia.
+- **El crédito es obligatorio.** Si una imagen no lo tiene, el sitio no se construye y el error dice qué imagen es. Si no querés pie, alcanza con el crédito: `"Foto: Nombre Apellido"`.
+
+**Citas destacadas.** Para resaltar una frase del propio texto, en letra grande, con la sintaxis de los recuadros de Obsidian:
+
+```markdown
+> [!destacada]
+> La frase que se quiere destacar.
+```
+
+El sitio le pone las comillas « » (si ya las escribiste, no agrega otras). Como repite algo que ya está en el texto, los lectores de pantalla la saltean: no pongas ahí nada que no esté también en el cuerpo. Una cita de otro autor va como cita común, con `>` y sin `[!destacada]`.
 
 ### Reglas del encabezado
 

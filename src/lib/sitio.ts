@@ -10,6 +10,9 @@ export const SITIO = {
     facebook: 'https://www.facebook.com/chalescu/',
   },
   usuarioX: '@chalescu',
+  // Para «Cómo citar este texto» (APA y BibTeX).
+  autorCita: { apellidos: 'Lora Veizaga', iniciales: 'G. R.', nombres: 'Gonzalo R.' },
+  nombreBlog: 'Blog de Gonzalo R. Lora Veizaga',
 };
 
 export const MENU = [

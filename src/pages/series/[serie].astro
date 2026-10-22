@@ -1,0 +1,49 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/rutas';
+import { fechaLarga, fechaISO } from '../../lib/fechas';
+import { series, rutaTexto, minutosLectura } from '../../lib/lectura';
+
+export const getStaticPaths = (async () => {
+  const lista = await series();
+  return lista.map((s) => ({ params: { serie: s.slug }, props: { s } }));
+}) satisfies GetStaticPaths;
+
+const { s } = Astro.props;
+const borrador = s.textos.every((t) => t.data.draft);
+---
+<Base titulo={`Serie «${s.nombre}»`} descripcion={`Los textos de la serie «${s.nombre}», en orden.`} noIndexar={borrador}>
+  <section class="lectura">
+    <p class="meta"><a href={url('/series/')}>Series</a></p>
+    <h1>{s.nombre}</h1>
+    <p class="meta">{s.textos.length === 1 ? '1 texto' : `${s.textos.length} textos`}, en el orden en que conviene leerlos.</p>
+    <ol class="lista">
+      {s.textos.map((t, i) => (
+        <li>
+          <span class="numero interfaz" aria-hidden="true">{i + 1}</span>
+          <div>
+            <p class="meta">
+              {t.collection === 'ensayos' ? 'Ensayo' : 'Blog'} ·
+              <time datetime={fechaISO(t.data.fecha)}>{fechaLarga(t.data.fecha)}</time> ·
+              {minutosLectura(t.body)} min de lectura
+              {t.data.draft && <> · borrador</>}
+            </p>
+            <h2><a href={rutaTexto(t)}>{t.data.titulo}</a></h2>
+            {t.data.resumen && <p class="resumen">{t.data.resumen}</p>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .lista { list-style: none; margin: 2rem 0 0; padding: 0; }
+  li { display: grid; grid-template-columns: 2.2rem 1fr; gap: 0 0.8rem; padding: 1.4rem 0; border-bottom: 1px solid var(--color-borde); }
+  .numero { font-size: 1.6rem; line-height: 1; color: var(--color-acento); font-weight: 600; padding-top: 0.2rem; }
+  h2 { margin: 0.2rem 0 0.4rem; font-size: var(--tam-h3); }
+  h2 a { color: var(--color-texto); text-decoration: none; }
+  h2 a:hover { color: var(--color-acento); }
+  .meta, .resumen { margin: 0; }
+</style>

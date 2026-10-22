@@ -23,6 +23,13 @@ Al resolver uno, se borra la línea y se reemplaza el marcador en el archivo ind
 - [ ] ¿«Sobre mí» en primera o en tercera persona? Hoy está en tercera, sólo con los datos confirmados del encargo inicial.
 - [ ] ¿Foto en «Sobre mí»?
 
+## Lectura y blog
+
+- [ ] «Cómo citar este texto»: el nombre del blog en la cita APA es «Blog de Gonzalo R. Lora Veizaga» y el autor va como «Lora Veizaga, G. R.». Confirmar ambos (se cambian en `src/lib/sitio.ts`, `nombreBlog` y `autorCita`).
+- [ ] Ensayos con `publicacion`: la cita APA nombra la publicación (por ejemplo, *Inmediaciones*), pero sin volumen, número ni páginas, porque el frontmatter no los tiene. Decidir si se agregan esos campos.
+- [ ] Tiempo de lectura: se calcula a 200 palabras por minuto. Ajustable en `src/lib/lectura.ts` (`PALABRAS_POR_MINUTO`).
+- [ ] Borrar `src/content/blog/ejemplo-entrada-larga.md`, `src/content/blog/ejemplo-entrada-serie.md` y `src/content/blog/ejemplo-figura.png` cuando haya contenido real (son de relleno, con `draft: true`). La «Serie de ejemplo» desaparece con ellos.
+
 ## Mapa del Lago Titikaka
 
 - [ ] [PENDIENTE: fuentes de datos a evaluar]. Antes de incorporar cualquier capa externa hay que confirmar licencia y formato de cada una. Ninguna está descargada ni incrustada. Candidatas mencionadas en el encargo, sin evaluar:

@@ -13,6 +13,16 @@ function generarId({ entry, data }: { entry: string; data: Record<string, unknow
   return slugificar(nombre);
 }
 
+// Un campo que Obsidian deja vacío llega como null o ''. Se trata como ausente.
+const vacio = (v: unknown) => (v === null || v === '' ? undefined : v);
+
+// Series: textos que se leen en orden. Mismo nombre de `serie` = misma serie, en blog
+// y en ensayos. El orden sale de `parte` (1, 2, 3…) y, si falta, de la fecha.
+const serie = {
+  serie: z.preprocess(vacio, z.string().trim().min(1).optional()),
+  parte: z.preprocess(vacio, z.coerce.number().int().positive().optional()),
+};
+
 // Frontmatter de las entradas del blog. Ver COMO-PUBLICAR.md.
 const blog = defineCollection({
   loader: glob({ base: './src/content/blog', pattern: '**/*.md', generateId: generarId }),
@@ -25,6 +35,7 @@ const blog = defineCollection({
       imagen: image().optional(),
       slug: z.string().optional(),
       draft: z.boolean().default(false),
+      ...serie,
     }),
 });
 
@@ -39,11 +50,9 @@ const ensayos = defineCollection({
     enlace: z.union([z.url(), z.literal('')]).optional(),
     slug: z.string().optional(),
     draft: z.boolean().default(false),
+    ...serie,
   }),
 });
-
-// Un campo que Obsidian deja vacío llega como null o ''. Se trata como ausente.
-const vacio = (v: unknown) => (v === null || v === '' ? undefined : v);
 
 // Admite coma decimal («-15,8») además de punto.
 const coordenada = (v: unknown) => (typeof v === 'string' ? v.trim().replace(',', '.') : vacio(v));

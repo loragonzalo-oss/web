@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { url } from '../../lib/rutas';
 import { fechaLarga, fechaISO } from '../../lib/fechas';
 import { ensayos } from '../../lib/contenido';
+import { slugSerie } from '../../lib/lectura';
 
 const lista = await ensayos();
 ---
@@ -17,11 +18,18 @@ const lista = await ensayos();
           <li>
             <p class="meta">
               <time datetime={fechaISO(e.data.fecha)}>{fechaLarga(e.data.fecha)}</time>
-              {e.data.publicacion && <> · <em>{e.data.publicacion}</em></>}
+              {e.data.serie && <> · serie <a href={url(`/series/${slugSerie(e.data.serie)}/`)}>{e.data.serie}</a></>}
               {e.data.draft && <> · borrador</>}
             </p>
             <h2><a href={url(`/ensayos/${e.id}/`)}>{e.data.titulo}</a></h2>
             <p class="resumen">{e.data.resumen}</p>
+            {e.data.publicacion && (
+              <p class="meta publicacion">
+                Publicado en {e.data.enlace
+                  ? <a href={e.data.enlace}><em>{e.data.publicacion}</em></a>
+                  : <em>{e.data.publicacion}</em>}
+              </p>
+            )}
           </li>
         ))}
       </ul>
@@ -37,4 +45,5 @@ const lista = await ensayos();
   h2 a { color: var(--color-texto); text-decoration: none; }
   h2 a:hover { color: var(--color-acento); }
   .meta, .resumen { margin: 0; }
+  .publicacion { margin-top: 0.5rem; }
 </style>

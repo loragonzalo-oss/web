@@ -1,0 +1,64 @@
+---
+// Lugar del texto dentro de su serie y enlaces al anterior y al siguiente.
+import type { LugarEnSerie } from '../lib/lectura';
+import { rutaTexto } from '../lib/lectura';
+import { url } from '../lib/rutas';
+
+interface Props { lugar: LugarEnSerie }
+const { serie, posicion, anterior, siguiente } = Astro.props.lugar;
+const total = serie.textos.length;
+---
+<nav class="nav-serie interfaz" aria-label={`Serie «${serie.nombre}»`}>
+  <p class="nav-serie-titulo">
+    Serie <a href={url(`/series/${serie.slug}/`)}>{serie.nombre}</a>
+    <span class="meta"> · parte {posicion} de {total}</span>
+  </p>
+  <ol class="nav-serie-lista">
+    {serie.textos.map((t, i) => (
+      <li>
+        {i + 1 === posicion
+          ? <span aria-current="page">{t.data.titulo}</span>
+          : <a href={rutaTexto(t)}>{t.data.titulo}</a>}
+      </li>
+    ))}
+  </ol>
+  {(anterior || siguiente) && (
+    <div class="nav-serie-pasos">
+      {anterior ? (
+        <a class="paso paso-anterior" rel="prev" href={rutaTexto(anterior)}>
+          <span class="paso-rotulo">← Anterior en la serie</span>
+          <span class="paso-titulo">{anterior.data.titulo}</span>
+        </a>
+      ) : <span />}
+      {siguiente && (
+        <a class="paso paso-siguiente" rel="next" href={rutaTexto(siguiente)}>
+          <span class="paso-rotulo">Siguiente en la serie →</span>
+          <span class="paso-titulo">{siguiente.data.titulo}</span>
+        </a>
+      )}
+    </div>
+  )}
+</nav>
+
+<style>
+  .nav-serie {
+    margin: 3rem 0 0;
+    padding: 1.2rem 1.4rem;
+    background: var(--color-superficie);
+    border-radius: var(--radio);
+    font-size: var(--tam-chico);
+  }
+  .nav-serie-titulo { margin: 0 0 0.6rem; font-weight: 600; }
+  .nav-serie-lista { margin: 0 0 1rem; padding-left: 1.4rem; }
+  .nav-serie-lista li { margin: 0.2rem 0; }
+  [aria-current='page'] { font-weight: 600; }
+  .nav-serie-pasos { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid var(--color-borde); padding-top: 1rem; }
+  .paso { display: flex; flex-direction: column; gap: 0.15rem; text-decoration: none; }
+  .paso-siguiente { text-align: right; grid-column: 2; }
+  .paso-rotulo { color: var(--color-texto-suave); }
+  .paso-titulo { color: var(--color-acento); text-decoration: underline; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+  @media (max-width: 30rem) {
+    .nav-serie-pasos { grid-template-columns: 1fr; }
+    .paso-siguiente { text-align: left; grid-column: 1; }
+  }
+</style>

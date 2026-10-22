@@ -1,0 +1,118 @@
+/*
+  Textos largos: entradas del blog y ensayos (y cualquier .cuerpo de markdown).
+  Colores y tipografías vienen del tema (src/styles/temas/); acá sólo se usan sus variables.
+*/
+
+/* Comillas de las citas: angulares por defecto, y las inglesas para una cita dentro de otra.
+   Valen para <q> y para las citas destacadas. Las que escribe el autor no se tocan. */
+:root { quotes: '«' '»' '“' '”' '‘' '’'; }
+
+/* División silábica en castellano (lang="es" en <html>). Sólo en el cuerpo de los
+   textos: títulos, menú y datos quedan sin cortar. */
+.cuerpo {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 7 3 3;   /* palabras de 7 letras o más; 3 antes y 3 después del corte */
+  overflow-wrap: break-word;
+}
+.cuerpo :is(h2, h3, h4, pre, code, a[href^='http'], figcaption, .footnotes) { -webkit-hyphens: manual; hyphens: manual; }
+
+/* Ida y vuelta de las anclas: el título o la nota no quedan pegados al borde. */
+.cuerpo :is(h2, h3, h4, [id^='user-content-fn']) { scroll-margin-top: 1.5rem; }
+
+/* ── Notas al pie ─────────────────────────────────────────────────────────── */
+.cuerpo sup:has(> a[data-footnote-ref]) { line-height: 0; }
+.cuerpo a[data-footnote-ref] {
+  font-family: var(--fuente-interfaz);
+  font-size: 0.78em;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0 0.15em;
+}
+.cuerpo a[data-footnote-ref]::before { content: '['; }
+.cuerpo a[data-footnote-ref]::after { content: ']'; }
+.cuerpo a[data-footnote-ref]:hover { text-decoration: underline; }
+
+.cuerpo .footnotes {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-borde);
+  font-size: 0.92em;
+  color: var(--color-texto);
+}
+/* El procesador marca el rótulo «Notas» como oculto (sr-only); acá se muestra. */
+.cuerpo .footnotes > #footnote-label {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  font-family: var(--fuente-interfaz);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-texto-suave);
+}
+.cuerpo .footnotes ol { padding-left: 1.6em; }
+.cuerpo .footnotes li { margin-bottom: 0.5em; }
+.cuerpo .footnotes li p { margin: 0; }
+.cuerpo .footnotes li::marker { font-family: var(--fuente-interfaz); color: var(--color-texto-suave); }
+.cuerpo a[data-footnote-backref] {
+  font-family: var(--fuente-interfaz);
+  text-decoration: none;
+  padding: 0 0.25em;
+}
+/* La nota o la llamada a la que se acaba de saltar queda resaltada. */
+.cuerpo .footnotes li:target,
+.cuerpo a[data-footnote-ref]:target {
+  background: var(--color-superficie);
+  outline: 2px solid var(--color-borde);
+  outline-offset: 2px;
+  border-radius: var(--radio);
+}
+
+/* ── Figuras ──────────────────────────────────────────────────────────────── */
+.cuerpo .figura { margin: 2rem 0; }
+.cuerpo .figura img { display: block; width: 100%; height: auto; border-radius: var(--radio); }
+.cuerpo .figura figcaption {
+  margin-top: 0.6rem;
+  font-family: var(--fuente-interfaz);
+  font-size: var(--tam-chico);
+  line-height: 1.45;
+  color: var(--color-texto-suave);
+}
+.cuerpo .figura-pie { color: var(--color-texto); }
+.cuerpo .figura-credito { font-size: 0.92em; }
+
+/* ── Citas ────────────────────────────────────────────────────────────────── */
+.cuerpo blockquote p:first-child { margin-top: 0; }
+.cuerpo blockquote p:last-child { margin-bottom: 0; }
+
+/* Cita destacada: repite una frase del texto, más grande. */
+.cuerpo .cita-destacada {
+  margin: 2.5rem 0;
+  padding: 1.2rem 0;
+  border-top: 2px solid var(--color-acento);
+  border-bottom: 1px solid var(--color-borde);
+  font-size: 1.35em;
+  line-height: 1.4;
+  font-style: italic;
+  color: var(--color-texto);
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+.cuerpo .cita-destacada p { margin: 0; }
+.cuerpo .cita-destacada p + p { margin-top: 0.6em; }
+.cuerpo .cita-destacada:not(.con-comillas) p:first-child::before { content: open-quote; }
+.cuerpo .cita-destacada:not(.con-comillas) p:last-child::after { content: close-quote; }
+
+/* Tablas de markdown (GFM). */
+.cuerpo table { border-collapse: collapse; width: 100%; font-size: 0.92em; display: block; overflow-x: auto; }
+.cuerpo th, .cuerpo td { border-bottom: 1px solid var(--color-borde); padding: 0.4em 0.6em; text-align: left; }
+
+/* Sólo se ven al imprimir (ver impresion.css). */
+.solo-imprimir { display: none; }

@@ -8,9 +8,11 @@
     "build": "astro build",
     "preview": "astro preview",
     "temas:contraste": "node src/desarrollo/contraste.mjs",
-    "temas:capturas": "node src/desarrollo/capturas-temas.mjs"
+    "temas:capturas": "node src/desarrollo/capturas-temas.mjs",
+    "lectura:capturas": "node src/desarrollo/capturas-lectura.mjs"
   },
   "dependencies": {
+    "@astrojs/markdown-satteri": "^0.4.4",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/alegreya": "^5.3.0",

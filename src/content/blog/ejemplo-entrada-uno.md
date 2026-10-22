@@ -3,6 +3,8 @@ titulo: "Entrada de ejemplo uno"
 fecha: 2026-10-20
 resumen: "Texto de relleno para probar el blog. No es contenido real."
 etiquetas: [ejemplo, prueba]
+serie: "Serie de ejemplo"
+parte: 1
 draft: true
 ---
 
