@@ -1,0 +1,53 @@
+---
+// Leyenda de colores y de estados de la rosa. Los colores son los fijos de la figura.
+import { COLORES_ROSA as C, ETIQUETAS_ESTADO as E, MARCA, PARADAS } from '../../lib/tablero';
+
+const degrade = PARADAS.map((p) => `${p.color} ${(p.z / 3.5) * 100}%`).join(', ');
+---
+<div class="tablero-leyenda interfaz">
+  <h2 id="leyenda">Leyenda</h2>
+  <div class="tablero-leyenda-escala">
+    <span class="tablero-leyenda-barra" style={`background: linear-gradient(to right, ${degrade})`} aria-hidden="true"></span>
+    <ul class="tablero-leyenda-marcas" aria-label="Valores de z en la escala de color">
+      <li style="left: 0">0 · referencia</li>
+      <li style={`left: ${(1 / 3.5) * 100}%`}>1 · límite</li>
+      <li style={`left: ${(2 / 3.5) * 100}%`}>2 · alto riesgo</li>
+      <li style="left: 100%">3.5</li>
+    </ul>
+  </div>
+  <ul class="tablero-leyenda-lista">
+    <li><span class="muestra" style={`background: ${PARADAS[0].color}; opacity: 0.75`} aria-hidden="true"></span>Verde: dentro del límite (z entre 0 y 1).</li>
+    <li><span class="muestra" style="background: linear-gradient(to right, #F2C14E, #F08A3E, #D9483B)" aria-hidden="true"></span>Ámbar a rojo: entre el límite y el alto riesgo (z entre 1 y 2).</li>
+    <li><span class="muestra" style="background: linear-gradient(to right, #D9483B, #9E1F45, #5B1240)" aria-hidden="true"></span>Rojo oscuro: más allá del alto riesgo (z mayor que 2, en escala comprimida).</li>
+    <li><svg class="muestra-svg" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="none" stroke={C.circuloLimite} stroke-width="2"/></svg>Círculo verde: límite (z = 1). <svg class="muestra-svg" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="none" stroke={C.circuloAltoRiesgo} stroke-width="2"/></svg>Círculo rojo: alto riesgo (z = 2).</li>
+    <li><svg class="muestra-svg" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="5" fill={C.enReferencia}/></svg>Punto verde: el valor está en la referencia (z = 0).</li>
+    <li><svg class="muestra-svg" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2L17 17H3Z" fill={C.fueraDeEscala}/></svg>Triángulo: fuera de escala (z = 3.5 o más).</li>
+    <li><svg class="muestra-svg" viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="4" width="16" height="12" fill="#F08A3E" fill-opacity="0.45" stroke={C.contornoIncierto} stroke-width="0.9"/></svg>Pétalo tenue con contorno: valor incierto.</li>
+    <li><span class="muestra-texto" aria-hidden="true">{MARCA.conFuente}</span>{E.conFuente}: umbral y valor con fuente.</li>
+    <li><span class="muestra-texto" aria-hidden="true">{MARCA.provisorio}</span>{E.valor.provisorio}.</li>
+    <li><span class="muestra-texto" aria-hidden="true">*</span>{E.umbral.convencion}: el alto riesgo es el doble de la distancia entre la referencia y el límite.</li>
+  </ul>
+</div>
+
+<style>
+  .tablero-leyenda { font-size: var(--tam-chico); max-width: var(--ancho-lectura); margin: 2rem auto 0; }
+  .tablero-leyenda h2 { font-size: var(--tam-h3); margin-top: 0; }
+  .tablero-leyenda-escala { position: relative; margin: 0 1.5rem 2.75rem 0; }
+  .tablero-leyenda-barra { display: block; height: 0.9rem; border-radius: var(--radio); }
+  .tablero-leyenda-marcas { list-style: none; margin: 0; padding: 0; position: relative; height: 1.5rem; }
+  .tablero-leyenda-marcas li { position: absolute; top: 0.25rem; transform: translateX(-50%); white-space: nowrap; color: var(--color-texto-suave); }
+  .tablero-leyenda-marcas li:first-child { transform: none; }
+  .tablero-leyenda-marcas li:last-child { transform: translateX(-100%); }
+  .tablero-leyenda-marcas li::before { content: ''; position: absolute; left: 50%; top: -0.35rem; height: 0.3rem; border-left: 1px solid var(--color-texto-suave); }
+  .tablero-leyenda-marcas li:first-child::before { left: 0; }
+  .tablero-leyenda-marcas li:last-child::before { left: 100%; }
+  .tablero-leyenda-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+  .muestra, .muestra-svg, .muestra-texto {
+    display: inline-block; width: 1.4rem; height: 0.9rem; margin-right: 0.5rem; vertical-align: -0.1rem; border-radius: 2px;
+  }
+  .muestra-svg { width: 1rem; height: 1rem; vertical-align: -0.15rem; }
+  .muestra-texto { width: 1rem; height: auto; text-align: center; color: var(--color-texto-suave); }
+  @media (max-width: 600px) {
+    .tablero-leyenda-marcas li:nth-child(2), .tablero-leyenda-marcas li:nth-child(3) { font-size: 0.8em; }
+  }
+</style>
