@@ -1,0 +1,97 @@
+@import './tokens.css';
+@import '@tema-activo';  /* src/styles/temas/<TEMA>.css; en npm run dev, los cuatro */
+@import './lectura.css';
+@import './impresion.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--fuente-texto);
+  font-size: var(--tam-base);
+  line-height: var(--interlineado);
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--color-acento); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--color-acento-hover); }
+
+h1, h2, h3 { line-height: 1.2; font-weight: 600; margin: 2em 0 0.6em; }
+h1 { font-size: var(--tam-h1); margin-top: 0; letter-spacing: -0.01em; }
+h2 { font-size: var(--tam-h2); }
+h3 { font-size: var(--tam-h3); }
+
+img { max-width: 100%; height: auto; }
+
+blockquote {
+  margin: 1.5em 0;
+  padding-left: 1.2em;
+  border-left: 3px solid var(--color-borde);
+  color: var(--color-texto-suave);
+}
+
+hr { border: 0; border-top: 1px solid var(--color-borde); margin: 3em 0; }
+
+code { font-size: 0.9em; }
+pre { overflow-x: auto; padding: 1em; background: var(--color-superficie); border-radius: var(--radio); }
+
+.contenedor {
+  max-width: var(--ancho-sitio);
+  margin: 0 auto;
+  padding: 0 var(--margen-lateral);
+}
+
+.lectura {
+  max-width: var(--ancho-lectura);
+  margin: 0 auto;
+}
+
+.interfaz { font-family: var(--fuente-interfaz); }
+
+.meta {
+  font-family: var(--fuente-interfaz);
+  font-size: var(--tam-chico);
+  color: var(--color-texto-suave);
+}
+
+.pendiente {
+  font-family: var(--fuente-interfaz);
+  font-size: 0.85em;
+  background: var(--color-pendiente-fondo);
+  color: var(--color-pendiente-texto);
+  padding: 0.1em 0.4em;
+  border-radius: var(--radio);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.vacio {
+  font-family: var(--fuente-interfaz);
+  color: var(--color-texto-suave);
+  padding: 1.25em;
+  border: 1px dashed var(--color-borde);
+  border-radius: var(--radio);
+}
+
+.salto {
+  position: absolute;
+  left: -999px;
+}
+.salto:focus { left: var(--margen-lateral); top: 0.5rem; background: var(--color-fondo); padding: 0.5em; z-index: 10; }
+
+.borrador-aviso {
+  font-family: var(--fuente-interfaz);
+  font-size: var(--tam-chico);
+  background: var(--color-pendiente-fondo);
+  color: var(--color-pendiente-texto);
+  padding: 0.5em 0.8em;
+  border-radius: var(--radio);
+  margin-bottom: 1.5em;
+}

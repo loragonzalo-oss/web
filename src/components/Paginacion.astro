@@ -1,0 +1,16 @@
+---
+import { url } from '../lib/rutas';
+interface Props { actual: number; ultima: number; anterior?: string; siguiente?: string }
+const { actual, ultima, anterior, siguiente } = Astro.props;
+---
+{ultima > 1 && (
+  <nav class="paginacion interfaz" aria-label="Paginación">
+    {anterior ? <a href={url(anterior)}>← Más recientes</a> : <span />}
+    <span class="meta">Página {actual} de {ultima}</span>
+    {siguiente ? <a href={url(siguiente)}>Anteriores →</a> : <span />}
+  </nav>
+)}
+
+<style>
+  .paginacion { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 2rem; }
+</style>

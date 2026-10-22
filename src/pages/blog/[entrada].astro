@@ -1,0 +1,42 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Lectura from '../../layouts/Lectura.astro';
+import Relacionados from '../../components/Relacionados.astro';
+import { url, slugEtiqueta } from '../../lib/rutas';
+import { entradasBlog } from '../../lib/contenido';
+import { relacionados } from '../../lib/lectura';
+
+export const getStaticPaths = (async () => {
+  // Direcciones que ya usa el blog: una entrada con ese nombre de archivo las taparía.
+  const RESERVADAS = ['archivo', 'etiquetas'];
+  const entradas = await entradasBlog();
+  for (const e of entradas) {
+    if (RESERVADAS.includes(e.id) || /^\d+$/.test(e.id)) {
+      throw new Error(`La entrada «${e.id}» choca con una dirección del blog (/blog/${e.id}/). Cambiá el nombre del archivo o fijá otro con «slug:».`);
+    }
+  }
+  return entradas.map((e) => ({ params: { entrada: e.id }, props: { e } }));
+}) satisfies GetStaticPaths;
+
+const { e } = Astro.props;
+const { Content, headings } = await render(e);
+const cercanas = await relacionados(e);
+---
+<Lectura texto={e} encabezados={headings} imagen={e.data.imagen?.src}>
+  <Content />
+  <Fragment slot="pie">
+    {e.data.etiquetas.length > 0 && (
+      <p class="meta etiquetas">
+        {e.data.etiquetas.map((t) => <a href={url(`/blog/etiquetas/${slugEtiqueta(t)}/`)}>#{t}</a>)}
+      </p>
+    )}
+    <Relacionados entradas={cercanas} />
+    <p class="interfaz volver"><a href={url('/blog/')}>← Volver al blog</a></p>
+  </Fragment>
+</Lectura>
+
+<style>
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+  .volver { margin-top: 2rem; }
+</style>

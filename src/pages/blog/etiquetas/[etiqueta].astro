@@ -1,0 +1,32 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import ListaEntradas from '../../../components/ListaEntradas.astro';
+import { url, slugEtiqueta } from '../../../lib/rutas';
+import { entradasBlog } from '../../../lib/contenido';
+
+export const getStaticPaths = (async () => {
+  const entradas = await entradasBlog();
+  const porEtiqueta = new Map<string, { nombre: string; entradas: typeof entradas }>();
+  for (const e of entradas) {
+    for (const t of e.data.etiquetas) {
+      const slug = slugEtiqueta(t);
+      if (!porEtiqueta.has(slug)) porEtiqueta.set(slug, { nombre: t, entradas: [] });
+      porEtiqueta.get(slug)!.entradas.push(e);
+    }
+  }
+  return [...porEtiqueta.entries()].map(([slug, grupo]) => ({
+    params: { etiqueta: slug },
+    props: grupo,
+  }));
+}) satisfies GetStaticPaths;
+
+const { nombre, entradas } = Astro.props;
+---
+<Base titulo={`#${nombre}`} descripcion={`Entradas del blog con la etiqueta ${nombre}.`}>
+  <section class="lectura">
+    <p class="meta"><a href={url('/blog/etiquetas/')}>Etiquetas</a></p>
+    <h1>#{nombre}</h1>
+    <ListaEntradas entradas={entradas} />
+  </section>
+</Base>

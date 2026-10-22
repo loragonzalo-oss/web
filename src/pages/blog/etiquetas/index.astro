@@ -1,0 +1,26 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { url, slugEtiqueta } from '../../../lib/rutas';
+import { entradasBlog } from '../../../lib/contenido';
+
+const conteo = new Map<string, number>();
+for (const e of await entradasBlog()) {
+  for (const t of e.data.etiquetas) conteo.set(t, (conteo.get(t) ?? 0) + 1);
+}
+const etiquetas = [...conteo.entries()].sort((a, b) => a[0].localeCompare(b[0], 'es'));
+---
+<Base titulo="Etiquetas" descripcion="Etiquetas del blog.">
+  <section class="lectura">
+    <h1>Etiquetas</h1>
+    {etiquetas.length === 0 ? (
+      <p class="vacio">Todavía no hay etiquetas.</p>
+    ) : (
+      <ul class="interfaz">
+        {etiquetas.map(([t, n]) => (
+          <li><a href={url(`/blog/etiquetas/${slugEtiqueta(t)}/`)}>#{t}</a> <span class="meta">({n})</span></li>
+        ))}
+      </ul>
+    )}
+    <p class="interfaz"><a href={url('/blog/')}>← Volver al blog</a></p>
+  </section>
+</Base>

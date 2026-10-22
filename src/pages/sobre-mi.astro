@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITIO } from '../lib/sitio';
+// Sólo datos confirmados por el autor (encargo inicial, 21-10-2026). No agregar nada sin su confirmación.
+---
+<Base titulo="Sobre mí" descripcion="Perfil profesional de Gonzalo R. Lora Veizaga, ingeniero ambiental en La Paz, Bolivia.">
+  <article class="lectura" data-pagefind-body>
+    <h1>Sobre mí</h1>
+    <p class="entrada">
+      <strong>{SITIO.nombre}</strong>, «{SITIO.apodo}». Ingeniero ambiental en La Paz, Bolivia.
+      Unos 20 años de trabajo en cambio climático, gestión ambiental y planificación de cuencas.
+    </p>
+
+    <h2>Trayectoria</h2>
+    <ul>
+      <li>Negociador en la Convención Marco de las Naciones Unidas sobre el Cambio Climático (CMNUCC): COP-15, COP-16 y COP-18.</li>
+      <li>Coordinador binacional del proyecto GIRH-TDPS (PNUD, 2017-2019).</li>
+      <li>Coordinó la Cooperación Técnica BID BO-T1425 con la Autoridad Binacional Autónoma del Sistema Hídrico TDPS (ALT).</li>
+      <li>Docente universitario desde 2006.</li>
+    </ul>
+
+    <h2>Edición</h2>
+    <p>
+      Editor y prologuista de la obra de Jimena Tatiana Gonzales García (T'ika Pacha)
+      y José Mario Illescas Pompilia (Hatun Illapa).
+    </p>
+
+    <h2>Formación</h2>
+    <ul>
+      <li>M.Sc. en Gerencia Ambiental. Universidad de Los Andes, Bogotá, 2012.</li>
+      <li>Especialización en Cambio Climático y Mecanismo de Desarrollo Limpio (MDL). Universidad Andina Simón Bolívar, 2007.</li>
+      <li>Licenciatura en Ingeniería Ambiental. Universidad Católica Boliviana San Pablo, 2005.</li>
+    </ul>
+  </article>
+</Base>
+
+<style>
+  .entrada { font-size: 1.15em; }
+  li { margin-bottom: 0.5em; }
+</style>

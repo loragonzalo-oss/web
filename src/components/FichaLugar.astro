@@ -1,0 +1,104 @@
+---
+// Ficha de un lugar del mapa. Se dibuja una sola vez, en el listado (el cuerpo, plegado);
+// el panel lateral del mapa copia la cabecera y el cuerpo de acá. Así hay una sola fuente de verdad.
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Pendiente from './Pendiente.astro';
+import { nombreCapa } from '../lib/capas';
+import { fechaLarga, fechaISO } from '../lib/fechas';
+import { resolverRelacionados, type Lugar } from '../lib/lugares';
+import { verBorradores } from '../lib/borradores';
+
+interface Props { lugar: Lugar }
+const { lugar } = Astro.props;
+const d = lugar.data;
+const { Content } = await render(lugar);
+const relacionados = (await resolverRelacionados(lugar)).filter((r) => r.href || verBorradores);
+
+// Lo que se le dice al lector sobre el respaldo de la ficha.
+const MARCADOR = {
+  corpus: { aviso: false, texto: 'Con respaldo documental: ver las fuentes al pie.' },
+  '[VERIFICAR]': { aviso: true, texto: 'Dato a verificar: le falta una validación externa.' },
+  '[HIPÓTESIS]': { aviso: true, texto: 'Hipótesis: premisa razonable sin respaldo documental.' },
+  '[DATO PROPIO]': { aviso: false, texto: 'Dato propio del autor, sin documento que lo cite.' },
+}[d.marcador];
+---
+<div class="ficha-cabecera">
+  <p class="ficha-capa">
+    <span class={`capa-punto capa-${d.capa}`} aria-hidden="true"></span>
+    {nombreCapa(d.capa)}
+    {d.draft && <span class="ficha-borrador"> · borrador</span>}
+    {MARCADOR.aviso && <span class="ficha-insignia">{d.marcador}</span>}
+  </p>
+  <h3 class="ficha-titulo">{d.titulo}</h3>
+  <p class="ficha-resumen">{d.resumen}</p>
+</div>
+
+<details class="ficha-detalle">
+<summary>Leer la ficha</summary>
+<div class="ficha-cuerpo">
+  {d.draft && <p class="borrador-aviso">Borrador: sólo se ve en el modo de desarrollo. No se publica.</p>}
+
+  <p class:list={['ficha-marcador', { 'ficha-marcador-aviso': MARCADOR.aviso }]}>
+    <strong>{d.marcador}</strong> {MARCADOR.texto}
+  </p>
+
+  {d.imagen && (
+    <figure class="ficha-imagen">
+      <Image src={d.imagen.archivo} alt={d.imagen.descripcion ?? ''} widths={[400, 800]} sizes="(max-width: 700px) 100vw, 24rem" />
+      <figcaption>{d.imagen.descripcion && <>{d.imagen.descripcion}. </>}Crédito: {d.imagen.credito}</figcaption>
+    </figure>
+  )}
+
+  <div class="ficha-texto"><Content /></div>
+
+  {d.precision === 'aproximada' && (
+    <p class="ficha-nota">Ubicación aproximada: el punto está desplazado a propósito.</p>
+  )}
+  {d.precision === 'oculta' && (
+    <p class="ficha-nota">Ubicación no publicada: este lugar no tiene punto en el mapa.</p>
+  )}
+
+  {relacionados.length > 0 && (
+    <section class="ficha-seccion">
+      <h4>En la web</h4>
+      <ul>
+        {relacionados.map((r) => (
+          <li>
+            {r.href
+              ? <>{r.tipo}: <a href={r.href}>{r.titulo}</a></>
+              : <Pendiente texto={`relacionado no encontrado: ${r.ref}`} />}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {d.enlaces.length > 0 && (
+    <section class="ficha-seccion">
+      <h4>Enlaces</h4>
+      <ul>
+        {d.enlaces.map((e) => (
+          <li>
+            <a href={e.url} rel="noopener">{e.texto}</a>
+            <span class="meta"> · verificado el <time datetime={fechaISO(e.verificado)}>{fechaLarga(e.verificado)}</time></span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {d.fuentes.length > 0 && (
+    <section class="ficha-seccion">
+      <h4>Fuentes</h4>
+      <ul>
+        {d.fuentes.map((f) => (
+          <li>
+            {f.autor} ({f.año}). {f.url ? <a href={f.url} rel="noopener"><em>{f.titulo}</em></a> : <em>{f.titulo}</em>}.
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</div>
+</details>

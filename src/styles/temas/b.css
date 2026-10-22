@@ -1,0 +1,71 @@
+/*
+  Tema B · «Totora». Propuesta para comparar; no está elegida.
+  Inspiración: la orilla. Fondo cálido de totora seca, texto pardo oscuro y acento
+  verde de totora viva; colores de capa terrosos. De noche, tierra y caña a oscuras.
+
+  Tipografías (autoalojadas, licencia SIL Open Font License 1.1):
+  - Cuerpo: Alegreya (Juan Pablo del Peral, Huerta Tipográfica). De trazo caligráfico,
+    hecha para textos literarios largos.
+  - Interfaz: Alegreya Sans (Juan Pablo del Peral, Huerta Tipográfica). Misma familia.
+
+  Los valores --oscuro-* son los del modo oscuro. Contraste comprobado con
+  `npm run temas:contraste` (tabla en docs/temas-contraste.md).
+*/
+@import '@fontsource/alegreya/400.css';
+@import '@fontsource/alegreya/400-italic.css';
+@import '@fontsource/alegreya/600.css';
+@import '@fontsource/alegreya-sans/400.css';
+@import '@fontsource/alegreya-sans/500.css';
+@import '@fontsource/alegreya-sans/700.css';
+
+[data-tema='b'] {
+  --fuente-texto: 'Alegreya', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --fuente-interfaz: 'Alegreya Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tam-base: 1.3125rem;   /* Alegreya tiene el ojo chico: 21 px rinden como 19 */
+  --tam-chico: 0.95rem;
+  --interlineado: 1.6;
+
+  /* Modo claro */
+  --color-fondo: #f7f2e5;
+  --color-superficie: #ede4cf;
+  --color-texto: #27231a;
+  --color-texto-suave: #5d5641;
+  --color-borde: #d8ccb0;
+  --color-acento: #44602a;
+  --color-acento-hover: #2f451b;
+  --color-pendiente-fondo: #f9e3a6;
+  --color-pendiente-texto: #573f00;
+  --color-capa-icono: #ffffff;
+  --color-capa-contorno: #fffaf0;
+  --color-capa-clima: #3d6493;
+  --color-capa-ecologia: #507029;
+  --color-capa-biodiversidad: #2a7366;
+  --color-capa-cultura: #9a404e;
+  --color-capa-antropologia: #87582a;
+  --color-capa-arqueologia: #694e84;
+  --color-capa-turismo: #a95510;
+  --color-capa-emprendimientos-comunitarios: #79650c;
+  --color-capa-gobiernos-municipales: #5a5a50;
+
+  /* Modo oscuro */
+  --oscuro-color-fondo: #1a1812;
+  --oscuro-color-superficie: #25221a;
+  --oscuro-color-texto: #ece4cf;
+  --oscuro-color-texto-suave: #aea48a;
+  --oscuro-color-borde: #3d392c;
+  --oscuro-color-acento: #b5cb80;
+  --oscuro-color-acento-hover: #cfe0a2;
+  --oscuro-color-pendiente-fondo: #3e3412;
+  --oscuro-color-pendiente-texto: #f0d98a;
+  --oscuro-color-capa-icono: #1a1812;
+  --oscuro-color-capa-contorno: #1a1812;
+  --oscuro-color-capa-clima: #8eabd3;
+  --oscuro-color-capa-ecologia: #a6c47c;
+  --oscuro-color-capa-biodiversidad: #7cc0b1;
+  --oscuro-color-capa-cultura: #dc8f99;
+  --oscuro-color-capa-antropologia: #d1a271;
+  --oscuro-color-capa-arqueologia: #b8a0d0;
+  --oscuro-color-capa-turismo: #e7a062;
+  --oscuro-color-capa-emprendimientos-comunitarios: #d3bb59;
+  --oscuro-color-capa-gobiernos-municipales: #b0ae9f;
+}

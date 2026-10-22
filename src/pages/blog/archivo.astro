@@ -1,0 +1,54 @@
+---
+import Base from '../../layouts/Base.astro';
+import { url } from '../../lib/rutas';
+import { fechaISO } from '../../lib/fechas';
+import { entradasBlog } from '../../lib/contenido';
+
+const entradas = await entradasBlog();
+const porAnio = new Map<number, typeof entradas>();
+for (const e of entradas) {
+  const anio = e.data.fecha.getUTCFullYear();
+  if (!porAnio.has(anio)) porAnio.set(anio, []);
+  porAnio.get(anio)!.push(e);
+}
+const diaMes = new Intl.DateTimeFormat('es-BO', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+---
+<Base titulo="Archivo del blog" descripcion="Todas las entradas del blog de Gonzalo R. Lora Veizaga, por año.">
+  <section class="lectura">
+    <p class="meta"><a href={url('/blog/')}>Blog</a></p>
+    <h1>Archivo</h1>
+    {porAnio.size === 0 ? (
+      <p class="vacio">Todavía no hay entradas publicadas.</p>
+    ) : (
+      <>
+        <nav class="anios interfaz" aria-label="Años">
+          {[...porAnio.keys()].map((a) => <a href={`#anio-${a}`}>{a}</a>)}
+        </nav>
+        {[...porAnio.entries()].map(([anio, lista]) => (
+          <section aria-labelledby={`anio-${anio}`}>
+            <h2 id={`anio-${anio}`}>{anio} <span class="meta">· {lista.length === 1 ? '1 entrada' : `${lista.length} entradas`}</span></h2>
+            <ul class="lista">
+              {lista.map((e) => (
+                <li>
+                  <time class="meta" datetime={fechaISO(e.data.fecha)}>{diaMes.format(e.data.fecha)}</time>
+                  <a href={url(`/blog/${e.id}/`)}>{e.data.titulo}</a>
+                  {e.data.draft && <span class="meta"> · borrador</span>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </>
+    )}
+  </section>
+</Base>
+
+<style>
+  .anios { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0 0 1rem; }
+  h2 { margin-top: 2.2rem; }
+  h2 .meta { font-weight: 400; }
+  .lista { list-style: none; margin: 0; padding: 0; }
+  li { display: grid; grid-template-columns: 4.5rem 1fr; gap: 0 1rem; align-items: baseline; padding: 0.5rem 0; border-bottom: 1px solid var(--color-borde); }
+  li a { color: var(--color-texto); text-decoration: none; }
+  li a:hover { color: var(--color-acento); text-decoration: underline; }
+</style>

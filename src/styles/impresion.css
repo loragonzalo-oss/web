@@ -1,0 +1,56 @@
+/*
+  Impresión de entradas y ensayos: sin menú, sin pie ni navegación; tinta negra sobre
+  papel blanco; al final, la dirección de la página y la fecha.
+*/
+@media print {
+  /* Papel blanco aunque la pantalla esté en modo oscuro. */
+  html[data-tema] {
+    color-scheme: light;
+    --color-fondo: #ffffff !important;
+    --color-superficie: #f2f2f2 !important;
+    --color-texto: #000000 !important;
+    --color-texto-suave: #444444 !important;
+    --color-borde: #bbbbbb !important;
+    --color-acento: #000000 !important;
+    --color-acento-hover: #000000 !important;
+  }
+
+  @page { margin: 2cm 2.2cm; }
+
+  body { font-size: 11pt; line-height: 1.5; }
+
+  .salto,
+  .cabecera,
+  .pie,
+  .selector-tema,
+  .columna-indice,
+  .indice-plegable,
+  .nav-serie,
+  .como-citar,
+  .pie-texto,
+  .no-imprimir,
+  .borrador-aviso { display: none !important; }
+
+  .contenedor, .lectura { max-width: none; padding: 0; margin: 0; }
+  .con-indice { display: block !important; }
+  main { margin: 0; }
+
+  h1 { font-size: 22pt; }
+  h2, h3 { break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  .figura, .cita-destacada, pre, blockquote, table { break-inside: avoid; }
+
+  /* Enlaces externos del cuerpo: la dirección entre paréntesis. */
+  .cuerpo a { color: inherit; text-decoration: underline; }
+  .cuerpo a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 0.85em; overflow-wrap: anywhere; }
+  .cuerpo a[data-footnote-ref], .cuerpo a[data-footnote-backref] { text-decoration: none; }
+
+  .solo-imprimir {
+    display: block;
+    margin-top: 2rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--color-borde);
+    font-size: 9pt;
+    overflow-wrap: anywhere;
+  }
+}

@@ -1,0 +1,73 @@
+---
+// Tabla de contenidos de un texto largo. Se dibuja dos veces: lateral en escritorio
+// y plegable en celular. La que no corresponde queda con display: none, así que ni
+// se ve ni la leen los lectores de pantalla. Funciona sin JavaScript.
+import type { Seccion } from '../lib/lectura';
+
+interface Props {
+  secciones: Seccion[];
+  modo: 'lateral' | 'plegable';
+}
+const { secciones, modo } = Astro.props;
+---
+{modo === 'lateral' ? (
+  <nav class="indice indice-lateral interfaz" aria-label="En este texto">
+    <p class="indice-titulo">En este texto</p>
+    <ol>
+      {secciones.map((s) => (
+        <li>
+          <a href={`#${s.slug}`}>{s.texto}</a>
+          {s.subsecciones.length > 0 && (
+            <ol>{s.subsecciones.map((ss) => <li><a href={`#${ss.slug}`}>{ss.texto}</a></li>)}</ol>
+          )}
+        </li>
+      ))}
+    </ol>
+  </nav>
+) : (
+  <details class="indice indice-plegable interfaz">
+    <summary>En este texto</summary>
+    <nav aria-label="En este texto">
+      <ol>
+        {secciones.map((s) => (
+          <li>
+            <a href={`#${s.slug}`}>{s.texto}</a>
+            {s.subsecciones.length > 0 && (
+              <ol>{s.subsecciones.map((ss) => <li><a href={`#${ss.slug}`}>{ss.texto}</a></li>)}</ol>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </details>
+)}
+
+<style>
+  .indice { font-size: var(--tam-chico); line-height: 1.4; }
+  .indice ol { list-style: none; margin: 0; padding: 0; }
+  .indice ol ol { padding-left: 0.9rem; margin-top: 0.35rem; }
+  .indice li { margin: 0 0 0.45rem; }
+  .indice a { color: var(--color-texto-suave); text-decoration: none; }
+  .indice a:hover, .indice a:focus-visible { color: var(--color-acento); text-decoration: underline; }
+  .indice-titulo {
+    margin: 0 0 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    color: var(--color-texto-suave);
+  }
+  .indice-lateral { border-left: 1px solid var(--color-borde); padding-left: 1rem; }
+
+  .indice-plegable {
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio);
+    margin: 0 0 2rem;
+  }
+  .indice-plegable summary {
+    cursor: pointer;
+    padding: 0.7rem 1rem;
+    color: var(--color-texto);
+    font-weight: 600;
+  }
+  .indice-plegable nav { padding: 0 1rem 0.6rem; }
+</style>

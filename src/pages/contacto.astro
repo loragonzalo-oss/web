@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import Pendiente from '../components/Pendiente.astro';
+import { SITIO } from '../lib/sitio';
+---
+<Base titulo="Contacto" descripcion={`Contacto con ${SITIO.nombre}.`}>
+  <article class="lectura">
+    <h1>Contacto</h1>
+    <h2>Correo</h2>
+    <p>
+      {SITIO.correo
+        ? <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>
+        : <Pendiente texto="correo de contacto" />}
+    </p>
+    <h2>Redes</h2>
+    <ul>
+      <li><a href={SITIO.redes.x} rel="me">X: {SITIO.usuarioX}</a></li>
+      <li><a href={SITIO.redes.facebook} rel="me">Facebook</a></li>
+    </ul>
+  </article>
+</Base>

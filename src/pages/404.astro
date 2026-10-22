@@ -1,0 +1,25 @@
+---
+// GitHub Pages sirve dist/404.html para cualquier dirección que no existe.
+// Los enlaces pasan por url() para que funcionen con `base` desde cualquier profundidad.
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/rutas';
+---
+<Base titulo="Página no encontrada" descripcion="La página que buscabas no existe o cambió de dirección." noIndexar>
+  <section class="lectura no-encontrada">
+    <p class="meta">Error 404</p>
+    <h1>Esta página no existe</h1>
+    <p>Puede que la dirección esté mal escrita o que la página haya cambiado de lugar.</p>
+    <ul class="interfaz">
+      <li><a href={url('/')}>Ir a la portada</a></li>
+      <li><a href={url('/blog/')}>Leer el blog</a></li>
+      <li><a href={url('/mapa/')}>Ver el mapa del Lago Titikaka</a></li>
+      <li><a href={url('/buscar/')}>Buscar en el sitio</a></li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .no-encontrada .meta { margin: 0; text-transform: uppercase; letter-spacing: 0.08em; }
+  ul { padding-left: 1.1rem; }
+  li { margin-bottom: 0.4rem; }
+</style>

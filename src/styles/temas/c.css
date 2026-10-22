@@ -1,0 +1,69 @@
+/*
+  Tema C · «Piedra y cielo». Propuesta para comparar; no está elegida.
+  Inspiración: la luz de altura. Fondo casi blanco de piedra clara, texto gris piedra
+  muy oscuro y acento azul profundo de cielo de altura. De noche, el cielo despejado
+  del Altiplano: pizarra oscura y azul lavado.
+
+  Tipografías (autoalojadas, licencia SIL Open Font License 1.1):
+  - Cuerpo: Spectral (Production Type). Serifa afilada, pensada para pantalla.
+  - Interfaz: IBM Plex Sans (Mike Abbink y Bold Monday, para IBM).
+
+  Los valores --oscuro-* son los del modo oscuro. Contraste comprobado con
+  `npm run temas:contraste` (tabla en docs/temas-contraste.md).
+*/
+@import '@fontsource/spectral/400.css';
+@import '@fontsource/spectral/400-italic.css';
+@import '@fontsource/spectral/600.css';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+
+[data-tema='c'] {
+  --fuente-texto: 'Spectral', 'Iowan Old Style', Georgia, serif;
+  --fuente-interfaz: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --tam-base: 1.1875rem;
+  --interlineado: 1.7;
+
+  /* Modo claro */
+  --color-fondo: #fbfbfa;
+  --color-superficie: #eeeeec;
+  --color-texto: #1c1d1f;
+  --color-texto-suave: #55585c;
+  --color-borde: #d4d5d3;
+  --color-acento: #2a44a6;
+  --color-acento-hover: #1b2f7e;
+  --color-pendiente-fondo: #fdefbf;
+  --color-pendiente-texto: #5a4500;
+  --color-capa-icono: #ffffff;
+  --color-capa-contorno: #ffffff;
+  --color-capa-clima: #2a5db5;
+  --color-capa-ecologia: #2f7a3a;
+  --color-capa-biodiversidad: #007579;
+  --color-capa-cultura: #ad3860;
+  --color-capa-antropologia: #8a5326;
+  --color-capa-arqueologia: #6a45ad;
+  --color-capa-turismo: #bb4c12;
+  --color-capa-emprendimientos-comunitarios: #806500;
+  --color-capa-gobiernos-municipales: #4f5866;
+
+  /* Modo oscuro */
+  --oscuro-color-fondo: #121418;
+  --oscuro-color-superficie: #1c1f25;
+  --oscuro-color-texto: #e6e7e9;
+  --oscuro-color-texto-suave: #9fa4ab;
+  --oscuro-color-borde: #343841;
+  --oscuro-color-acento: #9eb1f3;
+  --oscuro-color-acento-hover: #c2cdf8;
+  --oscuro-color-pendiente-fondo: #3b3311;
+  --oscuro-color-pendiente-texto: #f1da86;
+  --oscuro-color-capa-icono: #121418;
+  --oscuro-color-capa-contorno: #121418;
+  --oscuro-color-capa-clima: #84aaf0;
+  --oscuro-color-capa-ecologia: #7fc78a;
+  --oscuro-color-capa-biodiversidad: #4cc7c7;
+  --oscuro-color-capa-cultura: #f08bb0;
+  --oscuro-color-capa-antropologia: #d9a06e;
+  --oscuro-color-capa-arqueologia: #b49cf2;
+  --oscuro-color-capa-turismo: #f59a62;
+  --oscuro-color-capa-emprendimientos-comunitarios: #dcbf4a;
+  --oscuro-color-capa-gobiernos-municipales: #a7b0bf;
+}

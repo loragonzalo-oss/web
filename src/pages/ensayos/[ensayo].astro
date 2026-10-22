@@ -1,0 +1,32 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Lectura from '../../layouts/Lectura.astro';
+import { url } from '../../lib/rutas';
+import { ensayos } from '../../lib/contenido';
+import { detalleRevista, urlDoi } from '../../lib/revista';
+
+export const getStaticPaths = (async () => {
+  const lista = await ensayos();
+  return lista.map((e) => ({ params: { ensayo: e.id }, props: { e } }));
+}) satisfies GetStaticPaths;
+
+const { e } = Astro.props;
+const { Content, headings } = await render(e);
+const detalle = detalleRevista(e.data);
+---
+<Lectura texto={e} encabezados={headings} rotulo="Ensayo">
+  {e.data.publicacion && (
+    <p slot="cabecera" class="meta publicacion">
+      Publicado en <em>{e.data.publicacion}</em>{detalle && `, ${detalle}`}
+      {e.data.doi && <> · DOI <a href={urlDoi(e.data.doi)}>{e.data.doi}</a></>}
+      {e.data.enlace && <> · <a href={e.data.enlace}>ver la publicación original</a></>}
+    </p>
+  )}
+  <Content />
+  <p slot="pie" class="interfaz"><a href={url('/ensayos/')}>← Volver a ensayos</a></p>
+</Lectura>
+
+<style>
+  .publicacion { border-top: 1px solid var(--color-borde); border-bottom: 1px solid var(--color-borde); padding: 0.6rem 0; margin: 1.5rem 0 2rem; }
+</style>

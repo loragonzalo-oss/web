@@ -1,0 +1,93 @@
+---
+// Plantilla común de entradas del blog y ensayos: tiempo de lectura, tabla de
+// contenidos, serie, «Cómo citar» y la línea de dirección y fecha que sale al imprimir.
+import type { MarkdownHeading } from 'astro';
+import Base from './Base.astro';
+import Indice from '../components/Indice.astro';
+import NavSerie from '../components/NavSerie.astro';
+import ComoCitar from '../components/ComoCitar.astro';
+import { url } from '../lib/rutas';
+import { fechaLarga, fechaISO } from '../lib/fechas';
+import { indice, minutosLectura, lugarEnSerie, rutaTexto, type Texto } from '../lib/lectura';
+
+interface Props {
+  texto: Texto;
+  encabezados: MarkdownHeading[];
+  rotulo?: string;      // «Ensayo», por ejemplo; va delante de la fecha
+  imagen?: string;
+}
+const { texto, encabezados, rotulo, imagen } = Astro.props;
+const { titulo, resumen, fecha, draft } = texto.data;
+const secciones = indice(encabezados);
+const minutos = minutosLectura(texto.body);
+const serie = await lugarEnSerie(texto);
+const direccion = new URL(rutaTexto(texto), Astro.site).href;
+// Sin imagen propia, la tarjeta para compartir es la que se genera al construir (src/lib/og.ts).
+const imagenOG = imagen ?? url(`/og/${texto.collection}/${texto.id}.png`);
+---
+<Base titulo={titulo} descripcion={resumen} imagen={imagenOG} tipo="article" fecha={fecha} noIndexar={draft}>
+  <div class:list={['texto-largo', { 'con-indice': secciones.length > 0 }]}>
+    {secciones.length > 0 && (
+      <aside class="columna-indice" data-pagefind-ignore><Indice secciones={secciones} modo="lateral" /></aside>
+    )}
+    <!-- El buscador (Pagefind) indexa el texto publicado; deja fuera índice, serie, cita y pie. -->
+    <article class="lectura" data-pagefind-body={draft ? undefined : true}>
+      {draft && <p class="borrador-aviso">Borrador: sólo se ve en el modo de desarrollo. No se publica.</p>}
+      <header class="cabecera-texto">
+        <p class="meta">
+          {rotulo && <>{rotulo} · </>}
+          <time datetime={fechaISO(fecha)}>{fechaLarga(fecha)}</time>
+          <span class="no-imprimir"> · {minutos} min de lectura</span>
+        </p>
+        {serie && (
+          <p class="meta serie-rotulo">
+            Serie <a href={url(`/series/${serie.serie.slug}/`)}>{serie.serie.nombre}</a> · parte {serie.posicion} de {serie.serie.textos.length}
+          </p>
+        )}
+        <h1>{titulo}</h1>
+        {resumen && <p class="resumen">{resumen}</p>}
+        <slot name="cabecera" />
+      </header>
+      {secciones.length > 0 && <div data-pagefind-ignore><Indice secciones={secciones} modo="plegable" /></div>}
+      <div class="cuerpo"><slot /></div>
+      <div data-pagefind-ignore>
+        <p class="solo-imprimir meta">{direccion} · Publicado el {fechaLarga(fecha)}</p>
+        {serie && <NavSerie lugar={serie} />}
+        <ComoCitar texto={texto} direccion={direccion} />
+      </div>
+      <footer class="pie-texto" data-pagefind-ignore>
+        <slot name="pie" />
+      </footer>
+    </article>
+  </div>
+</Base>
+
+<style>
+  .resumen { font-size: 1.15em; color: var(--color-texto-suave); font-style: italic; }
+  .serie-rotulo { margin-top: -0.6rem; }
+  .pie-texto { margin-top: 2.5rem; }
+
+  /* Tabla de contenidos: plegable arriba del texto en celular, lateral en escritorio. */
+  .columna-indice { display: none; }
+  @media (min-width: 64rem) {
+    .con-indice {
+      display: grid;
+      grid-template-columns: minmax(0, var(--ancho-lectura)) 14rem;
+      column-gap: 3.5rem;
+      justify-content: center;
+      align-items: start;
+    }
+    .con-indice .lectura { grid-column: 1; grid-row: 1; margin: 0; max-width: none; }
+    .columna-indice {
+      display: block;
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: 2rem;
+      max-height: calc(100vh - 4rem);
+      overflow-y: auto;
+      padding-top: 0.4rem;
+    }
+    .con-indice :global(.indice-plegable) { display: none; }
+  }
+</style>

@@ -1,0 +1,99 @@
+/*
+  Tokens de diseño compartidos: medidas, tamaños e íconos de capa.
+  Los colores y las familias tipográficas los pone el tema elegido, en src/styles/temas/.
+  El tema que se publica se elige en sitio.config.mjs (TEMA); ver COMO-PUBLICAR.md, «Identidad visual».
+*/
+:root {
+  /* Tipografía: las familias (--fuente-texto, --fuente-interfaz) las pone cada tema. */
+  --tam-base: 1.1875rem;   /* 19 px: cuerpo de lectura */
+  --tam-chico: 0.9rem;
+  --tam-h1: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+  --tam-h2: clamp(1.45rem, 1.2rem + 1vw, 1.85rem);
+  --tam-h3: 1.25rem;
+  --interlineado: 1.65;
+
+  /* Medidas */
+  --ancho-lectura: 66ch;   /* unos 65-70 caracteres por línea */
+  --ancho-sitio: 72rem;
+  --margen-lateral: 1.25rem;
+  --espacio: 1.5rem;
+  --radio: 4px;
+
+  /* Mapa (/mapa) */
+  --mapa-alto: min(72vh, 44rem);
+  --mapa-alto-celular: 62vh;
+  --mapa-ancho-ficha: 24rem;
+  --mapa-filtro-teselas: none;          /* filtro CSS sobre el fondo de OpenStreetMap */
+  --oscuro-mapa-filtro-teselas: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+
+  /* Íconos de capa: SVG de 24 × 24 usados como máscara (se pintan con el color de la capa).
+     Para cambiar uno, se reemplaza el contenido de <svg>…</svg>. Provisorios. */
+  --icono-capa-clima: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 11.5 3.3 3.3 0 0 0 7 18z'/%3E%3C/svg%3E");
+  --icono-capa-ecologia: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19C5 11 10 5 19 5c0 9-6 14-14 14z'/%3E%3Cpath d='M5 19l8-8'/%3E%3C/svg%3E");
+  --icono-capa-biodiversidad: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 7l4 5-4 5'/%3E%3Cpath d='M6 12c3-4 6-6 9-6s5 3 6 6c-1 3-3 6-6 6s-6-2-9-6z'/%3E%3Cpath d='M16 11h.01'/%3E%3C/svg%3E");
+  --icono-capa-cultura: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l9 9-9 9-9-9z'/%3E%3Cpath d='M12 8l4 4-4 4-4-4z'/%3E%3C/svg%3E");
+  --icono-capa-antropologia: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='7' r='3'/%3E%3Cpath d='M3 20c0-4 3-7 6-7s6 3 6 7'/%3E%3Ccircle cx='17' cy='8' r='2.5'/%3E%3Cpath d='M17 13c2.5 0 4 3 4 6'/%3E%3C/svg%3E");
+  --icono-capa-arqueologia: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 20h18M5 20v-4h14v4M7 16v-4h10v4M9 12V8h6v4'/%3E%3C/svg%3E");
+  --icono-capa-turismo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='7' width='18' height='13' rx='2'/%3E%3Cpath d='M8 7l2-3h4l2 3'/%3E%3Ccircle cx='12' cy='13.5' r='3.5'/%3E%3C/svg%3E");
+  --icono-capa-emprendimientos-comunitarios: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10h16l-2-5H6z'/%3E%3Cpath d='M5 10v10h14V10'/%3E%3Cpath d='M10 20v-5h4v5'/%3E%3C/svg%3E");
+  --icono-capa-gobiernos-municipales: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-5 9 5z'/%3E%3Cpath d='M5 9v9M10 9v9M14 9v9M19 9v9M3 20h18'/%3E%3C/svg%3E");
+}
+
+
+/*
+  Modo oscuro. Cada tema declara sus valores oscuros como --oscuro-<token>; acá se
+  activan. Sigue la preferencia del sistema; data-modo="claro" u "oscuro" la fuerza
+  (sólo lo usan el selector de temas y la lámina /temas, en modo de desarrollo).
+*/
+[data-modo='claro'] { color-scheme: light; }
+[data-modo='oscuro'] { color-scheme: dark; }
+
+[data-tema][data-modo='oscuro'] {
+  --color-fondo: var(--oscuro-color-fondo);
+  --color-superficie: var(--oscuro-color-superficie);
+  --color-texto: var(--oscuro-color-texto);
+  --color-texto-suave: var(--oscuro-color-texto-suave);
+  --color-borde: var(--oscuro-color-borde);
+  --color-acento: var(--oscuro-color-acento);
+  --color-acento-hover: var(--oscuro-color-acento-hover);
+  --color-pendiente-fondo: var(--oscuro-color-pendiente-fondo);
+  --color-pendiente-texto: var(--oscuro-color-pendiente-texto);
+  --mapa-filtro-teselas: var(--oscuro-mapa-filtro-teselas);
+  --color-capa-icono: var(--oscuro-color-capa-icono);
+  --color-capa-contorno: var(--oscuro-color-capa-contorno);
+  --color-capa-clima: var(--oscuro-color-capa-clima);
+  --color-capa-ecologia: var(--oscuro-color-capa-ecologia);
+  --color-capa-biodiversidad: var(--oscuro-color-capa-biodiversidad);
+  --color-capa-cultura: var(--oscuro-color-capa-cultura);
+  --color-capa-antropologia: var(--oscuro-color-capa-antropologia);
+  --color-capa-arqueologia: var(--oscuro-color-capa-arqueologia);
+  --color-capa-turismo: var(--oscuro-color-capa-turismo);
+  --color-capa-emprendimientos-comunitarios: var(--oscuro-color-capa-emprendimientos-comunitarios);
+  --color-capa-gobiernos-municipales: var(--oscuro-color-capa-gobiernos-municipales);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-tema]:not([data-modo='claro']) {
+    --color-fondo: var(--oscuro-color-fondo);
+    --color-superficie: var(--oscuro-color-superficie);
+    --color-texto: var(--oscuro-color-texto);
+    --color-texto-suave: var(--oscuro-color-texto-suave);
+    --color-borde: var(--oscuro-color-borde);
+    --color-acento: var(--oscuro-color-acento);
+    --color-acento-hover: var(--oscuro-color-acento-hover);
+    --color-pendiente-fondo: var(--oscuro-color-pendiente-fondo);
+    --color-pendiente-texto: var(--oscuro-color-pendiente-texto);
+    --mapa-filtro-teselas: var(--oscuro-mapa-filtro-teselas);
+    --color-capa-icono: var(--oscuro-color-capa-icono);
+    --color-capa-contorno: var(--oscuro-color-capa-contorno);
+    --color-capa-clima: var(--oscuro-color-capa-clima);
+    --color-capa-ecologia: var(--oscuro-color-capa-ecologia);
+    --color-capa-biodiversidad: var(--oscuro-color-capa-biodiversidad);
+    --color-capa-cultura: var(--oscuro-color-capa-cultura);
+    --color-capa-antropologia: var(--oscuro-color-capa-antropologia);
+    --color-capa-arqueologia: var(--oscuro-color-capa-arqueologia);
+    --color-capa-turismo: var(--oscuro-color-capa-turismo);
+    --color-capa-emprendimientos-comunitarios: var(--oscuro-color-capa-emprendimientos-comunitarios);
+    --color-capa-gobiernos-municipales: var(--oscuro-color-capa-gobiernos-municipales);
+  }
+}

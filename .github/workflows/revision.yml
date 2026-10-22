@@ -1,0 +1,57 @@
+# Revisión automática de cada pull request. No publica nada: sólo avisa si algo se rompió.
+# Qué significa cada paso y qué hacer si falla: COMO-PUBLICAR.md, «Revisiones automáticas».
+name: Revisión del sitio
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: revision-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: 1. Pruebas del puente con Obsidian
+        run: npm test
+
+      - name: 2. Contraste AA de los cuatro temas
+        run: npm run temas:contraste
+
+      - name: 3. Construir el sitio que se publica (y el índice del buscador)
+        run: npm run build
+
+      - name: 4. Enlaces internos rotos (sitio que se publica)
+        run: npm run revisar:enlaces
+
+      - name: 5. Construir el sitio de prueba, con los borradores de ejemplo
+        run: npm run build:prueba
+
+      - name: 6. Enlaces internos rotos (sitio de prueba)
+        run: npm run revisar:enlaces
+
+      - name: Preparar el navegador de pruebas
+        run: npx playwright install --with-deps chromium
+
+      - name: 7. Páginas en escritorio y celular, funciones y accesibilidad
+        run: npm run revisar:pruebas
+
+      - name: Guardar el informe de las pruebas
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas
+          path: playwright-report/
+          retention-days: 14

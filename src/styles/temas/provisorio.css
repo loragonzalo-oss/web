@@ -1,0 +1,65 @@
+/*
+  Tema «Provisorio». La paleta sobria con la que se armó el sitio, sin decisión de
+  identidad visual detrás. Es el que se publica mientras el autor no elija otro.
+
+  Tipografías (autoalojadas, licencia SIL Open Font License 1.1):
+  - Cuerpo: Source Serif 4 (Frank Grießhammer, Adobe).
+  - Interfaz: Source Sans 3 (Paul D. Hunt, Adobe).
+
+  Los valores --oscuro-* son los del modo oscuro. Contraste comprobado con
+  `npm run temas:contraste` (tabla en docs/temas-contraste.md).
+*/
+@import '@fontsource/source-serif-4/400.css';
+@import '@fontsource/source-serif-4/400-italic.css';
+@import '@fontsource/source-serif-4/600.css';
+@import '@fontsource/source-sans-3/400.css';
+@import '@fontsource/source-sans-3/600.css';
+
+[data-tema='provisorio'] {
+  --fuente-texto: 'Source Serif 4', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --fuente-interfaz: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Modo claro */
+  --color-fondo: #faf8f4;
+  --color-superficie: #f1ede5;
+  --color-texto: #22201c;
+  --color-texto-suave: #5f5a52;
+  --color-borde: #ddd6ca;
+  --color-acento: #7a3b1e;
+  --color-acento-hover: #5a2a14;
+  --color-pendiente-fondo: #fff3c4;
+  --color-pendiente-texto: #5c4700;
+  --color-capa-icono: #ffffff;
+  --color-capa-contorno: #ffffff;
+  --color-capa-clima: #3b6ea5;
+  --color-capa-ecologia: #4f7d3a;
+  --color-capa-biodiversidad: #1f7f7a;
+  --color-capa-cultura: #a8456b;
+  --color-capa-antropologia: #8a5a2b;
+  --color-capa-arqueologia: #6b4f9e;
+  --color-capa-turismo: #b85a18;
+  --color-capa-emprendimientos-comunitarios: #8a6d0e;
+  --color-capa-gobiernos-municipales: #4a5560;
+
+  /* Modo oscuro */
+  --oscuro-color-fondo: #171614;
+  --oscuro-color-superficie: #211f1c;
+  --oscuro-color-texto: #e8e3da;
+  --oscuro-color-texto-suave: #a59e92;
+  --oscuro-color-borde: #3a3631;
+  --oscuro-color-acento: #e09a6c;
+  --oscuro-color-acento-hover: #f0b68f;
+  --oscuro-color-pendiente-fondo: #3d3310;
+  --oscuro-color-pendiente-texto: #f3dc8a;
+  --oscuro-color-capa-icono: #171614;
+  --oscuro-color-capa-contorno: #171614;
+  --oscuro-color-capa-clima: #7fa8d6;
+  --oscuro-color-capa-ecologia: #8fbc78;
+  --oscuro-color-capa-biodiversidad: #5cc2bb;
+  --oscuro-color-capa-cultura: #d983a4;
+  --oscuro-color-capa-antropologia: #c99a6b;
+  --oscuro-color-capa-arqueologia: #a58fd4;
+  --oscuro-color-capa-turismo: #eb9a5e;
+  --oscuro-color-capa-emprendimientos-comunitarios: #d4b24e;
+  --oscuro-color-capa-gobiernos-municipales: #9aa7b3;
+}

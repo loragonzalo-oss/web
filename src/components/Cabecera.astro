@@ -1,0 +1,125 @@
+---
+import { MENU, SITIO } from '../lib/sitio';
+import { url } from '../lib/rutas';
+
+const actual = Astro.url.pathname;
+const items = MENU.map((item) => {
+  const destino = url(item.href);
+  return { ...item, destino, activo: actual.startsWith(destino) };
+});
+const buscar = { destino: url('/buscar/'), activo: actual.startsWith(url('/buscar/')) };
+---
+<header class="cabecera">
+  <div class="contenedor cabecera-fila">
+    <a class="marca" href={url('/')}>
+      <span class="marca-nombre">{SITIO.nombre}</span>
+      <span class="marca-apodo">«{SITIO.apodo}»</span>
+    </a>
+    <nav aria-label="Principal">
+      <!-- Pantallas anchas: el menú entero en un renglón. -->
+      <ul class="menu-ancho">
+        {items.map((i) => <li><a href={i.destino} aria-current={i.activo ? 'page' : undefined}>{i.texto}</a></li>)}
+        <li>
+          <a class="buscar" href={buscar.destino} aria-current={buscar.activo ? 'page' : undefined}>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 21 21" /></svg>
+            Buscar
+          </a>
+        </li>
+      </ul>
+      <!-- Celular: un botón «Menú» que despliega la lista. Sin JavaScript; se abre con Enter o espacio. -->
+      <details class="menu-compacto">
+        <summary>
+          <span class="menu-icono" aria-hidden="true"></span>
+          Menú
+        </summary>
+        <ul>
+          {items.map((i) => <li><a href={i.destino} aria-current={i.activo ? 'page' : undefined}>{i.texto}</a></li>)}
+          <li><a href={buscar.destino} aria-current={buscar.activo ? 'page' : undefined}>Buscar</a></li>
+        </ul>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .cabecera {
+    position: relative;
+    border-bottom: 1px solid var(--color-borde);
+    font-family: var(--fuente-interfaz);
+    margin-bottom: 3rem;
+  }
+  .cabecera-fila {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
+  }
+  .marca { text-decoration: none; color: var(--color-texto); display: flex; flex-wrap: wrap; gap: 0 0.5rem; align-items: baseline; }
+  .marca-nombre { font-family: var(--fuente-texto); font-weight: 600; font-size: 1.2rem; }
+  .marca-apodo { color: var(--color-texto-suave); font-size: 0.95rem; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  nav a { text-decoration: none; color: var(--color-texto-suave); font-size: 0.98rem; padding: 0.35rem 0; display: inline-block; }
+  nav a:hover, nav a[aria-current='page'] { color: var(--color-acento); }
+  nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: 0.4em; }
+
+  .menu-ancho { display: flex; flex-wrap: wrap; gap: 0.25rem 1.1rem; }
+
+  /* Menú compacto: hasta 52rem de ancho (tabletas en vertical y celulares). */
+  .menu-compacto { display: none; }
+  @media (max-width: 52rem) {
+    .cabecera-fila { align-items: center; }
+    .menu-ancho { display: none; }
+    .menu-compacto { display: block; }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.8rem;
+      min-height: 44px;            /* área táctil cómoda */
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      color: var(--color-texto);
+      font-size: 0.98rem;
+      white-space: nowrap;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary:focus-visible { outline: 2px solid var(--color-acento); outline-offset: 2px; }
+    .menu-icono, .menu-icono::before, .menu-icono::after {
+      display: block;
+      width: 1rem;
+      height: 2px;
+      background: currentColor;
+      border-radius: 1px;
+    }
+    .menu-icono { position: relative; }
+    .menu-icono::before, .menu-icono::after { content: ''; position: absolute; left: 0; }
+    .menu-icono::before { top: -5px; }
+    .menu-icono::after { top: 5px; }
+    .menu-compacto[open] .menu-icono { background: transparent; }
+    .menu-compacto[open] .menu-icono::before { top: 0; transform: rotate(45deg); }
+    .menu-compacto[open] .menu-icono::after { top: 0; transform: rotate(-45deg); }
+
+    /* La lista se despliega a lo ancho, debajo de la cabecera, sobre el contenido. */
+    .menu-compacto ul {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      z-index: 20;
+      background: var(--color-fondo);
+      border-bottom: 1px solid var(--color-borde);
+      box-shadow: 0 8px 16px -12px rgb(0 0 0 / 0.35);
+      padding: 0.4rem var(--margen-lateral) 0.8rem;
+    }
+    .menu-compacto li { border-top: 1px solid var(--color-borde); }
+    .menu-compacto li:first-child { border-top: 0; }
+    .menu-compacto a { display: block; padding: 0.75rem 0; font-size: 1.05rem; }
+  }
+
+  .buscar { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .buscar svg { flex: none; position: relative; top: 0.05em; }
+</style>
