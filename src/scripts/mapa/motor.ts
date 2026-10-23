@@ -1,5 +1,6 @@
 // Motor del mapa de /mapa, con MapLibre GL JS (BSD-3). Lo carga pagina.ts sólo si el navegador
-// tiene WebGL y el lector no pidió menos movimiento; ninguna otra página lo carga.
+// tiene WebGL y la conexión no pide ahorrar datos; ninguna otra página lo carga. Si el lector
+// pidió menos movimiento, el mapa se mueve sin animaciones (y nunca se inclina: no hay 3D).
 //
 // - Fondos: los define src/lib/mapa-fondos.ts; el lector elige uno con el control «Fondo».
 // - Lugares: marcadores HTML (botones, para el teclado y los lectores de pantalla), agrupados
@@ -42,6 +43,8 @@ const estilosListos = new Promise<void>((listo) => {
   estilos.addEventListener('error', () => listo());
 });
 document.head.prepend(estilos);
+
+const menosMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
 
 const ZOOM_GRUPOS = 11;    // desde este zoom, ningún grupo: cada lugar con su marcador
 const ZOOM_FICHA = 12;     // zoom al abrir la ficha de un punto
@@ -155,6 +158,7 @@ export async function iniciar({ datos, visibles, alFiltrar, idDesdeHash }: Opcio
     maxZoom: 17,
     dragRotate: false,
     pitchWithRotate: false,
+    maxPitch: 0,
     touchPitch: false,
     cooperativeGestures: true,
     attributionControl: false,
@@ -242,7 +246,7 @@ export async function iniciar({ datos, visibles, alFiltrar, idDesdeHash }: Opcio
     boton.addEventListener('click', async (ev) => {
       ev.stopPropagation();
       const zoom = await (mapa.getSource('lugares') as GeoJSONSource).getClusterExpansionZoom(id);
-      mapa.easeTo({ center: donde, zoom: Math.min(zoom, ZOOM_GRUPOS + 1) });
+      mapa.easeTo({ center: donde, zoom: Math.min(zoom, ZOOM_GRUPOS + 1), animate: !menosMovimiento.matches });
     });
     return new Marker({ element: boton, anchor: 'center' }).setLngLat(donde);
   }
@@ -303,7 +307,7 @@ export async function iniciar({ datos, visibles, alFiltrar, idDesdeHash }: Opcio
       // (no `padding`, que queda fijo en la cámara y le cambia las teselas que carga).
       const r = panel.relleno();
       const desplazar: [number, number] = [-r.right / 2, -r.bottom / 2];
-      const animar = origen !== 'enlace';
+      const animar = origen !== 'enlace' && !menosMovimiento.matches;
       let destino: { center: [number, number]; zoom: number };
       if (l.caja) {
         const [x0, y0, x1, y1] = l.caja;
@@ -352,7 +356,7 @@ export async function iniciar({ datos, visibles, alFiltrar, idDesdeHash }: Opcio
     if (!boton) continue;
     boton.hidden = false;
     boton.addEventListener('click', () => {
-      contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      contenedor.scrollIntoView({ behavior: menosMovimiento.matches ? 'auto' : 'smooth', block: 'start' });
       panel.abrir(item.dataset.lugar!, { origen: 'listado' });
     });
   }

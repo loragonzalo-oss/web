@@ -4,7 +4,8 @@ tipo: lugar
 titulo: ""
 capa: 
 # sensible: true para lugares sagrados y los que el autor indique.
-# La capa arqueologia es siempre sensible. Este campo no sale de la bóveda.
+# La capa arqueologia es siempre sensible. Un lugar sensible va sólo como punto
+# aproximado u oculto (sin geometria). Pasa al repositorio sólo si es true.
 sensible: false
 # precision: exacta | aproximada | oculta
 # Lugar sensible: aproximada = lat y lon con dos decimales como máximo;

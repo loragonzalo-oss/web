@@ -22,7 +22,7 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 3. **Titikaka con k** en la voz del autor. *Titicaca* sólo en citas o nombres oficiales que lo escriban así.
 4. **Obra** de Jimena Tatiana Gonzales García (T'ika Pacha) y José Mario Illescas Pompilia (Hatun Illapa): no se publica ningún texto suyo ni se resume su contenido sin orden expresa del autor. Se los nombra siempre con nombre completo y nombre de portada.
 5. No publicar teléfonos ni dirección. El contacto se resuelve con un correo o un formulario que el autor decida.
-6. Lugares sensibles del mapa (sitios arqueológicos, lugares sagrados y los que el autor indique): las coordenadas exactas nunca entran al repositorio. Con precision: aproximada, el archivo sólo lleva coordenadas redondeadas a dos decimales; con precision: oculta, el archivo no lleva lat ni lon. La ubicación exacta queda en la bóveda privada del autor.
+6. Lugares sensibles del mapa (sitios arqueológicos, lugares sagrados y los que el autor indique): las coordenadas exactas nunca entran al repositorio. Con precision: aproximada, el archivo sólo lleva coordenadas redondeadas a dos decimales; con precision: oculta, el archivo no lleva lat ni lon. Un lugar sensible no lleva línea ni polígono (campo `geometria`): sólo un punto aproximado u oculto; la capa Arqueología es siempre sensible y los demás se marcan con `sensible: true`. La ubicación exacta queda en la bóveda privada del autor.
 
 ## Convenciones de escritura
 
@@ -60,3 +60,4 @@ El sitio tiene dos capas. La base editorial queda liviana y estática. Las pieza
 - 22-10-2026: integración de las ramas. Revisión antes de unir con la construcción de prueba (`npm run build:prueba`, con borradores) y las pruebas ampliadas.
 - 22-10-2026: piezas inmersivas. Decisión del autor: se permite JavaScript pesado (WebGL, Three.js, GSAP) en páginas puntuales que él apruebe, con versión liviana, texto en HTML, fuentes citadas y sonido apagado al inicio. La base editorial sigue sin JavaScript salvo que haga falta.
 - 22-10-2026: rediseño en dos capas. Una dirección es un tema más su composición (src/styles/composiciones/). Los prototipos de piezas inmersivas viven en /prototipos/ y siguen la regla de los borradores: dev y build:prueba, nunca el build publicado.
+- 22-10-2026: regla 6 en líneas y polígonos. Decisión del autor: un lugar sensible (capa Arqueología o `sensible: true`) no lleva línea ni polígono, sólo un punto con precision: aproximada (dos decimales) u oculta. El esquema de `lugares` lo hace cumplir al construir el sitio, y el campo `sensible` pasa al esquema (el puente con Obsidian lo exporta cuando es true).

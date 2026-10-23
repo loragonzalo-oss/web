@@ -362,3 +362,23 @@ test('geometría: frena lo mismo que el sitio (recorte, GeoJSON, lat/lon a la ve
   assert.ok(!existsSync(path.join(repo, 'src/content/lugares/geometrias')));
   await rm(base, { recursive: true });
 });
+
+test('regla 6: un lugar sensible no lleva línea ni polígono, y «sensible: true» viaja al repositorio', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  const forma = linea([[-69.4, -15.8], [-69.3, -15.85]]);
+  await notaGeometria(boveda, 'Sagrado con linea', { sensible: 'true', precision: 'aproximada' }, forma);
+  await notaGeometria(boveda, 'Arqueologia con linea', { capa: 'arqueologia', precision: 'aproximada' }, forma);
+  await writeFile(
+    path.join(boveda, '300 Lugares/Sagrado punto.md'),
+    '---\npublicar: true\ntipo: lugar\ntitulo: "Sagrado punto"\ncapa: cultura\nsensible: true\nlat: -15.8\nlon: -69.4\nprecision: aproximada\nresumen: "Relleno."\nmarcador: "[DATO PROPIO]"\ndraft: true\n---\n\nTexto de relleno.\n',
+  );
+  const r = await exportar({ boveda, repo });
+  const motivos = (nota) => frenada(r, `300 Lugares/${nota}.md`)?.motivos.join('\n') ?? '';
+  assert.match(motivos('Sagrado con linea'), /lugar sensible \(marcado con «sensible: true»\) y no puede llevar línea ni polígono/);
+  assert.match(motivos('Arqueologia con linea'), /lugar sensible \(capa Arqueología\) y no puede llevar línea ni polígono/);
+  // Un punto sensible aproximado sale con su marca, para que el sitio también lo controle;
+  // un lugar no sensible, sin ella.
+  assert.match(await leer('src/content/lugares/sagrado-punto.md'), /\nprecision: aproximada\nsensible: true\n/);
+  assert.doesNotMatch(await leer('src/content/lugares/lugar-exacto-de-prueba.md'), /\nsensible:/);
+  await rm(base, { recursive: true });
+});

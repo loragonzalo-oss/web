@@ -5,7 +5,8 @@
 // - Cierra con el botón × y con Escape. El foco va a la ficha al abrir y vuelve al punto (o al
 //   botón que la abrió) al cerrar.
 // - Dirección: abrir una ficha agrega #lugar-<id> al historial; «atrás» la cierra.
-// - «Copiar enlace» copia esa dirección. En celular, si el navegador sabe compartir, comparte.
+// - «Copiar enlace» copia la página propia del lugar (/mapa/<id>/), que lleva su tarjeta para
+//   compartir. En celular, si el navegador sabe compartir, comparte. (Decisión del autor, 22-10-2026.)
 // La ficha no viaja como datos: se copia del listado (FichaLugar.astro).
 
 type Origen = 'mapa' | 'listado' | 'enlace';
@@ -35,7 +36,6 @@ export function crearPanel({ items, alAbrir, alCerrar }: Opciones) {
   let abierta: string | null = null;
   let focoPrevio: HTMLElement | null = null;
 
-  const enlaceDe = (id: string) => `${location.origin}${location.pathname}#lugar-${encodeURIComponent(id)}`;
 
   // --- Altura de la hoja en celular -------------------------------------------------------------
 
@@ -141,7 +141,7 @@ export function crearPanel({ items, alAbrir, alCerrar }: Opciones) {
 
   copiar.addEventListener('click', async () => {
     if (!abierta) return;
-    const url = enlaceDe(abierta);
+    const url = paginaLugar.href;
     if (compartir) {
       try {
         await navigator.share({ title: document.getElementById('ficha-panel-titulo')?.textContent ?? '', url });

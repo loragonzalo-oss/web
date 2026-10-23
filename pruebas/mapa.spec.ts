@@ -1,6 +1,6 @@
 // Mapa (/mapa) con MapLibre: grupos de puntos, enlace propio de cada ficha, «atrás», foco,
-// búsqueda, filtros en la dirección, leyenda, panel en celular y versión liviana (sin WebGL o
-// con menos movimiento). Corre sobre la construcción de prueba (npm run build:prueba), que
+// búsqueda, filtros en la dirección, leyenda, panel en celular, menos movimiento y versión
+// liviana (sin WebGL o con ahorro de datos). Corre sobre la construcción de prueba (npm run build:prueba), que
 // incluye las fichas de ejemplo: once lugares, uno de ellos oculto, una línea y un polígono.
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -122,7 +122,7 @@ test('Escape cierra la ficha y el foco vuelve al punto', async ({ page }) => {
   await expect(pin).toBeFocused();
 });
 
-test('«Copiar enlace» copia la dirección de la ficha', async ({ page, context, browserName }) => {
+test('«Copiar enlace» copia la página propia del lugar', async ({ page, context, browserName }) => {
   test.skip(browserName !== 'chromium');
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await abrirMapa(page);
@@ -132,8 +132,7 @@ test('«Copiar enlace» copia la dirección de la ficha', async ({ page, context
   await boton.click();
   await expect(panel(page).locator('[data-copiado]')).toHaveText('Enlace copiado.');
   const copiado = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copiado).toMatch(/\/mapa\/#lugar-ejemplo-linea$/);
-  // La ficha lleva también a la página propia del lugar.
+  expect(copiado).toMatch(/^https?:\/\/[^#]+\/mapa\/ejemplo-linea\/$/);
   await expect(panel(page).locator('[data-pagina-lugar]')).toHaveAttribute('href', /\/mapa\/ejemplo-linea\/$/);
 });
 
@@ -255,14 +254,15 @@ test('sin WebGL: listado completo, aviso, filtros y enlace propio, sin descargar
   expect(errores).toEqual([]);
 });
 
-test('con menos movimiento: aviso y botón para cargar el mapa igual', async ({ page }) => {
+test('con menos movimiento: el mapa se carga igual y se mueve sin animaciones', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await abrir(page, 'mapa/');
-  await expect(page.locator('[data-aviso]')).toContainText('Pediste menos movimiento');
-  await expect(page.locator('[data-mapa-zona]')).toBeHidden();
-  await page.getByRole('button', { name: 'Cargar el mapa igual, sin animaciones' }).click();
-  await expect(mapa(page)).toHaveAttribute('data-cargado', '');
+  await abrirMapa(page);
   await expect(page.locator('[data-aviso]')).toBeHidden();
+  // Un grupo acerca el mapa de un salto: sin animación, el zoom cambia casi enseguida
+  // (una animación de MapLibre dura medio segundo).
+  const zoom = await mapa(page).getAttribute('data-zoom');
+  await page.locator('#mapa .grupo').first().click();
+  await expect(mapa(page)).not.toHaveAttribute('data-zoom', zoom!, { timeout: 300 });
 });
 
 test('sin JavaScript, /mapa muestra el listado sin controles que no funcionarían', async ({ browser }) => {

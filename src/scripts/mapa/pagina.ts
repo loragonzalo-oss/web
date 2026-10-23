@@ -2,8 +2,8 @@
 // leyenda. Corre siempre, haya mapa o no, y filtra el listado.
 //
 // El motor del mapa (motor.ts, con MapLibre, unos 430 KB comprimidos) se carga aparte, sólo si
-// el navegador tiene WebGL, el lector no pidió menos movimiento y la conexión no pide ahorrar
-// datos. Si no, la página queda en su versión liviana: el listado completo, con los mismos
+// el navegador tiene WebGL y la conexión no pide ahorrar datos. Con menos movimiento se carga
+// igual, sin animaciones (decisión del autor, 22-10-2026). Si no, la página queda en su versión liviana: el listado completo, con los mismos
 // filtros, y un aviso (CLAUDE.md, «Piezas inmersivas»).
 //
 // Dirección: ?capa=clima,cultura&pais=bolivia,sin-pais&q=texto#lugar-<id>
@@ -122,13 +122,12 @@ function tieneWebGL() {
 }
 
 // Versión liviana: sin mapa. Un enlace #lugar-<id> abre esa ficha en el listado.
-function versionLiviana(texto: string, { ofrecerMapa = false, boton: textoBoton = 'Cargar el mapa igual' } = {}) {
+function versionLiviana(texto: string, { ofrecerMapa = false } = {}) {
   zona.hidden = true;
   pie.hidden = true;
   aviso.querySelector('[data-aviso-texto]')!.textContent = texto;
   const boton = aviso.querySelector<HTMLButtonElement>('[data-cargar-igual]')!;
   boton.hidden = !ofrecerMapa;
-  boton.textContent = textoBoton;
   boton.onclick = () => { aviso.hidden = true; cargarMapa(); };
   aviso.hidden = false;
   abrirEnListado();
@@ -171,8 +170,6 @@ const ahorrarDatos = !!conexion?.saveData || /(^|-)2g$/.test(conexion?.effective
 
 if (!tieneWebGL()) {
   versionLiviana('Este navegador no puede dibujar el mapa interactivo (le falta WebGL). Abajo están todos los lugares, con los mismos filtros.');
-} else if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  versionLiviana('Pediste menos movimiento: el mapa interactivo no se carga. Abajo están todos los lugares, con los mismos filtros.', { ofrecerMapa: true, boton: 'Cargar el mapa igual, sin animaciones' });
 } else if (ahorrarDatos) {
   versionLiviana('Tu conexión pide ahorrar datos: el mapa interactivo (unos 430 KB) no se descarga solo. Abajo están todos los lugares, con los mismos filtros.', { ofrecerMapa: true });
 } else {

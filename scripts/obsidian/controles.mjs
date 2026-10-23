@@ -194,6 +194,9 @@ function validarLugar(fm, errores) {
       `Regla 6: es un lugar sensible (${sensible}) y tiene «precision: exacta». Usá «aproximada» (lat y lon con dos decimales como máximo) u «oculta» (sin lat ni lon). La ubicación exacta queda en la bóveda.`,
     );
   }
+  if (sensible && geometria !== undefined) {
+    errores.push(`Regla 6: es un lugar sensible (${sensible}) y no puede llevar línea ni polígono. Va como punto con «precision: aproximada» (lat y lon con dos decimales) o con «precision: oculta». El trazado queda en la bóveda.`);
+  }
   if (precision === 'oculta' && (lat !== undefined || lon !== undefined)) {
     errores.push('Regla 6: con «precision: oculta» la nota no puede llevar lat ni lon. Borralos; la ubicación exacta queda en la bóveda.');
   }
@@ -258,6 +261,9 @@ function validarLugar(fm, errores) {
     lon,
     geometria,
     precision,
+    // Sale de la bóveda sólo si es true: así el sitio, al construirse, también frena lo que la
+    // regla 6 no permite en un lugar sensible (decisión del autor, 22-10-2026).
+    sensible: fm.sensible === true ? true : undefined,
     pais,
     resumen: l.texto('resumen', true),
     imagen,

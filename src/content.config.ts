@@ -118,6 +118,9 @@ const lugares = defineCollection({
         // Línea o polígono: archivo GeoJSON en src/content/lugares/geometrias/. Va en lugar de lat y lon.
         geometria: z.preprocess(vacio, z.string().trim().min(1).optional()),
         precision: z.preprocess(vacio, z.enum(['exacta', 'aproximada', 'oculta']).default('exacta')),
+        // Lugar sensible (lugares sagrados y los que el autor indique). La capa Arqueología es
+        // siempre sensible, lo diga o no. Regla 6: sólo punto aproximado u oculto.
+        sensible: z.preprocess(vacio, z.boolean().default(false)),
         // bolivia, peru o binacional («Perú» también vale). Sin `pais`: «sin país asignado» en el filtro.
         pais: z.preprocess((v) => (typeof v === 'string' && v.trim() ? slugificar(v) : vacio(v)), z.enum(IDS_PAISES).optional()),
         resumen: z.string(),
@@ -149,6 +152,16 @@ const lugares = defineCollection({
       })
       .superRefine((d, ctx) => {
         const sinCoordenadas = d.lat === undefined || d.lon === undefined;
+        // Regla 6 (decisión del autor, 22-10-2026): un lugar sensible no lleva línea ni polígono,
+        // sólo un punto aproximado (dos decimales) u oculto. Mismo criterio que esSensible() en
+        // scripts/obsidian/controles.mjs.
+        const sensible = d.sensible ? 'marcado con «sensible: true»' : d.capa === 'arqueologia' ? 'capa Arqueología' : null;
+        if (sensible && d.geometria !== undefined) {
+          ctx.addIssue({ code: 'custom', path: ['geometria'], message: `Regla 6: es un lugar sensible (${sensible}) y no puede llevar línea ni polígono. Va como punto con «precision: aproximada» (lat y lon con dos decimales) o con «precision: oculta». El trazado queda en la bóveda privada.` });
+        }
+        if (sensible && d.precision === 'exacta') {
+          ctx.addIssue({ code: 'custom', path: ['precision'], message: `Regla 6: es un lugar sensible (${sensible}) y tiene «precision: exacta» (o no la dice, y vale exacta). Usá «aproximada» (lat y lon con dos decimales) u «oculta» (sin lat ni lon).` });
+        }
         if (d.geometria !== undefined) {
           // Un lugar es un punto (lat y lon) o una línea o un polígono (geometria), nunca las dos
           // cosas: el mapa no sabría dónde ponerlo ni adónde llevar la vista.

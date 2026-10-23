@@ -81,9 +81,9 @@ draft: false
 Diferencias con el archivo que se sube a mano:
 
 - Las imágenes se escriben como wikilink: `imagen: "[[foto.jpg]]"` en el blog; en un lugar, `imagen:` lleva `archivo: "[[foto-del-lugar.jpg]]"`, `credito` y `descripcion`.
-- En un lugar, `relacionados` acepta wikilinks (`- "[[Una entrada del blog]]"`), y se suma un tercer campo que no sale de la bóveda: `sensible` (ver «Lugares sensibles»).
+- En un lugar, `relacionados` acepta wikilinks (`- "[[Una entrada del blog]]"`), y se suma `sensible` (ver «Lugares sensibles»), que pasa al repositorio sólo cuando es `true`.
 - En un lugar con línea o polígono, `geometria` nombra el archivo `.geojson` de la bóveda como wikilink: `geometria: "[[nombre-del-rio.geojson]]"`. El script lo revisa con los mismos controles que el sitio (ver «Línea o polígono») y lo copia a `src/content/lugares/geometrias/`, con el nombre de la nota.
-- Las propiedades que no son del sitio (`tags`, `aliases`, `publicar`, `tipo`, `sensible` o cualquier otra que agregues) **se quedan en la bóveda**: al repositorio sólo pasan los campos del sitio.
+- Las propiedades que no son del sitio (`tags`, `aliases`, `publicar`, `tipo` o cualquier otra que agregues) **se quedan en la bóveda**: al repositorio sólo pasan los campos del sitio.
 
 En `plantillas/` hay una plantilla por tipo con estos campos (ver «Plantillas»).
 
@@ -464,8 +464,8 @@ El error dice qué archivo y qué corregir. El script de Obsidian frena lo mismo
 
 Cada lugar tiene dos direcciones:
 
-- **Su página**: `…/mapa/<nombre-del-archivo>/`, por ejemplo `…/mapa/isla-de-ejemplo/`. Es la ficha completa, legible sin el mapa, con su tarjeta para compartir en Facebook y X (la foto de la ficha o, si no tiene, una tarjeta con el título). **Es la mejor dirección para compartir en redes.** Nunca lleva coordenadas.
-- **El mapa abierto en esa ficha**: `…/mapa/#lugar-<nombre-del-archivo>`, por ejemplo `…/mapa/#lugar-isla-de-ejemplo`. Abre el mapa con la ficha y centra la vista en el lugar (en una ficha `oculta`, abre la ficha sin mover el mapa). Es lo que copia el botón «Copiar enlace» de la ficha; en un celular que sabe compartir, el botón dice «Compartir enlace» y abre el menú de compartir. Como es una dirección del mapa, al compartirla en redes aparece la tarjeta del mapa, no la del lugar.
+- **Su página**: `…/mapa/<nombre-del-archivo>/`, por ejemplo `…/mapa/isla-de-ejemplo/`. Es la ficha completa, legible sin el mapa, con su tarjeta para compartir en Facebook y X (la foto de la ficha o, si no tiene, una tarjeta con el título). **Es la mejor dirección para compartir en redes.** Nunca lleva coordenadas. Es la que copia el botón «Copiar enlace» de la ficha en el mapa; en un celular que sabe compartir, el botón dice «Compartir enlace» y abre el menú de compartir.
+- **El mapa abierto en esa ficha**: `…/mapa/#lugar-<nombre-del-archivo>`, por ejemplo `…/mapa/#lugar-isla-de-ejemplo`. Abre el mapa con la ficha y centra la vista en el lugar (en una ficha `oculta`, abre la ficha sin mover el mapa). Es el enlace «Ver en el mapa» de la página del lugar. Al compartirla en redes aparece la tarjeta del mapa, no la del lugar.
 
 El botón «atrás» del navegador cierra la ficha abierta. Los filtros también quedan en la dirección: `…/mapa/?capa=clima,cultura&pais=bolivia&q=totora` abre el mapa con esas capas, ese país y esa búsqueda, y se puede compartir así.
 
@@ -528,6 +528,8 @@ Regla del sitio (CLAUDE.md, regla 6): las coordenadas exactas de un lugar sensib
 
 Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
 
+**Lugares sensibles: sólo punto aproximado u oculto** (decisión del autor, 22-10-2026). Un lugar es sensible si está en la capa `arqueologia` o si lleva `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible no puede tener `precision: exacta` ni llevar línea o polígono (`geometria`): va como punto con `precision: aproximada` o con `precision: oculta`. El sitio no se construye si no se cumple, y el script de Obsidian lo frena antes.
+
 **Lo que controla además el script de Obsidian.** Para el script, un lugar es sensible si está en la capa `arqueologia` o si su nota tiene `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible:
 
 - no puede tener `precision: exacta` (ni dejar `precision` vacío, que vale exacta);
@@ -537,7 +539,7 @@ Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
 
 La ubicación exacta guardala en una nota aparte, sin `publicar`. Que esa nota privada enlace a la pública, y no al revés: un enlace a una nota que no se publica queda como texto con su nombre.
 
-Si subís un lugar a mano, `sensible` no se controla: sólo cuenta `precision`. Antes de subir un lugar sensible, revisá vos que lleve `aproximada` u `oculta`.
+Si subís un lugar a mano, marcalo con `sensible: true` si es un lugar sagrado o uno que vos indiques (la capa `arqueologia` no lo necesita: es siempre sensible). Con eso el sitio, al construirse, frena lo mismo que el script.
 
 ## Imágenes para compartir
 
