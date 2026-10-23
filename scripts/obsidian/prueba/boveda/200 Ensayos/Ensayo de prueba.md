@@ -6,6 +6,7 @@ fecha: 2026-09-15
 resumen: "Relleno para probar la exportación de ensayos."
 publicacion: ""
 enlace: ""
+slug: ensayo-de-prueba
 ---
 
 Lorem ipsum. Vuelve a la [[Entrada de prueba]].

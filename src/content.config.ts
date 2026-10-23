@@ -4,6 +4,7 @@ import { z } from 'astro/zod';
 import { slugificar } from './lib/slug';
 import { IDS_CAPAS, RECORTE } from './lib/capas';
 import { normalizarDoi, normalizarPaginas } from './lib/revista';
+import { normalizarTipoLugar, TIPOS_LUGAR, chocaConEnsayos } from './lib/referencia';
 import { anclasOrdenadas, calcularZ, MARCADORES_DE_TRABAJO, textosDe, TOLERANCIA_Z } from './lib/tablero';
 
 // La dirección de cada texto sale del nombre del archivo (sin carpetas), o de `slug`
@@ -63,21 +64,72 @@ const revista = {
   }),
 };
 
-// Frontmatter de los ensayos. `publicacion` es el lugar donde salió (revista, libro, medio);
-// `volumen`, `numero`, `paginas` y `doi`, los datos de la revista, si los hay.
+// Frontmatter de los ensayos. `publicacion` es la publicación formal, la que se cita (revista,
+// libro, medio); `volumen`, `numero`, `paginas` y `doi`, los datos de la revista, si los hay.
+// `publicado_en` anota otros lugares donde salió (un post en LinkedIn, por ejemplo); nunca son
+// destino de la cita. Ver COMO-PUBLICAR.md, «Publicar un ensayo como referencia».
 const ensayos = defineCollection({
   loader: glob({ base: './src/content/ensayos', pattern: '**/*.md', generateId: generarId }),
-  schema: z.object({
-    titulo: z.string(),
-    fecha: z.coerce.date(),
-    resumen: z.string(),
-    publicacion: z.string().optional(),  // vacío = sin lugar de publicación
-    enlace: z.union([z.url(), z.literal('')]).optional(),
-    ...revista,
-    slug: z.string().optional(),
-    draft: z.boolean().default(false),
-    ...serie,
-  }),
+  schema: ({ image }) =>
+    z
+      .object({
+        titulo: z.string(),
+        fecha: z.coerce.date(),
+        resumen: z.string(),
+        publicacion: z.string().optional(),  // vacío = sin publicación formal
+        enlace: z.union([z.url(), z.literal('')]).optional(),
+        ...revista,
+        publicado_en: z.preprocess(
+          vacio,
+          z.array(z.object({
+            lugar: z.string().trim().min(1),
+            tipo: z.preprocess(
+              (v) => normalizarTipoLugar(v) ?? v,
+              z.enum(TIPOS_LUGAR, { error: `«tipo» es uno de estos: ${TIPOS_LUGAR.join(', ')}.` }),
+            ),
+            fecha: z.coerce.date(),
+            enlace: z.preprocess(vacio, z.url().optional()),
+          })).default([]),
+        ),
+        version_web: z.preprocess(vacio, z.enum(['completa', 'resumen']).default('completa')),
+        etiquetas: z.preprocess(vacio, z.array(z.string()).default([])),
+        imagen: z.preprocess(
+          vacio,
+          z.object({
+            archivo: image(),
+            credito: z.string().min(1),           // autor y licencia de la imagen
+            descripcion: z.string().optional(),   // texto alternativo
+          }).optional(),
+        ),
+        compartir: z.preprocess(vacio, z.string().trim().min(1).optional()),
+        slug: z.preprocess(vacio, z.string().trim().optional()),
+        direcciones_anteriores: z.preprocess(
+          vacio,
+          z.array(z.preprocess((v) => (typeof v === 'number' ? String(v) : v), z.string())).default([]),
+        ),
+        draft: z.boolean().default(false),
+        ...serie,
+      })
+      .superRefine((d, ctx) => {
+        // La dirección de un ensayo publicado no depende del nombre del archivo.
+        if (!d.draft && !d.slug) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['slug'],
+            message: 'Falta «slug». Un ensayo que se publica (draft: false) lleva «slug»: es su dirección fija, /ensayos/<slug>/, y no cambia si se renombra el archivo.',
+          });
+        }
+        if (d.slug && chocaConEnsayos(slugificar(d.slug))) {
+          ctx.addIssue({ code: 'custom', path: ['slug'], message: `La dirección /ensayos/${slugificar(d.slug)}/ ya la usa el sitio. Elegí otro «slug».` });
+        }
+        for (const anterior of d.direcciones_anteriores) {
+          if (!slugificar(anterior)) {
+            ctx.addIssue({ code: 'custom', path: ['direcciones_anteriores'], message: `«${anterior}» no sirve como dirección: usá letras o números.` });
+          } else if (d.slug && slugificar(anterior) === slugificar(d.slug)) {
+            ctx.addIssue({ code: 'custom', path: ['direcciones_anteriores'], message: `«${anterior}» es la dirección vigente: en «direcciones_anteriores» van sólo las que se usaron antes.` });
+          }
+        }
+      }),
 });
 
 // Admite coma decimal («-15,8») además de punto.

@@ -1,0 +1,40 @@
+---
+// «Publicado originalmente en»: la publicación formal (publicacion y datos de revista) y los
+// lugares de `publicado_en`, en orden de fecha y sin repetir (src/lib/referencia.ts).
+import type { CollectionEntry } from 'astro:content';
+import { lugaresPublicacion } from '../lib/referencia';
+import { detalleRevista, urlDoi } from '../lib/revista';
+import { fechaLarga, fechaISO } from '../lib/fechas';
+
+interface Props { datos: CollectionEntry<'ensayos'>['data']; clase?: string }
+const { datos, clase } = Astro.props;
+const lugares = lugaresPublicacion(datos);
+const detalle = detalleRevista(datos);
+const enCursiva = (tipo?: string) => tipo !== 'red social' && tipo !== 'otro';
+---
+{lugares.length > 0 && (
+  <div class:list={['publicado-en', 'meta', clase]}>
+    <p class="publicado-rotulo">Publicado originalmente en</p>
+    <ul>
+      {lugares.map((l) => {
+        const nombre = l.formal || enCursiva(l.tipo) ? <em>{l.lugar}</em> : l.lugar;
+        return (
+          <li>
+            {l.enlace ? <a href={l.enlace}>{nombre}</a> : nombre}
+            {l.formal && detalle && `, ${detalle}`}
+            {!l.formal && l.tipo && <span class="tipo"> ({l.tipo})</span>}
+            {' · '}<time datetime={fechaISO(l.fecha)}>{fechaLarga(l.fecha)}</time>
+            {l.formal && datos.doi && <> · DOI <a href={urlDoi(datos.doi)}>{datos.doi}</a></>}
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+)}
+
+<style>
+  .publicado-en { border-top: 1px solid var(--color-borde); border-bottom: 1px solid var(--color-borde); padding: 0.6rem 0; margin: 1.5rem 0 2rem; }
+  .publicado-rotulo { margin: 0 0 0.2rem; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { margin: 0.15rem 0; overflow-wrap: anywhere; }
+</style>

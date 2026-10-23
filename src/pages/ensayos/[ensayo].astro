@@ -1,32 +1,138 @@
 ---
 import type { GetStaticPaths } from 'astro';
-import { render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 import Lectura from '../../layouts/Lectura.astro';
-import { url } from '../../lib/rutas';
+import PublicadoEn from '../../components/PublicadoEn.astro';
+import Compartir from '../../components/Compartir.astro';
+import Relacionados from '../../components/Relacionados.astro';
+import Redireccion from '../../components/Redireccion.astro';
+import { url, slugEtiqueta } from '../../lib/rutas';
 import { ensayos } from '../../lib/contenido';
-import { detalleRevista, urlDoi } from '../../lib/revista';
+import { relacionados, rutaTexto } from '../../lib/lectura';
+import { urlDoi } from '../../lib/revista';
+import { slugificar } from '../../lib/slug';
+import { chocaConEnsayos, errorCuerpoResumen, lugaresPublicacion, textoCompartir } from '../../lib/referencia';
+import { compartirActivo } from '../../lib/compartir';
 
+// La dirección de un ensayo es /ensayos/<slug>/. Cada una de sus `direcciones_anteriores`
+// lleva a una página que manda a la vigente (canónica hacia la vigente y noindex).
 export const getStaticPaths = (async () => {
   const lista = await ensayos();
-  return lista.map((e) => ({ params: { ensayo: e.id }, props: { e } }));
+  const usadas = new Map<string, string>();
+  const reservar = (id: string, quien: string) => {
+    if (chocaConEnsayos(id)) throw new Error(`El ensayo «${quien}» choca con una dirección del sitio (/ensayos/${id}/). Fijá otro «slug».`);
+    const otro = usadas.get(id);
+    if (otro) throw new Error(`La dirección /ensayos/${id}/ la usan dos ensayos: «${otro}» y «${quien}». Revisá «slug» y «direcciones_anteriores».`);
+    usadas.set(id, quien);
+  };
+  for (const e of lista) reservar(e.id, e.id);
+  // Todos los ensayos, también los borradores que este build no publica: el texto completo de uno
+  // con `version_web: resumen` no entra al repositorio en ningún caso.
+  for (const e of await getCollection('ensayos')) {
+    const error = errorCuerpoResumen(e.data, e.body, e.id);
+    if (error) throw new Error(error);
+  }
+  const paginas = lista.map((e) => ({ params: { ensayo: e.id }, props: { e, redireccion: false as const } }));
+  for (const e of lista) {
+    for (const anterior of e.data.direcciones_anteriores.map(slugificar)) {
+      reservar(anterior, `${e.id} (dirección anterior)`);
+      paginas.push({ params: { ensayo: anterior }, props: { e, redireccion: true as const } });
+    }
+  }
+  return paginas;
 }) satisfies GetStaticPaths;
 
-const { e } = Astro.props;
+const { e, redireccion } = Astro.props;
+const d = e.data;
+const ruta = rutaTexto(e);
+const direccion = new URL(ruta, Astro.site).href;
+
+const soloResumen = d.version_web === 'resumen';
 const { Content, headings } = await render(e);
-const detalle = detalleRevista(e.data);
+const lugares = lugaresPublicacion(d);
+const cercanos = await relacionados(e);
+const compartir = textoCompartir({
+  titulo: d.titulo,
+  resumen: d.resumen,
+  direccion,
+  lugares: lugares.map((l) => l.lugar),
+  etiquetas: d.etiquetas,
+  compartir: d.compartir,
+});
+
+// Con `version_web: resumen`, el enlace al texto completo: DOI, publicación formal o el primer lugar con enlace.
+const original = (d.doi && urlDoi(d.doi)) || lugares.find((l) => l.enlace)?.enlace;
+
+// Imagen propia para compartir: recortada a 1200 × 630, el tamaño que piden LinkedIn, Facebook y X.
+const imagen = d.imagen
+  ? (await getImage({ src: d.imagen.archivo, width: 1200, height: 630, fit: 'cover', format: 'jpeg', quality: 82 })).src
+  : undefined;
+
+// PDF por ensayo: sólo si la construcción lo genera (ENSAYOS_PDF=1 y `npm run ensayos:pdf`).
+const conPdf = process.env.ENSAYOS_PDF === '1' && !soloResumen;
 ---
-<Lectura texto={e} encabezados={headings} rotulo="Ensayo">
-  {e.data.publicacion && (
-    <p slot="cabecera" class="meta publicacion">
-      Publicado en <em>{e.data.publicacion}</em>{detalle && `, ${detalle}`}
-      {e.data.doi && <> · DOI <a href={urlDoi(e.data.doi)}>{e.data.doi}</a></>}
-      {e.data.enlace && <> · <a href={e.data.enlace}>ver la publicación original</a></>}
-    </p>
-  )}
-  <Content />
-  <p slot="pie" class="interfaz"><a href={url('/ensayos/')}>← Volver a ensayos</a></p>
-</Lectura>
+{redireccion ? (
+  <Redireccion titulo={d.titulo} ruta={ruta} canonica={direccion} />
+) : (
+  <Lectura texto={e} encabezados={soloResumen ? [] : headings} rotulo="Ensayo" imagen={imagen} soloResumen={soloResumen}>
+    <PublicadoEn slot="cabecera" datos={d} clase="publicacion no-imprimir" />
+    {soloResumen ? (
+      <div class="version-resumen interfaz" data-version-web="resumen">
+        <p>Versión web: resumen. El texto completo está en la publicación original.</p>
+        {original && <p><a href={original}>Leer el texto completo</a></p>}
+      </div>
+    ) : (
+      <div data-ensayo-pdf={e.id}><Content /></div>
+    )}
+    <Fragment slot="referencia">
+      {!soloResumen && (
+        <div class="imprimir interfaz no-imprimir">
+          <button type="button" class="boton-imprimir" onclick="window.print()">Imprimir o guardar como PDF</button>
+          <noscript><style>.boton-imprimir { display: none; }</style></noscript>
+          <p class="meta">Para guardarlo como PDF: menú del navegador → Imprimir (Ctrl+P o ⌘P) → «Guardar como PDF».</p>
+          {conPdf && <p><a href={url(`/ensayos/${e.id}/${e.id}.pdf`)} download>Descargar el PDF</a></p>}
+        </div>
+      )}
+      {compartirActivo && <Compartir texto={compartir} titulo={d.titulo} direccion={direccion} />}
+    </Fragment>
+    <PublicadoEn slot="impresion" datos={d} />
+    <Fragment slot="pie">
+      {d.etiquetas.length > 0 && (
+        <p class="meta etiquetas">
+          {d.etiquetas.map((t) => <a href={url(`/ensayos/temas/${slugEtiqueta(t)}/`)}>#{t}</a>)}
+        </p>
+      )}
+      {d.imagen && <p class="meta credito">Imagen para compartir: {d.imagen.credito}</p>}
+      <Relacionados textos={cercanos} />
+      <p class="interfaz volver"><a href={url('/ensayos/')}>← Volver a ensayos</a></p>
+    </Fragment>
+  </Lectura>
+)}
 
 <style>
-  .publicacion { border-top: 1px solid var(--color-borde); border-bottom: 1px solid var(--color-borde); padding: 0.6rem 0; margin: 1.5rem 0 2rem; }
+  .version-resumen {
+    margin: 2rem 0;
+    padding: 1rem 1.2rem;
+    background: var(--color-superficie);
+    border-radius: var(--radio);
+    font-size: var(--tam-chico);
+  }
+  .version-resumen p { margin: 0; }
+  .version-resumen p + p { margin-top: 0.5rem; }
+  .imprimir { margin: 1.2rem 0 0; font-size: var(--tam-chico); }
+  .imprimir p { margin: 0.4rem 0 0; }
+  .boton-imprimir {
+    font: inherit;
+    color: var(--color-acento);
+    background: none;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio);
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+  }
+  .boton-imprimir:hover { border-color: var(--color-acento); }
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+  .credito { margin-top: 1rem; }
+  .volver { margin-top: 2rem; }
 </style>

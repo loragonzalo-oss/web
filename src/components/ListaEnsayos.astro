@@ -1,0 +1,47 @@
+---
+// Lista de ensayos: fecha, serie, título, resumen y dónde salió. La usan /ensayos y las páginas de tema.
+import type { CollectionEntry } from 'astro:content';
+import { url } from '../lib/rutas';
+import { fechaLarga, fechaISO } from '../lib/fechas';
+import { slugSerie } from '../lib/lectura';
+import { lugaresPublicacion } from '../lib/referencia';
+
+interface Props { ensayos: CollectionEntry<'ensayos'>[]; nivel?: 2 | 3 }
+const { ensayos, nivel = 2 } = Astro.props;
+const Titulo = `h${nivel}`;
+---
+<ul class="lista-ensayos">
+  {ensayos.map((e) => {
+    const lugares = lugaresPublicacion(e.data);
+    return (
+      <li>
+        <p class="meta">
+          <time datetime={fechaISO(e.data.fecha)}>{fechaLarga(e.data.fecha)}</time>
+          {e.data.serie && <> · serie <a href={url(`/series/${slugSerie(e.data.serie)}/`)}>{e.data.serie}</a></>}
+          {e.data.version_web === 'resumen' && <> · versión web: resumen</>}
+          {e.data.draft && <> · borrador</>}
+        </p>
+        <Titulo class="titulo-ensayo"><a href={url(`/ensayos/${e.id}/`)}>{e.data.titulo}</a></Titulo>
+        <p class="resumen">{e.data.resumen}</p>
+        {lugares.length > 0 && (
+          <p class="meta publicacion">
+            Publicado originalmente en {lugares.map((l, i) => (
+              <>{i > 0 && ', '}{l.tipo === 'red social' || l.tipo === 'otro' ? l.lugar : <em>{l.lugar}</em>}</>
+            ))}
+          </p>
+        )}
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .lista-ensayos { list-style: none; margin: 0; padding: 0; }
+  li { padding: 1.6rem 0; border-bottom: 1px solid var(--color-borde); }
+  li:first-child { padding-top: 0; }
+  .titulo-ensayo { margin: 0.2rem 0 0.5rem; font-size: var(--tam-h3); }
+  .titulo-ensayo a { color: var(--color-texto); text-decoration: none; }
+  .titulo-ensayo a:hover { color: var(--color-acento); }
+  .meta, .resumen { margin: 0; }
+  .publicacion { margin-top: 0.5rem; }
+</style>
