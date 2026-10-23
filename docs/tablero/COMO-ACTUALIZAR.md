@@ -73,9 +73,9 @@ Los nombres de las variables estructurantes (`variables`) salen en la figura, en
 ## La figura
 
 - Colores de pétalos y zonas: fijos, en `COLORES_ROSA` y `PARADAS` (`src/lib/tablero.ts`). No dependen del tema.
-- Contorno: pétalos, punto «en la referencia» y círculos llevan un contorno fino del color del texto del tema (`currentColor`), para que contrasten con cualquier fondo sin cambiar la paleta (decisión del autor, 22-10-2026).
+- Contorno: pétalos y punto «en la referencia» llevan un contorno fino del color del texto del tema (`currentColor`); los círculos y los arcos de VE, un filete de ese color a cada lado. Así contrastan con cualquier fondo sin cambiar la paleta (decisiones del autor, 22-10-2026).
 - Tipografía de la figura: `--fuente-tablero`, definida en un solo lugar (regla `.tablero` en `src/components/tablero/Rosa.astro`). Hoy hereda la del texto. Si se decide otra (por ejemplo Lato), hay que autoalojarla como las demás (paquete de Fontsource, licencia OFL) y poner su nombre en esa variable.
-- Contraste de los objetos gráficos contra los fondos de «noche» y «crema»: `docs/tablero/contraste-figura.md`.
+- Contraste de los objetos gráficos contra los fondos de todos los temas: `docs/tablero/contraste-figura.md`.
 
 ## Revisar antes de unir
 
