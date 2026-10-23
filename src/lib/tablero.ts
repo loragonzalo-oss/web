@@ -302,7 +302,12 @@ export function svgRosa(petalos: PetaloRosa[], o: OpcionesRosa): string {
     if (indices.length === 0) continue;
     const desde = indices[0] * paso + HUECO_GRADOS / 2;
     const hasta = (indices[indices.length - 1] + 1) * paso - HUECO_GRADOS / 2;
-    partes.push(`<path d="${arco(desde, hasta, R_ARCO)}" fill="none" stroke="${c.arcoVE}" stroke-width="3" stroke-linecap="round"/>`);
+    // Como los círculos: el trazo de color entre dos filetes del color del texto (WCAG 1.4.11).
+    const d = arco(desde, hasta, R_ARCO);
+    partes.push(
+      `<path d="${d}" fill="none" stroke="${contorno}" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>` +
+        `<path d="${d}" fill="none" stroke="${c.arcoVE}" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`,
+    );
     if (!conTextos) continue;
     const medio = (desde + hasta) / 2;
     const abajo = medio > 90 && medio < 270;
