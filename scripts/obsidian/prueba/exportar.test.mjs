@@ -341,10 +341,23 @@ test('version_web: resumen: se exporta sin cuerpo y se avisa; el texto queda en 
   await rm(base, { recursive: true });
 });
 
-test('controlarCuerpo: frena un ensayo de resumen publicado que trae cuerpo', () => {
+test('version_web: resumen en un borrador: también se exporta sin cuerpo', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  await writeFile(path.join(boveda, '200 Ensayos', 'Borrador de resumen.md'),
+    '---\npublicar: true\ntipo: ensayo\ntitulo: "Borrador de resumen"\nfecha: 2026-10-02\nresumen: "Relleno."\nversion_web: resumen\ndraft: true\n---\n\nTexto completo de relleno.\n');
+  const r = await exportar({ boveda, repo });
+  assert.equal(frenada(r, '200 Ensayos/Borrador de resumen.md'), undefined);
+  assert.doesNotMatch(await leer('src/content/ensayos/borrador-de-resumen.md'), /Texto completo de relleno/);
+  assert.ok(r.avisos.some((a) => a.nota === '200 Ensayos/Borrador de resumen.md' && /se exportó sin el cuerpo/.test(a.texto)));
+  await rm(base, { recursive: true });
+});
+
+test('controlarCuerpo: frena un ensayo de resumen con cuerpo, publicado o borrador', () => {
   const [error] = controlarCuerpo('ensayo', { version_web: 'resumen', draft: false }, 'Texto completo.', 'mi-ensayo');
   assert.match(error, /«mi-ensayo» tiene «version_web: resumen» y trae el texto completo/);
   assert.deepEqual(controlarCuerpo('ensayo', { version_web: 'resumen', draft: false }, '\n  \n', 'x'), []);
+  const [borrador] = controlarCuerpo('ensayo', { version_web: 'resumen', draft: true }, 'Texto completo.', 'mi-borrador');
+  assert.match(borrador, /«mi-borrador» tiene «version_web: resumen» y trae el texto completo/);
   assert.deepEqual(controlarCuerpo('ensayo', { version_web: 'completa', draft: false }, 'Texto.', 'x'), []);
   assert.deepEqual(controlarCuerpo('blog', { version_web: 'resumen', draft: false }, 'Texto.', 'x'), []);
 });

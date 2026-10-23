@@ -324,7 +324,8 @@ function validarLugar(fm, errores) {
 // Devuelve los datos del frontmatter que van al sitio, en el orden del esquema.
 // Lo que no está en el esquema (publicar, tipo, sensible, tags, aliases…) no sale de la bóveda.
 // Ensayo con `version_web: resumen`: el texto completo no entra al repositorio (decisión del autor,
-// 22-10-2026). exportar.mjs ya deja esas notas sin cuerpo; esto revisa lo que se va a escribir.
+// 22-10-2026), ni publicado ni como borrador. exportar.mjs ya deja esas notas sin cuerpo; esto revisa
+// lo que se va a escribir.
 // Mismo criterio y mismo mensaje que el build (src/lib/referencia.ts).
 export function controlarCuerpo(tipo, datos, cuerpo, nombre) {
   if (tipo !== 'ensayo') return [];

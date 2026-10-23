@@ -11,12 +11,13 @@ export const chocaConEnsayos = (id: string) => RESERVADAS_ENSAYOS.includes(id);
 
 // ── Versión web de resumen ───────────────────────────────────────────────────
 // Decisión del autor (22-10-2026): el texto completo de un ensayo con `version_web: resumen` no
-// entra al repositorio, que es público. Un ensayo así que se publica (draft: false) no lleva cuerpo.
-// Lo comprueban el build (src/pages/ensayos/[ensayo].astro) y el puente con Obsidian
-// (scripts/obsidian/controles.mjs), que además exporta esas notas sin cuerpo.
-export function errorCuerpoResumen(d: { version_web?: string; draft?: boolean }, cuerpo: string | undefined, nombre: string): string | undefined {
-  if (d.version_web !== 'resumen' || d.draft || !cuerpo?.trim()) return undefined;
-  return `El ensayo «${nombre}» tiene «version_web: resumen» y trae el texto completo. Con «resumen», el texto no entra al repositorio, que es público: dejá el cuerpo vacío (el texto queda en la bóveda) o cambiá a «version_web: completa».`;
+// entra al repositorio, que es público: ni publicado ni como borrador (decisión del autor, 22-10-2026,
+// 19:50). Un ensayo así no lleva cuerpo, tenga draft: true o false. Lo comprueban el build
+// (src/pages/ensayos/[ensayo].astro, sobre todos los ensayos, también los borradores) y el puente
+// con Obsidian (scripts/obsidian/controles.mjs), que además exporta esas notas sin cuerpo.
+export function errorCuerpoResumen(d: { version_web?: string }, cuerpo: string | undefined, nombre: string): string | undefined {
+  if (d.version_web !== 'resumen' || !cuerpo?.trim()) return undefined;
+  return `El ensayo «${nombre}» tiene «version_web: resumen» y trae el texto completo. Con «resumen», el texto no entra al repositorio, que es público, ni publicado ni como borrador: dejá el cuerpo vacío (el texto queda en la bóveda) o cambiá a «version_web: completa».`;
 }
 
 // ── Lugares de publicación ───────────────────────────────────────────────────

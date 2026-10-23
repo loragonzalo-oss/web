@@ -332,8 +332,8 @@ Cuando los derechos del texto los tiene la revista o la editorial. Con `version_
 
 **El texto completo no entra al repositorio**, que es público (decisión del autor, 22-10-2026):
 
-- `npm run desde-obsidian` exporta esas notas sin el cuerpo y lo avisa en la salida («se exportó sin el cuerpo»). El texto completo queda en tu bóveda, sin tocar.
-- Si subís el archivo a mano, dejá vacío todo lo que va debajo del encabezado. Un ensayo con `version_web: resumen` y `draft: false` que trae cuerpo frena el build, con un mensaje que lo dice.
+- `npm run desde-obsidian` exporta esas notas sin el cuerpo, también si son borradores, y lo avisa en la salida («se exportó sin el cuerpo»). El texto completo queda en tu bóveda, sin tocar.
+- Si subís el archivo a mano, dejá vacío todo lo que va debajo del encabezado. Un ensayo con `version_web: resumen` que trae cuerpo frena el build, con un mensaje que lo dice, sea publicado (`draft: false`) o borrador (`draft: true`): el repositorio es público también para los borradores.
 - Para pasar un ensayo de `resumen` a `completa` (por ejemplo, cuando la revista libera los derechos), cambiá el campo en la bóveda y volvé a exportar: ahí sí sale el texto.
 
 ### Temas

@@ -1,6 +1,6 @@
 ---
 import type { GetStaticPaths } from 'astro';
-import { render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import { getImage } from 'astro:assets';
 import Lectura from '../../layouts/Lectura.astro';
 import PublicadoEn from '../../components/PublicadoEn.astro';
@@ -27,7 +27,9 @@ export const getStaticPaths = (async () => {
     usadas.set(id, quien);
   };
   for (const e of lista) reservar(e.id, e.id);
-  for (const e of lista) {
+  // Todos los ensayos, también los borradores que este build no publica: el texto completo de uno
+  // con `version_web: resumen` no entra al repositorio en ningún caso.
+  for (const e of await getCollection('ensayos')) {
     const error = errorCuerpoResumen(e.data, e.body, e.id);
     if (error) throw new Error(error);
   }

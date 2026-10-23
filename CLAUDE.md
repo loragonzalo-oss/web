@@ -74,3 +74,4 @@ Instaladas en .claude/skills/: `frontend-design` y cuatro de Emil Kowalski (`ani
 - 22-10-2026: ensayos como referencia. Un ensayo que se publica lleva `slug` (dirección fija /ensayos/<slug>/); la cita nunca apunta a una red social; los textos que arma el sitio para compartir sólo combinan campos del frontmatter y rótulos neutros.
 - 22-10-2026: no se comparten enlaces de loragonzalo-oss.github.io/web (decisión del autor). El bloque «Compartir» de los ensayos queda apagado (COMPARTIR_ACTIVO en sitio.config.mjs) y se enciende al migrar al dominio propio.
 - 22-10-2026: ensayos con `version_web: resumen` (decisión del autor). Su texto completo no entra al repositorio, que es público: el puente con Obsidian los exporta sin cuerpo y el build frena si uno publicado trae cuerpo.
+- 22-10-2026: el build también frena los borradores con `version_web: resumen` que traen cuerpo (decisión del autor): el repositorio es público también para los borradores.

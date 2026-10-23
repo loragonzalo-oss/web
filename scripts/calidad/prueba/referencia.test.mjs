@@ -85,10 +85,16 @@ test('enlaces para compartir: sin scripts, sólo la dirección codificada', () =
   assert.match(enlaceX('Un título', WEB), /^https:\/\/x\.com\/intent\/post\?text=Un%20t%C3%ADtulo&url=https%3A%2F%2F/);
 });
 
-test('version_web: resumen publicado sin cuerpo; con cuerpo, el build frena', () => {
+test('version_web: resumen sin cuerpo; con cuerpo, el build frena, publicado o borrador', () => {
   assert.match(errorCuerpoResumen({ version_web: 'resumen', draft: false }, 'Texto completo.', 'mi-ensayo'), /^El ensayo «mi-ensayo» tiene «version_web: resumen» y trae el texto completo\./);
   assert.equal(errorCuerpoResumen({ version_web: 'resumen', draft: false }, '  \n', 'x'), undefined);
   assert.equal(errorCuerpoResumen({ version_web: 'resumen', draft: false }, undefined, 'x'), undefined);
   assert.equal(errorCuerpoResumen({ version_web: 'completa', draft: false }, 'Texto.', 'x'), undefined);
-  assert.equal(errorCuerpoResumen({ version_web: 'resumen', draft: true }, 'Texto.', 'x'), undefined);
+  // Un borrador también frena, con el mismo mensaje.
+  assert.equal(
+    errorCuerpoResumen({ version_web: 'resumen', draft: true }, 'Texto completo.', 'mi-ensayo'),
+    errorCuerpoResumen({ version_web: 'resumen', draft: false }, 'Texto completo.', 'mi-ensayo'),
+  );
+  assert.match(errorCuerpoResumen({ version_web: 'resumen', draft: true }, 'Texto.', 'borrador'), /ni publicado ni como borrador/);
+  assert.equal(errorCuerpoResumen({ version_web: 'resumen', draft: true }, '', 'x'), undefined);
 });
