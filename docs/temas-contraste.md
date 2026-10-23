@@ -1,6 +1,6 @@
 # Contraste de los temas
 
-Generado con `npm run temas:contraste` el 2026-10-23. No editar a mano.
+Generado con `npm run temas:contraste` el 2026-10-22. No editar a mano.
 
 Criterio WCAG 2.1, nivel AA: texto sobre fondo, al menos 4.5:1; gráficos (ícono dentro del marcador del mapa y punto de capa sobre el fondo), al menos 3:1.
 
