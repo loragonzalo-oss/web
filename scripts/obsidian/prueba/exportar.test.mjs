@@ -398,3 +398,76 @@ test('ensayo como referencia: frena sin slug al publicar y con campos mal formad
   assert.match(frenada(r, '200 Ensayos/Temas.md').motivos.join('\n'), /\/ensayos\/temas\/ ya la usa el sitio/);
   await rm(base, { recursive: true });
 });
+
+// Líneas y polígonos: la nota nombra un .geojson de la bóveda; el script lo revisa con los
+// mismos controles que el sitio y lo copia a src/content/lugares/geometrias/.
+async function notaGeometria(boveda, nombre, campos, geojson) {
+  await mkdir(path.join(boveda, '300 Lugares/geometrias'), { recursive: true });
+  const archivo = `${nombre}.geojson`;
+  if (geojson) await writeFile(path.join(boveda, '300 Lugares/geometrias', archivo), JSON.stringify(geojson));
+  const fm = {
+    publicar: 'true', tipo: 'lugar', titulo: `"${nombre}"`, capa: 'ecologia', resumen: '"Relleno."',
+    marcador: '"[DATO PROPIO]"', draft: 'true', geometria: `"[[${archivo}]]"`, ...campos,
+  };
+  const yaml = Object.entries(fm).filter(([, v]) => v !== undefined).map(([k, v]) => `${k}: ${v}`).join('\n');
+  await writeFile(path.join(boveda, `300 Lugares/${nombre}.md`), `---\n${yaml}\n---\n\nTexto de relleno.\n`);
+}
+const linea = (coords) => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } });
+
+test('geometría: copia el GeoJSON y escribe la ruta en la ficha', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  await notaGeometria(boveda, 'Linea de prueba', { pais: 'Perú' }, linea([[-69.4, -15.8], [-69.3, -15.85]]));
+  const r = await exportar({ boveda, repo });
+  assert.equal(frenada(r, '300 Lugares/Linea de prueba.md'), undefined);
+  assert.equal(estado(r, 'src/content/lugares/geometrias/linea-de-prueba.geojson'), 'nuevo');
+  const md = await leer('src/content/lugares/linea-de-prueba.md');
+  assert.match(md, /\ngeometria: geometrias\/linea-de-prueba\.geojson\n/);
+  assert.match(md, /\npais: peru\n/);
+  assert.doesNotMatch(md, /\nlat:/);
+  await rm(base, { recursive: true });
+});
+
+test('geometría: frena lo mismo que el sitio (recorte, GeoJSON, lat/lon a la vez, país y regla 6)', async () => {
+  const { base, boveda, repo } = await preparar();
+  await notaGeometria(boveda, 'Fuera del recorte', {}, linea([[-69.4, -15.8], [-65, -15.85]]));
+  await notaGeometria(boveda, 'Punto en geometria', {}, { type: 'Point', coordinates: [-69.4, -15.8] });
+  await notaGeometria(boveda, 'Con lat y lon', { lat: -15.8, lon: -69.4 }, linea([[-69.4, -15.8], [-69.3, -15.85]]));
+  await notaGeometria(boveda, 'Aproximada fina', { precision: 'aproximada' }, linea([[-69.4123, -15.8], [-69.3, -15.85]]));
+  await notaGeometria(boveda, 'Oculta con geometria', { precision: 'oculta' }, linea([[-69.4, -15.8], [-69.3, -15.85]]));
+  await notaGeometria(boveda, 'Sin archivo', {}, null);
+  await notaGeometria(boveda, 'Pais raro', { pais: 'Chile' }, linea([[-69.4, -15.8], [-69.3, -15.85]]));
+  await writeFile(path.join(boveda, '300 Lugares/geometrias/Roto.geojson'), '{ esto no es json');
+  await notaGeometria(boveda, 'Roto', {}, null);
+  const r = await exportar({ boveda, repo });
+  const motivos = (nota) => frenada(r, `300 Lugares/${nota}.md`)?.motivos.join('\n') ?? '';
+  assert.match(motivos('Fuera del recorte'), /fuera del recorte del lago/);
+  assert.match(motivos('Punto en geometria'), /se escribe con lat y lon/);
+  assert.match(motivos('Con lat y lon'), /no las dos cosas/);
+  assert.match(motivos('Aproximada fina'), /Regla 6: .*dos decimales/);
+  assert.match(motivos('Oculta con geometria'), /Regla 6: con «precision: oculta» la nota no lleva «geometria»/);
+  assert.match(motivos('Sin archivo'), /no está en la bóveda/);
+  assert.match(motivos('Pais raro'), /«pais: Chile» no existe/);
+  assert.match(motivos('Roto'), /no es GeoJSON válido/);
+  assert.ok(!existsSync(path.join(repo, 'src/content/lugares/geometrias')));
+  await rm(base, { recursive: true });
+});
+
+test('regla 6: un lugar sensible no lleva línea ni polígono, y «sensible: true» viaja al repositorio', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  const forma = linea([[-69.4, -15.8], [-69.3, -15.85]]);
+  await notaGeometria(boveda, 'Sagrado con linea', { sensible: 'true', precision: 'aproximada' }, forma);
+  await notaGeometria(boveda, 'Arqueologia con linea', { capa: 'arqueologia', precision: 'aproximada' }, forma);
+  await writeFile(
+    path.join(boveda, '300 Lugares/Sagrado punto.md'),
+    '---\npublicar: true\ntipo: lugar\ntitulo: "Sagrado punto"\ncapa: cultura\nsensible: true\nlat: -15.8\nlon: -69.4\nprecision: aproximada\nresumen: "Relleno."\nmarcador: "[DATO PROPIO]"\ndraft: true\n---\n\nTexto de relleno.\n',
+  );
+  const r = await exportar({ boveda, repo });
+  const motivos = (nota) => frenada(r, `300 Lugares/${nota}.md`)?.motivos.join('\n') ?? '';
+  assert.match(motivos('Sagrado con linea'), /lugar sensible \(marcado con «sensible: true»\) y no puede llevar línea ni polígono/);
+  assert.match(motivos('Arqueologia con linea'), /lugar sensible \(capa Arqueología\) y no puede llevar línea ni polígono/);
+  // Un punto sensible aproximado sale con su marca, para que el sitio también lo controle;
+  // un lugar no sensible, sin ella.
+  assert.match(await leer('src/content/lugares/sagrado-punto.md'), /\nprecision: aproximada\nsensible: true\n/);
+  assert.doesNotMatch(await leer('src/content/lugares/lugar-exacto-de-prueba.md'), /\nsensible:/);
+  await rm(base, { recursive: true });
+});

@@ -22,7 +22,7 @@ La web de autor de Gonzalo R. Lora Veizaga, «Pacha Shunku», ingeniero ambienta
 3. **Titikaka con k** en la voz del autor. *Titicaca* sólo en citas o nombres oficiales que lo escriban así.
 4. **Obra** de Jimena Tatiana Gonzales García (T'ika Pacha) y José Mario Illescas Pompilia (Hatun Illapa): no se publica ningún texto suyo ni se resume su contenido sin orden expresa del autor. Se los nombra siempre con nombre completo y nombre de portada.
 5. No publicar teléfonos ni dirección. El contacto se resuelve con un correo o un formulario que el autor decida.
-6. Lugares sensibles del mapa (sitios arqueológicos, lugares sagrados y los que el autor indique): las coordenadas exactas nunca entran al repositorio. Con precision: aproximada, el archivo sólo lleva coordenadas redondeadas a dos decimales; con precision: oculta, el archivo no lleva lat ni lon. La ubicación exacta queda en la bóveda privada del autor.
+6. Lugares sensibles del mapa (sitios arqueológicos, lugares sagrados y los que el autor indique): las coordenadas exactas nunca entran al repositorio. Con precision: aproximada, el archivo sólo lleva coordenadas redondeadas a dos decimales; con precision: oculta, el archivo no lleva lat ni lon. Un lugar sensible no lleva línea ni polígono (campo `geometria`): sólo un punto aproximado u oculto; la capa Arqueología es siempre sensible y los demás se marcan con `sensible: true`. La ubicación exacta queda en la bóveda privada del autor.
 
 ## Convenciones de escritura
 
@@ -75,3 +75,4 @@ Instaladas en .claude/skills/: `frontend-design` y cuatro de Emil Kowalski (`ani
 - 22-10-2026: no se comparten enlaces de loragonzalo-oss.github.io/web (decisión del autor). El bloque «Compartir» de los ensayos queda apagado (COMPARTIR_ACTIVO en sitio.config.mjs) y se enciende al migrar al dominio propio.
 - 22-10-2026: ensayos con `version_web: resumen` (decisión del autor). Su texto completo no entra al repositorio, que es público: el puente con Obsidian los exporta sin cuerpo y el build frena si uno publicado trae cuerpo.
 - 22-10-2026: el build también frena los borradores con `version_web: resumen` que traen cuerpo (decisión del autor): el repositorio es público también para los borradores.
+- 22-10-2026: regla 6 en líneas y polígonos. Decisión del autor: un lugar sensible (capa Arqueología o `sensible: true`) no lleva línea ni polígono, sólo un punto con precision: aproximada (dos decimales) u oculta. El esquema de `lugares` lo hace cumplir al construir el sitio, y el campo `sensible` pasa al esquema (el puente con Obsidian lo exporta cuando es true).

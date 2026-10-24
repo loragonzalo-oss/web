@@ -11,7 +11,7 @@ const graves = async (page: import('@playwright/test').Page) => {
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
   return r.violations
     .filter((v) => v.impact === 'serious' || v.impact === 'critical')
-    .filter((v) => !(v.id === 'target-size' && v.nodes.every((n) => String(n.target[0]).includes('leaflet-marker'))))
+    .filter((v) => !(v.id === 'target-size' && v.nodes.every((n) => String(n.target[0]).includes('maplibregl-marker'))))
     .map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`);
 };
 

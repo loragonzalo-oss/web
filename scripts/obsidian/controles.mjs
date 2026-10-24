@@ -1,6 +1,7 @@
 // Controles del frontmatter antes de exportar. Siguen el esquema de src/content.config.ts:
 // si se cambia un campo allá, hay que cambiarlo acá también.
-import { IDS_CAPAS, RECORTE } from '../../src/lib/capas.ts';
+import { IDS_CAPAS, IDS_PAISES, RECORTE } from '../../src/lib/capas.ts';
+import { leerGeometria } from '../../src/lib/geometria.ts';
 import { slugificar } from '../../src/lib/slug.ts';
 import { normalizarDoi, normalizarPaginas } from '../../src/lib/revista.ts';
 import { TIPOS_LUGAR, normalizarTipoLugar, chocaConEnsayos, errorCuerpoResumen } from '../../src/lib/referencia.ts';
@@ -239,6 +240,29 @@ function validarLugar(fm, errores) {
   }
   const lat = coordenada(fm.lat, 'lat', errores);
   const lon = coordenada(fm.lon, 'lon', errores);
+  // Línea o polígono: «geometria» nombra un archivo .geojson de la bóveda (exportar.mjs lo busca,
+  // lo revisa con validarGeometria y lo copia a src/content/lugares/geometrias/).
+  // Sin comillas, YAML lee «[[rio.geojson]]» como una lista dentro de otra: se acepta igual.
+  const g = fm.geometria;
+  const geometria = Array.isArray(g) && g.length === 1 && Array.isArray(g[0]) && g[0].length === 1
+    ? `[[${g[0][0]}]]`
+    : l.texto('geometria', false);
+  if (geometria !== undefined) {
+    if (lat !== undefined || lon !== undefined) {
+      errores.push('Un lugar lleva lat y lon (un punto) o «geometria» (una línea o un polígono), no las dos cosas. Borrá lat y lon, o «geometria».');
+    }
+    if (precision === 'oculta') {
+      errores.push('Regla 6: con «precision: oculta» la nota no lleva «geometria». El trazado queda en la bóveda.');
+    }
+  }
+  let pais;
+  if (!vacio(fm.pais)) {
+    pais = typeof fm.pais === 'string' ? slugificar(fm.pais) : undefined;
+    if (!IDS_PAISES.includes(pais)) {
+      errores.push(`«pais: ${fm.pais}» no existe. Opciones: ${IDS_PAISES.join(', ')}. Si no corresponde ninguno, dejalo vacío.`);
+      pais = undefined;
+    }
+  }
 
   // Regla 6 de CLAUDE.md: las coordenadas exactas de un lugar sensible nunca entran al repositorio.
   const sensible = esSensible(fm);
@@ -246,6 +270,9 @@ function validarLugar(fm, errores) {
     errores.push(
       `Regla 6: es un lugar sensible (${sensible}) y tiene «precision: exacta». Usá «aproximada» (lat y lon con dos decimales como máximo) u «oculta» (sin lat ni lon). La ubicación exacta queda en la bóveda.`,
     );
+  }
+  if (sensible && geometria !== undefined) {
+    errores.push(`Regla 6: es un lugar sensible (${sensible}) y no puede llevar línea ni polígono. Va como punto con «precision: aproximada» (lat y lon con dos decimales) o con «precision: oculta». El trazado queda en la bóveda.`);
   }
   if (precision === 'oculta' && (lat !== undefined || lon !== undefined)) {
     errores.push('Regla 6: con «precision: oculta» la nota no puede llevar lat ni lon. Borralos; la ubicación exacta queda en la bóveda.');
@@ -258,8 +285,8 @@ function validarLugar(fm, errores) {
       }
     }
   }
-  if (precision !== 'oculta' && (lat === undefined || lon === undefined)) {
-    errores.push('Faltan lat y lon. Sólo se pueden omitir con «precision: oculta».');
+  if (precision !== 'oculta' && geometria === undefined && (lat === undefined || lon === undefined)) {
+    errores.push('Faltan lat y lon (o «geometria», para una línea o un polígono). Sólo se pueden omitir con «precision: oculta».');
   }
   if (lat !== undefined && lon !== undefined) {
     const { latMin, latMax, lonMin, lonMax } = RECORTE;
@@ -309,7 +336,12 @@ function validarLugar(fm, errores) {
     capa,
     lat,
     lon,
+    geometria,
     precision,
+    // Sale de la bóveda sólo si es true: así el sitio, al construirse, también frena lo que la
+    // regla 6 no permite en un lugar sensible (decisión del autor, 22-10-2026).
+    sensible: fm.sensible === true ? true : undefined,
+    pais,
     resumen: l.texto('resumen', true),
     imagen,
     enlaces,
@@ -319,6 +351,13 @@ function validarLugar(fm, errores) {
     slug: l.texto('slug', false),
     draft: l.draft(),
   };
+}
+
+// Revisa el contenido de un archivo de geometría con los mismos controles que el sitio al
+// construirse (src/lib/geometria.ts): GeoJSON válido, una sola línea o polígono, dentro del
+// recorte y, con «precision: aproximada», dos decimales como máximo (regla 6).
+export function validarGeometria(texto, precision) {
+  return leerGeometria(texto, { recorte: RECORTE, precision }).errores;
 }
 
 // Devuelve los datos del frontmatter que van al sitio, en el orden del esquema.

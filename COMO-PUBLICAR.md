@@ -82,8 +82,9 @@ draft: false
 Diferencias con el archivo que se sube a mano:
 
 - Las imágenes se escriben como wikilink: `imagen: "[[foto.jpg]]"` en el blog; en un lugar, `imagen:` lleva `archivo: "[[foto-del-lugar.jpg]]"`, `credito` y `descripcion`.
-- En un lugar, `relacionados` acepta wikilinks (`- "[[Una entrada del blog]]"`), y se suma un tercer campo que no sale de la bóveda: `sensible` (ver «Lugares sensibles»).
-- Las propiedades que no son del sitio (`tags`, `aliases`, `publicar`, `tipo`, `sensible` o cualquier otra que agregues) **se quedan en la bóveda**: al repositorio sólo pasan los campos del sitio.
+- En un lugar, `relacionados` acepta wikilinks (`- "[[Una entrada del blog]]"`), y se suma `sensible` (ver «Lugares sensibles»), que pasa al repositorio sólo cuando es `true`.
+- En un lugar con línea o polígono, `geometria` nombra el archivo `.geojson` de la bóveda como wikilink: `geometria: "[[nombre-del-rio.geojson]]"`. El script lo revisa con los mismos controles que el sitio (ver «Línea o polígono») y lo copia a `src/content/lugares/geometrias/`, con el nombre de la nota.
+- Las propiedades que no son del sitio (`tags`, `aliases`, `publicar`, `tipo` o cualquier otra que agregues) **se quedan en la bóveda**: al repositorio sólo pasan los campos del sitio.
 
 En `plantillas/` hay una plantilla por tipo con estos campos (ver «Plantillas»).
 
@@ -402,7 +403,13 @@ El sitio le pone las comillas « » (si ya las escribiste, no agrega otras). Com
 
 ## Agregar un lugar al mapa
 
-Cada punto del mapa es un archivo `.md` en `src/content/lugares/`. El encabezado dice dónde va y qué respaldo tiene; el cuerpo del archivo es el texto de la ficha. Se sube igual que una entrada del blog.
+Cada lugar del mapa es un archivo `.md` en `src/content/lugares/`. El encabezado dice dónde va y qué respaldo tiene; el cuerpo del archivo es el texto de la ficha. Se sube igual que una entrada del blog.
+
+Un lugar puede ser:
+
+- **un punto**: `lat` y `lon` en el encabezado (lo de siempre);
+- **una línea** (un río, un recorrido) o **un polígono** (una zona, una bahía): un archivo GeoJSON aparte, nombrado en el campo `geometria` (ver «Línea o polígono», abajo);
+- **sin ubicación publicada**: `precision: oculta`, sin `lat`, `lon` ni `geometria`. La ficha aparece en el listado y en su página, sin marca en el mapa.
 
 ### El encabezado de un lugar
 
@@ -413,6 +420,7 @@ capa: arqueologia
 lat: -16.01
 lon: -69.12
 precision: aproximada
+pais: bolivia
 resumen: "Una o dos frases. Aparecen en el listado y arriba de la ficha."
 imagen:
   archivo: ./fotos/nombre-del-lugar.jpg
@@ -439,7 +447,7 @@ Texto de la ficha. Puede tener párrafos, subtítulos, listas y enlaces, como un
 
 Qué es cada campo:
 
-- **`titulo`** y **`resumen`**: obligatorios.
+- **`titulo`** y **`resumen`**: obligatorios. El buscador del mapa busca en estos dos.
 - **`capa`**: una de estas nueve. Se puede escribir el nombre con tildes o sin ellas.
 
   | Se escribe | Capa |
@@ -454,12 +462,14 @@ Qué es cada campo:
   | `emprendimientos-comunitarios` | Emprendimientos comunitarios |
   | `gobiernos-municipales` | Gobiernos municipales |
 
-- **`lat`** y **`lon`**: en grados decimales, con signo menos (todo el lago está al sur del ecuador y al oeste de Greenwich). Se pueden copiar de OpenStreetMap o de Google Maps (clic derecho sobre el punto). Si quedan fuera del recorte del lago y sus orillas, el sitio no se construye y el error lo dice: casi siempre es lat y lon invertidas o un signo menos que falta.
+- **`lat`** y **`lon`** (un punto): en grados decimales, con signo menos (todo el lago está al sur del ecuador y al oeste de Greenwich). Se pueden copiar de OpenStreetMap o de Google Maps (clic derecho sobre el punto). Si quedan fuera del recorte del lago y sus orillas, el sitio no se construye y el error lo dice: casi siempre es lat y lon invertidas o un signo menos que falta.
+- **`geometria`** (una línea o un polígono, en lugar de `lat` y `lon`): ver «Línea o polígono».
 - **`precision`** (ver también «Lugares sensibles»):
-  - `exacta` (si no se pone nada, vale esta): el punto va donde dicen las coordenadas.
-  - `aproximada`: `lat` y `lon` van redondeadas a **dos decimales como máximo** (por ejemplo, `-16.01`). En el mapa, el punto aparece corrido entre 1.2 y 2.5 km de esas coordenadas, siempre en la misma dirección para ese lugar, con una zona sombreada de 3 km de radio alrededor.
-  - `oculta`: sin punto en el mapa; la ficha aparece sólo en el listado. Con `oculta`, el archivo **no lleva** `lat` ni `lon`: se dejan vacíos o se borran.
-- **`imagen`** (opcional): la foto va en la carpeta del lugar (o en una subcarpeta) y la ruta es relativa al archivo. El `credito` es obligatorio si hay imagen: autor y licencia. Sólo imágenes propias o con licencia clara.
+  - `exacta` (si no se pone nada, vale esta): el punto o el trazado van donde dicen las coordenadas.
+  - `aproximada`: todas las coordenadas (`lat` y `lon`, o las del archivo de geometría) van redondeadas a **dos decimales como máximo** (por ejemplo, `-16.01`). En el mapa, el punto aparece corrido entre 1.2 y 2.5 km de esas coordenadas, siempre en la misma dirección para ese lugar, con una zona sombreada de 3 km de radio alrededor. Una línea o un polígono aproximados se corren igual, enteros, y se dibujan con trazo punteado.
+  - `oculta`: sin marca en el mapa; la ficha aparece sólo en el listado y en su página. Con `oculta`, el archivo **no lleva** `lat`, `lon` ni `geometria`.
+- **`pais`** (opcional): `bolivia`, `peru` o `binacional` (también vale «Perú»). Sirve para el filtro por país del mapa. Una ficha sin `pais` aparece en el filtro como «sin país asignado».
+- **`imagen`** (opcional): la foto va en la carpeta del lugar (o en una subcarpeta) y la ruta es relativa al archivo. El `credito` es obligatorio si hay imagen: autor y licencia. Sólo imágenes propias o con licencia clara. Si la ficha tiene foto, es también la imagen que aparece al compartir su página.
 - **`enlaces`** (opcional): enlaces externos. `verificado` es la fecha en que se comprobó que el enlace funciona y dice lo que se cita, con formato `AAAA-MM-DD`.
 - **`fuentes`** (opcional, salvo con `corpus`): documentos que respaldan la ficha. `url` es opcional.
 - **`marcador`**: el respaldo de la ficha. Va **entre comillas** cuando lleva corchetes.
@@ -470,9 +480,108 @@ Qué es cada campo:
 - **`relacionados`** (opcional): entradas del blog o ensayos que la ficha enlaza. Se escribe el nombre del archivo sin `.md`. Si hay una entrada y un ensayo con el mismo nombre, se antepone `blog/` o `ensayos/`. También vale un wikilink de Obsidian (`"[[nombre]]"`, entre comillas). Si el relacionado está en borrador o mal escrito, en el sitio publicado se omite; con `npm run dev` aparece marcado como [PENDIENTE].
 - **`draft`**: igual que en el blog. `true` = no se publica.
 
-### Para compartir un lugar
+### Línea o polígono
 
-Cada ficha tiene su propia dirección: la del mapa seguida de `#lugar-` y el nombre del archivo. Por ejemplo, `…/mapa/#lugar-isla-de-ejemplo` abre el mapa con esa ficha.
+La forma va en un archivo GeoJSON aparte, en `src/content/lugares/geometrias/`, y la ficha lo nombra en `geometria`, con la ruta desde la carpeta `lugares`:
+
+```yaml
+---
+titulo: "Nombre del río"
+capa: ecologia
+geometria: geometrias/nombre-del-rio.geojson
+precision: exacta
+pais: binacional
+resumen: "…"
+marcador: "[VERIFICAR]"
+draft: true
+---
+```
+
+Una ficha lleva `lat` y `lon` **o** `geometria`, nunca las dos cosas: si no, el mapa no sabría dónde poner el marcador ni adónde llevar la vista. (El marcador de una línea queda a mitad del recorrido; el de un polígono, en su centro.)
+
+Cada archivo de geometría lleva **una sola** forma: una línea (`LineString`), un polígono (`Polygon`) o un multipolígono (`MultiPolygon`, varias zonas que son un mismo lugar, como un grupo de islas). Se puede escribir la geometría sola, dentro de un `Feature` o dentro de un `FeatureCollection` con un único elemento. Lo más simple es dibujarla en [geojson.io](https://geojson.io) (o en QGIS) y guardar lo que da. Una línea:
+
+```json
+{
+  "type": "LineString",
+  "coordinates": [[-69.40, -15.86], [-69.34, -15.82], [-69.28, -15.84]]
+}
+```
+
+Un polígono: el primer punto se repite al final para cerrarlo.
+
+```json
+{
+  "type": "Polygon",
+  "coordinates": [[[-69.58, -15.62], [-69.48, -15.62], [-69.46, -15.68], [-69.58, -15.62]]]
+}
+```
+
+Ojo: en GeoJSON va **primero la longitud y después la latitud** (al revés que en `lat` y `lon`).
+
+Al construir, el sitio revisa cada archivo de geometría y no se construye si:
+
+- no es GeoJSON válido, o lleva un punto, varias formas o un tipo que no es línea, polígono o multipolígono;
+- alguna coordenada cae fuera del recorte del lago;
+- la ficha lleva a la vez `lat`/`lon` y `geometria`;
+- regla 6: la ficha es `oculta` y tiene `geometria`, o es `aproximada` y alguna coordenada del archivo tiene más de dos decimales.
+
+El error dice qué archivo y qué corregir. El script de Obsidian frena lo mismo antes de copiar (ver «Publicar desde Obsidian»).
+
+### Enlace propio de cada lugar
+
+Cada lugar tiene dos direcciones:
+
+- **Su página**: `…/mapa/<nombre-del-archivo>/`, por ejemplo `…/mapa/isla-de-ejemplo/`. Es la ficha completa, legible sin el mapa, con su tarjeta para compartir en Facebook y X (la foto de la ficha o, si no tiene, una tarjeta con el título). **Es la mejor dirección para compartir en redes.** Nunca lleva coordenadas. Es la que copia el botón «Copiar enlace» de la ficha en el mapa; en un celular que sabe compartir, el botón dice «Compartir enlace» y abre el menú de compartir.
+- **El mapa abierto en esa ficha**: `…/mapa/#lugar-<nombre-del-archivo>`, por ejemplo `…/mapa/#lugar-isla-de-ejemplo`. Abre el mapa con la ficha y centra la vista en el lugar (en una ficha `oculta`, abre la ficha sin mover el mapa). Es el enlace «Ver en el mapa» de la página del lugar. Al compartirla en redes aparece la tarjeta del mapa, no la del lugar.
+
+El botón «atrás» del navegador cierra la ficha abierta. Los filtros también quedan en la dirección: `…/mapa/?capa=clima,cultura&pais=bolivia&q=totora` abre el mapa con esas capas, ese país y esa búsqueda, y se puede compartir así.
+
+### Cambiar el fondo del mapa
+
+El lector elige el fondo con el control «Fondo», debajo del mapa. Todos los fondos están definidos en un solo archivo, `src/lib/mapa-fondos.ts`: dirección de las teselas, licencia, enlace a la licencia y atribución que se ve en la esquina del mapa. `FONDO_PREDETERMINADO` dice cuál aparece al abrir la página.
+
+| Fondo | Fuente | Licencia | Atribución en el mapa |
+|---|---|---|---|
+| Mapa (predeterminado) | Teselas de OpenStreetMap | ODbL | © colaboradores de OpenStreetMap (enlace a /copyright) |
+| Satélite | EOX Sentinel-2 cloudless **2016** | CC BY 4.0 | Sentinel-2 cloudless - https://s2maps.eu by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016) |
+| Relieve | Copernicus DEM GLO-30, teselas propias | Licencia Copernicus DEM (redistribución y adaptación permitidas) | © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved |
+| Fondo del lago (batimetría) | Levantamientos de la ALT 2016-2021 | [PENDIENTE] | — |
+
+- Para cambiar el predeterminado: `FONDO_PREDETERMINADO = 'satelite'` (o `'relieve'`, cuando haya teselas).
+- Las teselas de OpenStreetMap se pueden usar en navegación normal. Está prohibido descargarlas en masa, precargarlas o usarlas sin conexión.
+- Las versiones de Sentinel-2 cloudless de 2018 a 2022 son CC BY-NC-SA (no comercial): no se usan.
+- No se usan servicios que pidan clave o cuenta (Google, Esri, MapTiler…). Un fondo nuevo lo agrega primero el autor a su registro de fuentes; después se suma a `FONDOS` con su licencia y su atribución.
+- **Fondo del lago**: queda vacío y desactivado, con el motivo a la vista, hasta que la batimetría de la ALT tenga licencia confirmada. En `npm run dev` y en la construcción de prueba se puede prender un relleno sintético, rotulado «sintético, no es el fondo real», sin cifras. En el sitio publicado no aparece.
+
+### Relieve: generar las teselas
+
+El fondo «Relieve» usa teselas propias, guardadas en el repositorio (`public/mapa/relieve/`). Hasta que existan, el control aparece desactivado y dice por qué. Se generan una sola vez, en la computadora, a partir del Copernicus DEM GLO-30 (30 m):
+
+1. **Bajar el DEM.** Las hojas del GLO-30 son de 1° × 1° y vienen como GeoTIFF en grados (EPSG:4326). El recorte del lago (lat −17 a −14.9, lon −70.4 a −68.4) toca nueve: latitudes S15, S16 y S17 por longitudes W069, W070 y W071 (en el nombre del archivo, por ejemplo `Copernicus_DSM_COG_10_S16_00_W070_00_DEM.tif`). [VERIFICAR] qué esquina nombra cada hoja; si hay duda, bajá también las vecinas: el script descarta lo que cae fuera del recorte. Se bajan del Copernicus Data Space Ecosystem o del registro abierto en AWS (`copernicus-dem-30m`). Guardalas juntas en una carpeta, **fuera** del repositorio. [VERIFICAR] el sitio de descarga y que la licencia de la versión que bajes es la del cuadro de arriba.
+2. **Probar sin escribir nada:**
+
+   ```sh
+   npm run mapa:relieve -- --simular
+   ```
+
+   Dice cuántas teselas saldrían (851 con los zoom 7 a 12).
+3. **Generar:**
+
+   ```sh
+   npm run mapa:relieve -- "ruta/a/la/carpeta/del/DEM"
+   ```
+
+   El script lee sólo la parte de cada hoja que cae en el recorte, escribe las teselas (PNG de 256 px con las alturas codificadas en color, formato «terrarium») y `public/mapa/relieve/relieve.json`, y al final dice cuánto pesan. Si la carpeta ya tiene teselas, frena; para reemplazarlas, se agrega `--reemplazar`. Necesita unos 500 MB de memoria libre.
+4. **Mirarlo:** `npm run dev` y abrí /mapa: «Relieve» ya se puede elegir. MapLibre dibuja el sombreado con los colores del tema; las mismas teselas sirven para relieve 3D si algún día se quiere.
+5. **Subirlo** con GitHub Desktop, como cualquier cambio.
+
+**Peso estimado.** Con los zoom 7 a 12 (unos 37 m por píxel en el lago, la resolución del DEM) salen 851 teselas. Con un terreno de prueba, una tesela de cordillera pesa unos 42 KB, una de pampa unos 15 KB y una del lago menos de 1 KB. Para el recorte real, entre 20 y 60 MB en total [HIPÓTESIS: estimación con terreno sintético; el script imprime el peso real]. Entra cómodo en GitHub Pages (el sitio publicado puede pesar hasta 1 GB). Si sale más pesado de lo que conviene:
+
+- `--zoom-max 11`: 253 teselas, más o menos un cuarto del peso, con unos 74 m por píxel;
+- `--paso 1`: redondea las alturas al metro (por defecto, al medio metro); pesa entre un cuarto y un tercio menos, y el sombreado de las pampas sale algo más escalonado.
+
+Cada vez que se regeneran, el repositorio guarda también la versión anterior: conviene generarlas una vez y no rehacerlas sin motivo.
 
 ## Lugares sensibles
 
@@ -482,8 +591,12 @@ Regla del sitio (CLAUDE.md, regla 6): las coordenadas exactas de un lugar sensib
 
 - Con `precision: aproximada`, el archivo lleva sólo coordenadas redondeadas a dos decimales (una cuadrícula de algo más de 1 km de lado). Si `lat` o `lon` tienen más decimales, el sitio no se construye y el error dice cuál corregir.
 - Con `precision: oculta`, el archivo no lleva `lat` ni `lon`. Si tiene alguno, el sitio no se construye.
+- Lo mismo con las líneas y los polígonos: con `aproximada`, todas las coordenadas del archivo de geometría van con dos decimales como máximo; con `oculta`, la ficha no lleva `geometria`.
+- La página propia de un lugar `aproximada` u `oculta` (`/mapa/<nombre>/`) no lleva coordenadas en el texto, en los metadatos ni en la tarjeta para compartir. El mapa sólo recibe las posiciones ya desplazadas, y los grupos de puntos se arman con ellas: tampoco pueden revelar la original. Una prueba lo revisa sobre el sitio construido (`pruebas/regla6.spec.ts`).
 
 Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
+
+**Lugares sensibles: sólo punto aproximado u oculto** (decisión del autor, 22-10-2026). Un lugar es sensible si está en la capa `arqueologia` o si lleva `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible no puede tener `precision: exacta` ni llevar línea o polígono (`geometria`): va como punto con `precision: aproximada` o con `precision: oculta`. El sitio no se construye si no se cumple, y el script de Obsidian lo frena antes.
 
 **Lo que controla además el script de Obsidian.** Para el script, un lugar es sensible si está en la capa `arqueologia` o si su nota tiene `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible:
 
@@ -494,7 +607,7 @@ Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
 
 La ubicación exacta guardala en una nota aparte, sin `publicar`. Que esa nota privada enlace a la pública, y no al revés: un enlace a una nota que no se publica queda como texto con su nombre.
 
-Si subís un lugar a mano, `sensible` no se controla: sólo cuenta `precision`. Antes de subir un lugar sensible, revisá vos que lleve `aproximada` u `oculta`.
+Si subís un lugar a mano, marcalo con `sensible: true` si es un lugar sagrado o uno que vos indiques (la capa `arqueologia` no lo necesita: es siempre sensible). Con eso el sitio, al construirse, frena lo mismo que el script.
 
 ## Imágenes para compartir
 
@@ -606,7 +719,7 @@ Cada vez que se abre o se actualiza un pull request, GitHub corre una revisión 
 
 La revisión tiene siete pasos. Si uno sale en rojo, los siguientes no corren.
 
-**1. Pruebas del puente con Obsidian** (`npm test`). Prueban el script de exportación con una bóveda de relleno (`scripts/obsidian/prueba/`), nunca con la tuya.
+**1. Pruebas del puente con Obsidian y del script de relieve** (`npm test`). Prueban el script de exportación con una bóveda de relleno (`scripts/obsidian/prueba/`), nunca con la tuya, y el de relieve con un DEM sintético chico.
 - *Si falla:* alguien cambió el script o el esquema del sitio y ya no coinciden. Es para quien mantiene el código.
 
 **2. Contraste de los temas** (`npm run temas:contraste`). Mide todos los temas (también las dos direcciones del rediseño), en claro y en oscuro.
@@ -628,7 +741,7 @@ La revisión tiene siete pasos. Si uno sale en rojo, los siguientes no corren.
 - *Que no haya errores en la consola*: errores de programación de la página. Si aparece uno después de un cambio de contenido, conviene avisar a quien mantiene el código.
 - *Accesibilidad*: con la herramienta axe, en modo claro y en modo oscuro, revisa que la página se pueda usar con lector de pantalla, con teclado y con poca visión. Falla sólo con problemas serios o críticos. Los más comunes: una imagen sin descripción (en un lugar del mapa, el campo `descripcion` de la imagen), un texto con poco contraste contra el fondo (pasa al cambiar colores de un tema) o un enlace sin texto.
 
-Además prueba que las funciones anden juntas: «Buscar» en el menú de computadora y en el de celular, el buscador encuentra resultados, la tabla de contenidos y las notas al pie llevan a su lugar, la ficha del mapa se abre y se cierra, cada entrada tiene su tarjeta para compartir, el sitio publicado no trae el selector de temas y el prototipo cumple lo comprobable de «Piezas inmersivas» (rótulo de forma ilustrativa, riel, sin sonido, sin animación con menos movimiento, versión liviana sin JavaScript).
+Además prueba que las funciones anden juntas: «Buscar» en el menú de computadora y en el de celular, el buscador encuentra resultados, la tabla de contenidos y las notas al pie llevan a su lugar, la ficha del mapa se abre y se cierra, cada entrada tiene su tarjeta para compartir, el sitio publicado no trae el selector de temas, el mapa agrupa los puntos, abre cada ficha con su enlace propio, cierra con «atrás» y con Escape, busca y filtra, y tiene su versión sin WebGL; las páginas de los lugares `aproximada` u `oculta` no llevan coordenadas (regla 6), y el prototipo cumple lo comprobable de «Piezas inmersivas» (rótulo de forma ilustrativa, riel, sin sonido, sin animación con menos movimiento, versión liviana sin JavaScript).
 - *Si falla:* abrí la revisión en *Actions*; el paso en rojo dice qué página, en qué pantalla y qué problema. Al final de la página de la revisión hay un archivo «informe-pruebas» con el detalle.
 
 **Para correr las mismas revisiones en la computadora** (hace falta haber instalado todo con `npm install`):

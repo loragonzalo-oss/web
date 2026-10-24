@@ -23,6 +23,8 @@ const PAGINAS = [
   { nombre: 'ensayo-resumen', ruta: 'ensayos/relleno-ensayo-resumen/' },
   { nombre: 'ensayos-temas', ruta: 'ensayos/temas/' },
   { nombre: 'ensayos-tema', ruta: 'ensayos/temas/tema-de-relleno-a/' },
+  { nombre: 'lugar', ruta: 'mapa/ejemplo-clima/' },
+  { nombre: 'lugar-poligono', ruta: 'mapa/ejemplo-poligono/' },
   // Prototipo de pieza inmersiva: también existe sólo en la construcción de prueba.
   { nombre: 'prototipo-profundidad', ruta: 'prototipos/profundidad/' },
   { nombre: 'prototipo-profundidad-liviana', ruta: 'prototipos/profundidad/liviana/' },
@@ -40,7 +42,7 @@ for (const { nombre, ruta } of PAGINAS) {
         const visible = document.documentElement.clientWidth;
         const culpables = [...document.querySelectorAll('body *')]
           .filter((el) => el.getBoundingClientRect().right > visible + 1)
-          .filter((el) => !el.closest('.leaflet-container')) // el mapa recorta su propio contenido
+          .filter((el) => !el.closest('.maplibregl-map')) // el mapa recorta su propio contenido
           .slice(0, 5)
           .map((el) => `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/).join('.') : ''}`);
         return { ancho: document.documentElement.scrollWidth, visible, culpables };
@@ -61,9 +63,9 @@ for (const { nombre, ruta } of PAGINAS) {
           if (v.impact !== 'serious' && v.impact !== 'critical') continue;
           if (v.id === 'target-size') {
             // Excepción «Equivalente» de WCAG 2.5.8: cada punto del mapa tiene el mismo destino
-            // en el listado de abajo («Ver en el mapa»). Sólo se perdona dentro de los marcadores.
+            // en el listado de abajo («Ver en el mapa»). Sólo se perdona en los marcadores del mapa.
             const enMarcadores = await Promise.all(
-              v.nodes.map((n) => page.locator(String(n.target[0])).first().evaluate((el) => !!el.closest('.leaflet-marker-pane'))),
+              v.nodes.map((n) => page.locator(String(n.target[0])).first().evaluate((el) => !!el.closest('.maplibregl-marker'))),
             );
             v.nodes = v.nodes.filter((_, i) => !enMarcadores[i]);
             if (v.nodes.length === 0) continue;

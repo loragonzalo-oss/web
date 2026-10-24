@@ -1,9 +1,12 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { entradasBlog, ensayos } from './contenido';
 import { slugificar } from './slug';
 import { url } from './rutas';
-import { CAPAS, RADIO_APROXIMADO_M } from './capas';
+import { CAPAS, RADIO_APROXIMADO_M, RECORTE, SIN_PAIS } from './capas';
 import { verBorradores } from './borradores';
+import { caja, leerGeometria, mapearGeometria, normalizarRutaGeometria, puntoEtiqueta, type Geometria } from './geometria';
 
 export type Lugar = CollectionEntry<'lugares'>;
 
@@ -13,31 +16,65 @@ export async function lugares(): Promise<Lugar[]> {
   return todos.sort((a, b) => orden(a) - orden(b) || a.data.titulo.localeCompare(b.data.titulo, 'es'));
 }
 
-// Lo único que llega al navegador para dibujar el punto. Con precision: aproximada,
-// las coordenadas reales no salen del servidor; con oculta, no sale ningún punto.
-export interface PuntoMapa {
+// Lo único que llega al navegador para dibujar un lugar. Con precision: aproximada,
+// las coordenadas del archivo no salen del servidor: el punto o el trazado van desplazados;
+// con oculta, no sale ninguna ubicación.
+// - `punto`: dónde va el marcador ([lon, lat]). En una línea o un polígono, su punto de etiqueta.
+// - `caja`: rectángulo de la línea o el polígono ([oeste, sur, este, norte]), para centrar la vista.
+// - `forma`: la línea o el polígono, si lo hay.
+export type TipoLugar = 'punto' | 'linea' | 'poligono';
+export interface LugarMapa {
   id: string;
   titulo: string;
   capa: string;
-  lat: number;
-  lon: number;
+  pais: string;
+  tipo: TipoLugar;
   aproximado: boolean;
+  punto: [number, number];
+  caja?: [number, number, number, number];
+  forma?: Geometria;
 }
 
-export function puntoMapa(l: Lugar): PuntoMapa | null {
-  const { lat, lon, precision, titulo, capa } = l.data;
-  if (precision === 'oculta' || lat === undefined || lon === undefined) return null;
-  if (precision === 'exacta') return { id: l.id, titulo, capa, lat, lon, aproximado: false };
-  const [dLat, dLon] = desplazamiento(l.id, lat);
-  return {
-    id: l.id,
-    titulo,
-    capa,
-    lat: redondear(lat + dLat),
-    lon: redondear(lon + dLon),
-    aproximado: true,
-  };
+// La geometría de un lugar, ya revisada por el esquema (src/content.config.ts).
+export function geometriaDe(l: Lugar): Geometria | undefined {
+  if (!l.data.geometria || l.data.precision === 'oculta') return undefined;
+  const { ruta } = normalizarRutaGeometria(l.data.geometria);
+  const texto = readFileSync(join(process.cwd(), 'src/content/lugares', ruta!), 'utf8');
+  return leerGeometria(texto, { recorte: RECORTE, precision: l.data.precision }).geometria;
 }
+
+export const tipoLugar = (l: Lugar): TipoLugar | null => {
+  if (l.data.precision === 'oculta') return null;
+  if (!l.data.geometria) return l.data.lat === undefined ? null : 'punto';
+  return geometriaDe(l)?.type === 'LineString' ? 'linea' : 'poligono';
+};
+
+export function lugarMapa(l: Lugar): LugarMapa | null {
+  const { lat, lon, precision, titulo, capa } = l.data;
+  if (precision === 'oculta') return null;
+  const base = { id: l.id, titulo, capa, pais: l.data.pais ?? SIN_PAIS.id, aproximado: precision === 'aproximada' };
+  const geometria = geometriaDe(l);
+  if (geometria) {
+    // Aproximada: el trazado entero se corre lo mismo que se correría el punto.
+    const forma =
+      precision === 'exacta'
+        ? geometria
+        : mapearGeometria(geometria, ([x, y]) => {
+            const [dLat, dLon] = desplazamiento(l.id, y);
+            return [redondear(x + dLon), redondear(y + dLat)];
+          });
+    const [x, y] = puntoEtiqueta(forma);
+    return { ...base, tipo: forma.type === 'LineString' ? 'linea' : 'poligono', punto: [redondear(x), redondear(y)], caja: caja(forma), forma };
+  }
+  if (lat === undefined || lon === undefined) return null;
+  if (precision === 'exacta') return { ...base, tipo: 'punto', punto: [lon, lat] };
+  const [dLat, dLon] = desplazamiento(l.id, lat);
+  return { ...base, tipo: 'punto', punto: [redondear(lon + dLon), redondear(lat + dLat)] };
+}
+
+// Dirección del lugar en el mapa (abre el mapa con la ficha) y su página propia.
+export const enlaceMapa = (id: string) => url(`/mapa/#lugar-${id}`);
+export const paginaLugar = (id: string) => url(`/mapa/${id}/`);
 
 // Desplazamiento fijo para cada lugar (sale de su nombre de archivo): el punto no salta
 // de un despliegue a otro, y no se puede promediar varias versiones para encontrarlo.

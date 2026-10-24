@@ -42,3 +42,18 @@ export const VISTA_LAGO: [[number, number], [number, number]] = [[-16.65, -70.1]
 // 2.5 km de las coordenadas del archivo (ya redondeadas a dos decimales), en una
 // dirección fija para cada lugar, y se dibuja con una zona de 3 km de radio alrededor.
 export const RADIO_APROXIMADO_M = 3000;
+
+// País de un lugar (campo opcional `pais`). Sirve para el filtro por país del mapa.
+// Una ficha sin `pais` aparece en el filtro como «sin país asignado».
+export const PAISES = [
+  { id: 'bolivia', nombre: 'Bolivia' },
+  { id: 'peru', nombre: 'Perú' },
+  { id: 'binacional', nombre: 'Binacional' },
+] as const;
+
+export type IdPais = (typeof PAISES)[number]['id'];
+
+export const IDS_PAISES = PAISES.map((p) => p.id) as [IdPais, ...IdPais[]];
+
+// Valor del filtro para una ficha sin `pais`.
+export const SIN_PAIS = { id: 'sin-pais', nombre: 'Sin país asignado' } as const;

@@ -1,18 +1,42 @@
 ---
-import 'leaflet/dist/leaflet.css';
 import Base from '../layouts/Base.astro';
 import FichaLugar from '../components/FichaLugar.astro';
 import '../styles/ficha.css';
-import { CAPAS, VISTA_LAGO, reglasCapas } from '../lib/capas';
-import { lugares, puntoMapa, radioAproximado } from '../lib/lugares';
+import '../styles/mapa.css';
+import { CAPAS, PAISES, SIN_PAIS, VISTA_LAGO, RECORTE, reglasCapas } from '../lib/capas';
+import { lugares, lugarMapa, radioAproximado, paginaLugar, tipoLugar } from '../lib/lugares';
+import { FONDOS, FONDO_PREDETERMINADO, CODIFICACION_RELIEVE, LAGO } from '../lib/mapa-fondos';
+import { lagoSintetico } from '../lib/lago-sintetico';
+import { verBorradores } from '../lib/borradores';
+import { url } from '../lib/rutas';
 
 const lista = await lugares();
-const puntos = lista.map(puntoMapa).filter((p) => p !== null);
-const cuenta = (capa: string) => lista.filter((l) => l.data.capa === capa).length;
-const datos = { puntos, vista: VISTA_LAGO, radio: radioAproximado };
+const enMapa = lista.map(lugarMapa).filter((l) => l !== null);
+const cuentaCapa = (capa: string) => lista.filter((l) => l.data.capa === capa).length;
+const cuentaPais = (pais: string) => lista.filter((l) => (l.data.pais ?? SIN_PAIS.id) === pais).length;
+const paises = [...PAISES, SIN_PAIS];
+
+// Texto en el que busca el campo «Buscar»: título y resumen, sin mayúsculas ni tildes.
+const normalizar = (t: string) => t.toLocaleLowerCase('es').normalize('NFD').replace(/\p{M}/gu, '');
+
+// Lo único que viaja al navegador para dibujar el mapa (ver LugarMapa en src/lib/lugares.ts).
+// Las teselas propias (relieve) se resuelven con la base del sitio.
+const datos = {
+  lugares: enMapa,
+  vista: VISTA_LAGO,
+  recorte: RECORTE,
+  radio: radioAproximado,
+  nombresCapas: Object.fromEntries(CAPAS.map((c) => [c.id, c.nombre])),
+  fondos: FONDOS.map((f) => ({ ...f, teselas: f.teselas.startsWith('/') ? url(f.teselas) : f.teselas })),
+  predeterminado: FONDO_PREDETERMINADO,
+  codificacionRelieve: CODIFICACION_RELIEVE,
+  // Relleno sintético del fondo del lago: sólo en desarrollo y en la construcción de prueba.
+  lagoSintetico: verBorradores ? lagoSintetico() : null,
+};
 
 // Mientras no haya ningún lugar publicado, la página no se ofrece a los buscadores.
 const sinPublicados = lista.every((l) => l.data.draft);
+const sinUbicacion = { punto: '', linea: ' · línea', poligono: ' · polígono' };
 ---
 <Base
   titulo="Mapa del Lago Titikaka"
@@ -23,154 +47,162 @@ const sinPublicados = lista.every((l) => l.data.draft);
   <div class="pagina-mapa">
     <header class="mapa-encabezado">
       <h1>Mapa del Lago Titikaka</h1>
-      <p class="mapa-intro">El lago y sus orillas, de los dos lados: Bolivia y Perú. Las capas se prenden y se apagan; cada punto abre una ficha. Debajo del mapa está el mismo contenido como listado.</p>
+      <p class="mapa-intro">El lago y sus orillas, de los dos lados: Bolivia y Perú. Las capas se prenden y se apagan; cada punto, línea o zona abre una ficha. Debajo del mapa está el mismo contenido como listado.</p>
     </header>
 
-    <fieldset class="capas interfaz" hidden>
-      <legend>Capas</legend>
-      <ul class="capas-lista">
-        {CAPAS.map((c) => (
-          <li>
-            <label class={`capa-chip capa-${c.id}`}>
-              <input type="checkbox" value={c.id} checked />
-              <span class="capa-punto" aria-hidden="true"></span>
-              {c.nombre}
-              <span class="capa-cuenta">({cuenta(c.id)})</span>
-            </label>
-          </li>
-        ))}
-      </ul>
-      <p class="capas-acciones">
-        <button type="button" data-todas>Todas</button>
-        <button type="button" data-ninguna>Ninguna</button>
-      </p>
-    </fieldset>
+    <div class="mapa-controles interfaz" data-controles hidden>
+      <div class="mapa-buscar">
+        <label for="mapa-buscar">Buscar en el mapa</label>
+        <input id="mapa-buscar" type="search" autocomplete="off" spellcheck="false" placeholder="Título o resumen" aria-describedby="mapa-estado" />
+      </div>
+      <details class="mapa-filtros" data-filtros open>
+      <summary>Capas y país <span class="mapa-filtros-resumen" data-filtros-resumen></span></summary>
+      <fieldset class="filtro" data-filtro="capa">
+        <legend>Capas</legend>
+        <ul class="chips">
+          {CAPAS.map((c) => (
+            <li>
+              <label class={`chip capa-${c.id}`}>
+                <input type="checkbox" value={c.id} checked />
+                <span class="capa-punto" aria-hidden="true"></span>
+                {c.nombre}
+                <span class="chip-cuenta">({cuentaCapa(c.id)})</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+        <p class="filtro-acciones">
+          <button type="button" data-todas>Todas</button>
+          <button type="button" data-ninguna>Ninguna</button>
+        </p>
+      </fieldset>
+      <fieldset class="filtro" data-filtro="pais">
+        <legend>País</legend>
+        <ul class="chips">
+          {paises.map((p) => (
+            <li>
+              <label class="chip chip-pais">
+                <input type="checkbox" value={p.id} checked />
+                {p.nombre}
+                <span class="chip-cuenta">({cuentaPais(p.id)})</span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </fieldset>
+      </details>
+    </div>
 
-    <div class="mapa-zona">
+    <div class="mapa-aviso interfaz" data-aviso role="status" hidden>
+      <p data-aviso-texto></p>
+      <button type="button" data-cargar-igual hidden>Cargar el mapa igual</button>
+    </div>
+
+    <div class="mapa-zona" data-mapa-zona>
       <div id="mapa" class="mapa" role="region" aria-label="Mapa interactivo del Lago Titikaka">
         <noscript><p class="vacio">El mapa necesita JavaScript. El mismo contenido está en el listado de abajo.</p></noscript>
       </div>
-      <aside id="ficha-panel" class="ficha-panel" hidden tabindex="-1">
-        <button type="button" class="ficha-cerrar interfaz" aria-label="Cerrar la ficha">×</button>
-        <div class="ficha-panel-contenido"></div>
+      <p class="mapa-rotulo-lago interfaz" data-rotulo-lago hidden>Fondo del lago: {LAGO.rotuloSintetico}</p>
+      <aside id="ficha-panel" class="ficha-panel" hidden tabindex="-1" aria-labelledby="ficha-panel-titulo">
+        <div class="ficha-panel-barra interfaz">
+          <button type="button" class="ficha-asa" data-asa aria-expanded="false">
+            <span class="ficha-asa-raya" aria-hidden="true"></span>
+            <span class="ficha-asa-texto">Agrandar la ficha</span>
+          </button>
+          <button type="button" class="ficha-cerrar" aria-label="Cerrar la ficha">×</button>
+        </div>
+        <div class="ficha-panel-desplazable">
+          <div class="ficha-panel-contenido"></div>
+          <p class="ficha-acciones interfaz">
+            <button type="button" data-copiar>Copiar enlace</button>
+            <a data-pagina-lugar href="">Página de este lugar</a>
+            <span class="ficha-copiado" data-copiado role="status"></span>
+          </p>
+        </div>
       </aside>
+    </div>
+
+    <div class="mapa-pie interfaz" data-mapa-pie hidden>
+      <fieldset class="fondos">
+        <legend>Fondo</legend>
+        <ul class="fondos-lista">
+          {FONDOS.map((f) => (
+            <li>
+              <label class:list={['fondo-opcion', { desactivado: !f.disponible }]}>
+                <input type="radio" name="fondo" value={f.id} checked={f.id === FONDO_PREDETERMINADO} disabled={!f.disponible} aria-describedby={f.disponible ? undefined : `fondo-motivo-${f.id}`} />
+                {f.nombre}
+              </label>
+              {!f.disponible && <p class="fondo-motivo" id={`fondo-motivo-${f.id}`}>{f.motivo}</p>}
+            </li>
+          ))}
+        </ul>
+        <p class="fondo-lago">
+          <label class:list={['fondo-opcion', { desactivado: !datos.lagoSintetico }]}>
+            <input type="checkbox" data-lago disabled={!datos.lagoSintetico} aria-describedby="fondo-motivo-lago" />
+            {LAGO.nombre}
+          </label>
+          <span class="fondo-motivo" id="fondo-motivo-lago">
+            {LAGO.motivo}
+            {datos.lagoSintetico && <> En esta construcción de prueba se ve un relleno {LAGO.rotuloSintetico}, sin cifras.</>}
+          </span>
+        </p>
+      </fieldset>
+
+      <details class="leyenda" data-leyenda open>
+        <summary>Leyenda</summary>
+        <div class="leyenda-cuerpo">
+          <ul class="leyenda-capas">
+            {CAPAS.map((c) => (
+              <li><span class={`capa-punto capa-${c.id}`} aria-hidden="true"></span> {c.nombre}</li>
+            ))}
+          </ul>
+          <ul class="leyenda-formas">
+            <li><span class="muestra muestra-punto" aria-hidden="true"></span> Lugar con ubicación exacta.</li>
+            <li><span class="muestra muestra-aproximada" aria-hidden="true"></span> Ubicación aproximada: el punto está desplazado a propósito y la zona sombreada, de {radioAproximado / 1000} km de radio, lo rodea. No marca el lugar exacto.</li>
+            <li><span class="muestra muestra-linea" aria-hidden="true"></span> Línea (un recorrido) y <span class="muestra muestra-poligono" aria-hidden="true"></span> polígono (una zona). El círculo encima abre la ficha.</li>
+            <li><span class="muestra muestra-linea-aproximada" aria-hidden="true"></span> Línea o polígono aproximados: trazo punteado, desplazado a propósito.</li>
+            <li><span class="muestra muestra-grupo" aria-hidden="true">3</span> Grupo de lugares cercanos: el número dice cuántos son. Al acercarse, se separan.</li>
+          </ul>
+          <p class="leyenda-nota">Los lugares sin ubicación publicada no tienen marca en el mapa: están sólo en el listado.</p>
+        </div>
+      </details>
     </div>
 
     <section class="listado" aria-labelledby="titulo-listado">
       <h2 id="titulo-listado">Lugares</h2>
-      <p class="meta listado-estado" aria-live="polite"></p>
+      <p class="meta listado-estado" id="mapa-estado" aria-live="polite"></p>
       {lista.length === 0 ? (
         <p class="vacio">Todavía no hay lugares publicados.</p>
       ) : (
         <ul class="listado-lista">
-          {lista.map((l) => (
-            <li id={`lugar-${l.id}`} class="listado-item" data-lugar={l.id} data-capa={l.data.capa}>
-              <FichaLugar lugar={l} />
-              {l.data.precision !== 'oculta' && (
-                <button type="button" class="ver-en-mapa interfaz" data-ver-en-mapa hidden>Ver en el mapa</button>
-              )}
-            </li>
-          ))}
+          {lista.map((l) => {
+            const tipo = tipoLugar(l);
+            return (
+              <li
+                id={`lugar-${l.id}`}
+                class="listado-item"
+                data-lugar={l.id}
+                data-capa={l.data.capa}
+                data-pais={l.data.pais ?? SIN_PAIS.id}
+                data-texto={normalizar(`${l.data.titulo} ${l.data.resumen}`)}
+                data-en-mapa={tipo ? '' : undefined}
+              >
+                <FichaLugar lugar={l} enlace={paginaLugar(l.id)} />
+                <p class="listado-acciones interfaz">
+                  {tipo && <button type="button" class="ver-en-mapa" data-ver-en-mapa hidden>Ver en el mapa{sinUbicacion[tipo]}</button>}
+                  <a href={paginaLugar(l.id)}>Página de este lugar</a>
+                </p>
+              </li>
+            );
+          })}
         </ul>
       )}
+      <p class="vacio" data-sin-resultados hidden>Ningún lugar coincide con la búsqueda y los filtros.</p>
     </section>
   </div>
 
   <script type="application/json" id="datos-mapa" set:html={JSON.stringify(datos)}></script>
   <script>
-    import '../scripts/mapa.ts';
+    import '../scripts/mapa/pagina.ts';
   </script>
 </Base>
-
-<style is:global>
-  /* Estilos de /mapa. Globales porque el panel copia fichas del listado. */
-  .pagina-mapa h1 { margin-bottom: 0.4rem; }
-  .mapa-intro { max-width: var(--ancho-lectura); color: var(--color-texto-suave); margin-top: 0; }
-
-  /* Panel de capas */
-  .capas { border: 0; padding: 0; margin: 1.25rem 0 0.75rem; min-width: 0; }
-  .capas legend { font-weight: 600; font-size: var(--tam-chico); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-texto-suave); padding: 0; margin-bottom: 0.5rem; }
-  .capas-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .capa-chip {
-    display: inline-flex; align-items: center; gap: 0.4rem; position: relative;
-    border: 1px solid var(--color-borde); border-radius: 999px;
-    padding: 0.3rem 0.75rem 0.3rem 0.45rem; font-size: 0.92rem; cursor: pointer;
-    background: var(--color-fondo); white-space: nowrap; user-select: none;
-  }
-  .capa-chip:has(input:checked) { border-color: var(--capa-color); background: var(--color-superficie); }
-  .capa-chip:has(input:not(:checked)) { color: var(--color-texto-suave); }
-  .capa-chip:has(input:not(:checked)) .capa-punto { opacity: 0.35; }
-  .capa-chip:has(input:focus-visible) { outline: 2px solid var(--color-acento); outline-offset: 2px; }
-  .capa-chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-  .capa-cuenta { color: var(--color-texto-suave); font-size: 0.85em; }
-  .capas-acciones { margin: 0.5rem 0 0; display: flex; gap: 0.5rem; }
-  .capas-acciones button, .ver-en-mapa {
-    font: inherit; font-size: var(--tam-chico); cursor: pointer;
-    background: none; border: 1px solid var(--color-borde); border-radius: var(--radio);
-    color: var(--color-acento); padding: 0.25rem 0.7rem;
-  }
-  .capas-acciones button:hover, .ver-en-mapa:hover { border-color: var(--color-acento); }
-
-  /* Mapa */
-  .mapa-zona { position: relative; }
-  .mapa {
-    height: var(--mapa-alto); min-height: 22rem; border: 1px solid var(--color-borde);
-    border-radius: var(--radio); background: var(--color-superficie); z-index: 0;
-    font-family: var(--fuente-interfaz);
-  }
-  .mapa .leaflet-tile-pane { filter: var(--mapa-filtro-teselas); }
-  .mapa .leaflet-control-attribution { font-size: 0.75rem; }
-  .mapa .leaflet-bar a { background: var(--color-fondo); color: var(--color-texto); border-color: var(--color-borde); }
-  .mapa .leaflet-bar a:hover { background: var(--color-superficie); }
-  .mapa .leaflet-control-attribution { background: color-mix(in srgb, var(--color-fondo) 85%, transparent); color: var(--color-texto-suave); }
-  .pin-envoltura { background: none; border: 0; }
-  .pin-envoltura:focus-visible { outline: none; }
-  .pin {
-    display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
-    background: var(--capa-color); border: 2px solid var(--color-capa-contorno);
-    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35); transition: transform 0.15s;
-  }
-  .pin-icono {
-    width: 18px; height: 18px; background: var(--color-capa-icono);
-    -webkit-mask: var(--capa-icono) center / contain no-repeat; mask: var(--capa-icono) center / contain no-repeat;
-  }
-  .pin-aproximado { border-style: dashed; opacity: 0.85; }
-  .pin.activo, .pin-envoltura:focus-visible .pin { transform: scale(1.25); outline: 3px solid var(--color-acento); outline-offset: 1px; }
-  .zona-aproximada { stroke: var(--capa-color); fill: var(--capa-color); fill-opacity: 0.18; stroke-dasharray: 5 5; stroke-width: 2; }
-
-  /* Ficha lateral: a la derecha en escritorio, abajo en celular */
-  .ficha-panel {
-    position: absolute; top: 0; right: 0; bottom: 0; z-index: 1001;
-    width: min(var(--mapa-ancho-ficha), 100%); overflow-y: auto; overscroll-behavior: contain;
-    background: var(--color-fondo); border: 1px solid var(--color-borde);
-    border-radius: 0 var(--radio) var(--radio) 0; box-shadow: -4px 0 16px rgb(0 0 0 / 0.12);
-    padding: 1.25rem 1.25rem 1.5rem; font-size: 1rem; line-height: 1.55;
-  }
-  .ficha-panel:focus { outline: none; }
-  .ficha-panel:focus-visible { outline: 2px solid var(--color-acento); }
-  .ficha-cerrar {
-    position: sticky; top: 0; float: right; margin: -0.5rem -0.5rem 0 0.5rem;
-    width: 2.25rem; height: 2.25rem; font-size: 1.5rem; line-height: 1; cursor: pointer;
-    border: 1px solid var(--color-borde); border-radius: 50%; background: var(--color-fondo); color: var(--color-texto);
-  }
-  .ficha-cerrar:hover { border-color: var(--color-acento); color: var(--color-acento); }
-  .ficha-panel .ficha-titulo { font-size: 1.4rem; margin: 0.3rem 0 0.5rem; }
-  .ficha-panel .ficha-resumen { font-style: italic; }
-
-  @media (max-width: 700px) {
-    .capas-lista { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.4rem; scrollbar-width: thin; }
-    .mapa { height: var(--mapa-alto-celular); }
-    .ficha-panel {
-      top: auto; left: 0; width: 100%; max-height: 68%;
-      border-radius: 12px 12px var(--radio) var(--radio); box-shadow: 0 -4px 16px rgb(0 0 0 / 0.18);
-    }
-  }
-
-  /* Listado */
-  .listado { margin-top: 3rem; max-width: var(--ancho-lectura); }
-  .listado h2 { margin-top: 0; }
-  .listado-lista { list-style: none; margin: 0; padding: 0; }
-  .listado-item { padding: 1.4rem 0; border-bottom: 1px solid var(--color-borde); }
-  .listado-item:first-child { padding-top: 0.5rem; }
-  .ver-en-mapa { margin-top: 0.4rem; }
-</style>

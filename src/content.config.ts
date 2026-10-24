@@ -1,8 +1,11 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { slugificar } from './lib/slug';
-import { IDS_CAPAS, RECORTE } from './lib/capas';
+import { IDS_CAPAS, IDS_PAISES, RECORTE } from './lib/capas';
+import { leerGeometria, normalizarRutaGeometria } from './lib/geometria';
 import { normalizarDoi, normalizarPaginas } from './lib/revista';
 import { normalizarTipoLugar, TIPOS_LUGAR, chocaConEnsayos } from './lib/referencia';
 import { anclasOrdenadas, calcularZ, MARCADORES_DE_TRABAJO, textosDe, TOLERANCIA_Z } from './lib/tablero';
@@ -144,6 +147,17 @@ function normalizarMarcador(v: unknown) {
   return MARCADORES[clave as keyof typeof MARCADORES] ?? texto;
 }
 
+// Revisa el archivo de geometría de un lugar (src/lib/geometria.ts). La ruta es relativa a
+// src/content/lugares/. Rutas desde la raíz del proyecto, donde se corre `npm run build`.
+const CARPETA_LUGARES = join(process.cwd(), 'src/content/lugares');
+function erroresGeometria(ref: string, precision: string): string[] {
+  const { ruta, error } = normalizarRutaGeometria(ref);
+  if (error) return [error];
+  const archivo = join(CARPETA_LUGARES, ruta!);
+  if (!existsSync(archivo)) return [`No existe el archivo de geometría src/content/lugares/${ruta}.`];
+  return leerGeometria(readFileSync(archivo, 'utf8'), { recorte: RECORTE, precision }).errores.map((e) => `${ruta}: ${e}`);
+}
+
 // Frontmatter de los lugares del mapa. Ver COMO-PUBLICAR.md, «Agregar un lugar al mapa».
 const lugares = defineCollection({
   loader: glob({ base: './src/content/lugares', pattern: '**/*.md', generateId: generarId }),
@@ -154,7 +168,14 @@ const lugares = defineCollection({
         capa: z.preprocess((v) => (typeof v === 'string' ? slugificar(v) : v), z.enum(IDS_CAPAS)),
         lat: z.preprocess(coordenada, z.coerce.number().min(-90).max(90).optional()),
         lon: z.preprocess(coordenada, z.coerce.number().min(-180).max(180).optional()),
+        // Línea o polígono: archivo GeoJSON en src/content/lugares/geometrias/. Va en lugar de lat y lon.
+        geometria: z.preprocess(vacio, z.string().trim().min(1).optional()),
         precision: z.preprocess(vacio, z.enum(['exacta', 'aproximada', 'oculta']).default('exacta')),
+        // Lugar sensible (lugares sagrados y los que el autor indique). La capa Arqueología es
+        // siempre sensible, lo diga o no. Regla 6: sólo punto aproximado u oculto.
+        sensible: z.preprocess(vacio, z.boolean().default(false)),
+        // bolivia, peru o binacional («Perú» también vale). Sin `pais`: «sin país asignado» en el filtro.
+        pais: z.preprocess((v) => (typeof v === 'string' && v.trim() ? slugificar(v) : vacio(v)), z.enum(IDS_PAISES).optional()),
         resumen: z.string(),
         imagen: z.preprocess(
           vacio,
@@ -184,8 +205,30 @@ const lugares = defineCollection({
       })
       .superRefine((d, ctx) => {
         const sinCoordenadas = d.lat === undefined || d.lon === undefined;
-        if (d.precision !== 'oculta' && sinCoordenadas) {
-          ctx.addIssue({ code: 'custom', path: ['lat'], message: 'Faltan lat y lon. Sólo se pueden omitir con «precision: oculta».' });
+        // Regla 6 (decisión del autor, 22-10-2026): un lugar sensible no lleva línea ni polígono,
+        // sólo un punto aproximado (dos decimales) u oculto. Mismo criterio que esSensible() en
+        // scripts/obsidian/controles.mjs.
+        const sensible = d.sensible ? 'marcado con «sensible: true»' : d.capa === 'arqueologia' ? 'capa Arqueología' : null;
+        if (sensible && d.geometria !== undefined) {
+          ctx.addIssue({ code: 'custom', path: ['geometria'], message: `Regla 6: es un lugar sensible (${sensible}) y no puede llevar línea ni polígono. Va como punto con «precision: aproximada» (lat y lon con dos decimales) o con «precision: oculta». El trazado queda en la bóveda privada.` });
+        }
+        if (sensible && d.precision === 'exacta') {
+          ctx.addIssue({ code: 'custom', path: ['precision'], message: `Regla 6: es un lugar sensible (${sensible}) y tiene «precision: exacta» (o no la dice, y vale exacta). Usá «aproximada» (lat y lon con dos decimales) u «oculta» (sin lat ni lon).` });
+        }
+        if (d.geometria !== undefined) {
+          // Un lugar es un punto (lat y lon) o una línea o un polígono (geometria), nunca las dos
+          // cosas: el mapa no sabría dónde ponerlo ni adónde llevar la vista.
+          if (d.lat !== undefined || d.lon !== undefined) {
+            ctx.addIssue({ code: 'custom', path: ['geometria'], message: 'Un lugar lleva lat y lon (un punto) o «geometria» (una línea o un polígono), no las dos cosas. Borrá lat y lon, o «geometria».' });
+          }
+          // Regla 6: con oculta no se publica ninguna ubicación, tampoco un trazado.
+          if (d.precision === 'oculta') {
+            ctx.addIssue({ code: 'custom', path: ['geometria'], message: 'Regla 6: con «precision: oculta» la ficha no lleva «geometria». El trazado queda en la bóveda privada.' });
+          } else {
+            for (const message of erroresGeometria(d.geometria, d.precision)) ctx.addIssue({ code: 'custom', path: ['geometria'], message });
+          }
+        } else if (d.precision !== 'oculta' && sinCoordenadas) {
+          ctx.addIssue({ code: 'custom', path: ['lat'], message: 'Faltan lat y lon (o «geometria», para una línea o un polígono). Sólo se pueden omitir con «precision: oculta».' });
         }
         if (!sinCoordenadas) {
           const { latMin, latMax, lonMin, lonMax } = RECORTE;
