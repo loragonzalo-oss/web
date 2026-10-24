@@ -52,6 +52,28 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
 - [ ] Ensayos en la portada: las dos direcciones muestran los tres últimos ensayos en la portada (la maqueta de siempre sólo muestra el blog). Confirmar si se quiere así.
 - [ ] Sitios de referencia: el entorno donde se hizo el rediseño bloquea los dominios de las referencias de Awwwards (everest.suraj.work, 1000whales.com, moncalisse.com, beautiful-imperfections.com, alethia.earth y los demás), así que el diseño salió de la descripción del encargo, no de mirar los sitios vivos. Conviene que el autor compare las direcciones con las referencias que eligió.
 
+### Tablero de indicadores (22-10-2026)
+
+La página `/tablero/` está unida a `main` en borrador (`draft: true`): el sitio publicado sólo dice «en preparación». La lista completa de pendientes del tablero está en la bitácora del chat 7 del proyecto «Página web y blog»; acá van los que tocan el sitio. Los datos y los textos están en `src/content/tablero/p07.yaml`, y cómo se cambian, en `docs/tablero/COMO-ACTUALIZAR.md`.
+
+- [ ] **Tipografía de la figura.** Hoy hereda la del tema publicado. Se cambia en un solo lugar: `--fuente-tablero`, en `src/components/tablero/Rosa.astro`. Si se elige Lato, hay que autoalojarla (Fontsource, licencia OFL).
+- [ ] **Textos del autor**, hoy con relleno visible en el YAML (bloque `textos`):
+  - [PENDIENTE: rótulo del autor — proyecto personal en desarrollo, sin validación de la ALT ni del CCMB] (`rotulo`);
+  - [PENDIENTE: introducción del autor, en primera persona] (`introduccion`);
+  - [PENDIENTE: nota de método del autor] (`metodo`);
+  - el apoyo técnico de la nota de método (`metodo_apoyo`) es relleno redactado en la sesión: usarlo, reescribirlo o borrarlo.
+- [ ] **Campo `herramienta` del historial.** Hoy la página dice «Hecha con Claude» (P07) y «Hecha con Codex» (P06). Si se borra el campo de un YAML, esa línea no aparece.
+- [ ] **Balance P − ETP** (pétalo 7). Sin dato (decisión del autor, 24-10-2026). El −242 mm/año que figuraba como valor parece ser la referencia copiada; falta confirmarlo con el Cuadro 2 de los escenarios v2. Falta además el valor actual con fuente y la fuente de la referencia (−242 mm/año). Referencia, límite y alto riesgo quedan como están, rotulados «pendiente de fuente» en la tabla (`anclas_pendientes: true`). Al cargar el valor: poner `valor`, cambiar `estado_valor` y agregar `z_referencia`; cuando las anclas tengan fuente, quitar `anclas_pendientes`.
+- [ ] **Fuentes primarias de los valores de 12 pétalos** (2 al 13). Sólo Cohana (pétalo 1) tiene valor con fuente. Once llevan «Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]» en el campo `fuente`; el pétalo 7 no tiene valor (ver el punto anterior).
+- [ ] **Convención D.** Nueve pétalos (3, 4, 6, 7, 8, 9, 11, 12 y 13) tienen el alto riesgo por convención: el doble de la distancia entre la referencia y el límite, con asterisco. Confirmar o reemplazar por un criterio A, B o C con fuente.
+- [ ] **Referencia del nivel del lago** (pétalo 5). 3809.00 msnm es provisoria; por eso el valor va como provisorio e incierto.
+- [ ] **Referencias APA** de la lista de fuentes (`textos.fuentes`), hoy con [PENDIENTE]:
+  - Buytaert et al. (2017), Richardson et al. (2023) y Rockström et al. (2009): título, revista, volumen, páginas y DOI;
+  - Lazzaro et al. (2023): editorial, lugar y DOI o URL;
+  - Lora Veizaga (2026): título exacto y forma de publicación;
+  - Producto 4 de la CT BO-T1425: referencia completa.
+- [ ] **Pasar a `draft: false`** en `p07.yaml` cuando no quede ningún `[PENDIENTE` en el archivo. Mientras quede uno, la construcción no deja publicar. Con eso la página aparece completa, entra al buscador y se genera la imagen para compartir.
+
 ### «Sobre mí»
 
 - [ ] ¿En primera o en tercera persona? Hoy está en tercera, sólo con los datos confirmados del encargo inicial.

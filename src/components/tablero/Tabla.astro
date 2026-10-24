@@ -1,7 +1,7 @@
 ---
 // Tabla de los pétalos: la alternativa accesible de la rosa, desde los mismos datos.
 import Trozos from './Trozos.astro';
-import { conUnidad, enLinea, etiquetasEstado, numero, Z_MAX, type PetaloRosa } from '../../lib/tablero';
+import { conUnidad, enLinea, etiquetasEstado, numero, SIN_DATO, Z_MAX, type PetaloRosa } from '../../lib/tablero';
 
 type Fila = PetaloRosa & {
   referencia: number;
@@ -10,6 +10,7 @@ type Fila = PetaloRosa & {
   criterio: string;
   fuente: string;
   nota?: string;
+  anclas_pendientes: boolean;
 };
 interface Props {
   petalos: Fila[];
@@ -26,7 +27,7 @@ const CRITERIOS: Record<string, string> = {
 const grupos = variables
   .map((v) => ({ ...v, filas: petalos.map((p, i) => ({ p, n: i + 1 })).filter(({ p }) => p.ve === v.id) }))
   .filter((g) => g.filas.length > 0);
-const textoZ = (z: number) => `${numero(z, 2)}${z === 0 ? ' (en la referencia)' : z >= Z_MAX ? ' (fuera de escala)' : ''}`;
+const textoZ = (z: number | null) => (z === null ? SIN_DATO : `${numero(z, 2)}${z === 0 ? ' (en la referencia)' : z >= Z_MAX ? ' (fuera de escala)' : ''}`);
 const estado = (p: Fila) => [...etiquetasEstado(p.umbral, p.estado_valor), ...(p.incierto ? ['valor incierto'] : [])];
 ---
 <div class="tablero-tabla" role="region" aria-labelledby="tabla-titulo" tabindex="0">
@@ -57,10 +58,10 @@ const estado = (p: Fila) => [...etiquetasEstado(p.umbral, p.estado_valor), ...(p
               {p.indicador}
               {p.nota && <span class="tablero-nota"><Trozos trozos={enLinea(p.nota)} /></span>}
             </th>
-            <td class="num">{conUnidad(p.valor, p.unidad, p.decimales)}</td>
-            <td class="num">{conUnidad(p.referencia, p.unidad, p.decimales)}</td>
-            <td class="num">{conUnidad(p.limite, p.unidad, p.decimales)}</td>
-            <td class="num">{conUnidad(p.alto_riesgo, p.unidad, p.decimales)}{p.umbral === 'convencion' && <span aria-hidden="true">*</span>}</td>
+            <td class="num">{p.valor === undefined ? SIN_DATO : conUnidad(p.valor, p.unidad, p.decimales)}</td>
+            <td class="num">{conUnidad(p.referencia, p.unidad, p.decimales)}{p.anclas_pendientes && <span class="tablero-nota">pendiente de fuente</span>}</td>
+            <td class="num">{conUnidad(p.limite, p.unidad, p.decimales)}{p.anclas_pendientes && <span class="tablero-nota">pendiente de fuente</span>}</td>
+            <td class="num">{conUnidad(p.alto_riesgo, p.unidad, p.decimales)}{p.umbral === 'convencion' && <span aria-hidden="true">*</span>}{p.anclas_pendientes && <span class="tablero-nota">pendiente de fuente</span>}</td>
             <td>{p.criterio} · {CRITERIOS[p.criterio]}</td>
             <td class="num">{textoZ(p.z)}</td>
             <td class="tablero-estado">{estado(p).map((e) => <span>{e}</span>)}</td>

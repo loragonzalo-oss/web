@@ -8,7 +8,10 @@
 #     fuente; C peor valor histórico registrado; D convención (el doble de la distancia entre
 #     la referencia y el límite).
 #   umbral: fuente (criterios A, B o C) o convencion (criterio D; se muestra con asterisco).
-#   estado_valor: fuente o provisorio.
+#   estado_valor: fuente, provisorio o sin_dato. Con sin_dato el pétalo no lleva valor ni
+#     z_referencia y se dibuja sin largo, con la etiqueta «sin dato».
+#   anclas_pendientes: true si referencia, límite y alto riesgo esperan fuente (se rotulan así
+#     en la tabla; con draft: false la construcción no lo admite).
 #   incierto: true para un valor incierto (pétalo más tenue, con contorno).
 #   z_referencia: la z de la propuesta. Si el cálculo difiere en más de 0.01, el sitio no se
 #     construye y el error dice qué pétalo revisar.
@@ -170,16 +173,19 @@ petalos:
   - ve: VE2
     indicador: "Balance P − ETP"
     unidad: mm/año
-    valor: -242
+    # Sin dato (decisión del autor, 24-10-2026): el pétalo se dibuja sin largo.
+    # El −242 mm/año que figuraba como valor parece ser la referencia copiada; falta confirmarlo
+    # con el Cuadro 2 de los escenarios v2.
     polaridad: -1
     referencia: -242
     limite: -290.4
     alto_riesgo: -338.8
     criterio: D
     umbral: convencion
-    estado_valor: provisorio
-    z_referencia: 0.00
-    fuente: "Valor: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]"
+    estado_valor: sin_dato
+    anclas_pendientes: true
+    fuente: "Referencia: [PENDIENTE: fuente de la referencia; el −242 mm/año sale del Cuadro 2 de Lora Veizaga (2026) y falta confirmar si allí es la referencia o el valor actual]. Límite y alto riesgo: por convención (criterio D), a partir de la referencia. [PENDIENTE: valor actual con fuente]"
+    nota: "Todavía no hay un valor actual con fuente."
 
   # ——— VE 3 · Integridad ecosistémica ———
   - ve: VE3
