@@ -30,6 +30,7 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
   - Observatorio Binacional. Licencia: [PENDIENTE]. Formato: [PENDIENTE].
   - Otras: [PENDIENTE].
 - [ ] [PENDIENTE: criterio de inclusión para empresas y emprendimientos]. Qué condiciones tiene que cumplir un emprendimiento comunitario o una empresa de turismo para tener ficha (quién lo propone, cómo se verifica, si se cobra o no, cómo se da de baja). Hasta que exista, no cargar fichas de esas dos capas.
+- [ ] Capa de la cuenca Katari (borrador, encargo 9): 14 fichas en `src/content/lugares/` con `draft: true`, sin coordenada (el corpus no las da), capa provisoria Ecología y actores por confirmar contra el Cuadro 19 del PDCKyLMT. Decisiones abiertas: capa nueva «Presiones y saneamiento», ríos como trazos y candidatos sin ficha. Todo en `docs/revision/katari.md`.
 
 ## Decisiones del autor
 
