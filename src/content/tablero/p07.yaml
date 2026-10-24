@@ -173,8 +173,9 @@ petalos:
   - ve: VE2
     indicador: "Balance P − ETP"
     unidad: mm/año
-    # Sin dato (decisión del autor, 24-10-2026): el −242 mm/año que figuraba como valor era la
-    # referencia copiada. No hay valor actual con fuente: el pétalo se dibuja sin largo.
+    # Sin dato (decisión del autor, 24-10-2026): el pétalo se dibuja sin largo.
+    # El −242 mm/año que figuraba como valor parece ser la referencia copiada; falta confirmarlo
+    # con el Cuadro 2 de los escenarios v2.
     polaridad: -1
     referencia: -242
     limite: -290.4
@@ -183,7 +184,7 @@ petalos:
     umbral: convencion
     estado_valor: sin_dato
     anclas_pendientes: true
-    fuente: "Referencia: Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente de la referencia]. Límite y alto riesgo: por convención (criterio D), a partir de la referencia. [PENDIENTE: valor actual con fuente]"
+    fuente: "Referencia: [PENDIENTE: fuente de la referencia; el −242 mm/año sale del Cuadro 2 de Lora Veizaga (2026) y falta confirmar si allí es la referencia o el valor actual]. Límite y alto riesgo: por convención (criterio D), a partir de la referencia. [PENDIENTE: valor actual con fuente]"
     nota: "Todavía no hay un valor actual con fuente."
 
   # ——— VE 3 · Integridad ecosistémica ———
