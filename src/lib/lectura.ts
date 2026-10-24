@@ -4,7 +4,7 @@ import { entradasBlog, ensayos } from './contenido';
 import { SITIO } from './sitio';
 import { slugificar } from './slug';
 import { url } from './rutas';
-import { urlDoi } from './revista';
+import { destinoCita, esRedSocial } from './referencia';
 
 export type Texto = CollectionEntry<'blog'> | CollectionEntry<'ensayos'>;
 
@@ -69,7 +69,8 @@ function escaparBibtex(s: string): string {
 // APA 7. Entrada de blog: el nombre del blog va en cursiva y el título no.
 // Ensayo inédito: el título va en cursiva. Ensayo en una revista: van en cursiva la revista
 // y el volumen: «Título. *Revista*, *12*(3), 45–67. https://doi.org/…». Con DOI, la cita
-// lleva el DOI en lugar de la dirección.
+// lleva el DOI en lugar de la dirección. El destino de la cita sale de destinoCita()
+// (src/lib/referencia.ts): DOI, publicación formal o esta página; nunca una red social.
 export function cita(t: Texto, direccion: string): Cita {
   const { apellidos, iniciales, nombres } = SITIO.autorCita;
   const f = t.data.fecha;
@@ -81,7 +82,9 @@ export function cita(t: Texto, direccion: string): Cita {
   const conPunto = (s: string) => (/[.?!]$/.test(s) ? s : `${s}.`);
   const ensayo = t.collection === 'ensayos' ? t.data : undefined;
   const publicacion = ensayo?.publicacion?.trim();
-  const destino = (ensayo?.doi && urlDoi(ensayo.doi)) || ensayo?.enlace || direccion;
+  const destino = ensayo ? destinoCita(ensayo, direccion) : direccion;
+  // Enlace de la publicación formal, si lo hay y no es una red social.
+  const enlaceFormal = publicacion && ensayo?.enlace && !esRedSocial(ensayo.enlace) ? ensayo.enlace : undefined;
 
   let apa: Tramo[];
   if (t.collection === 'blog') {
@@ -129,7 +132,7 @@ export function cita(t: Texto, direccion: string): Cita {
     if (t.collection === 'blog') campos.push(['organization', SITIO.nombreBlog]);
   }
   // Con DOI, `url` queda para la publicación original o, si no hay, esta página.
-  campos.push(['url', ensayo?.doi ? ensayo.enlace || direccion : destino], ['langid', 'spanish']);
+  campos.push(['url', ensayo?.doi ? enlaceFormal ?? direccion : destino], ['langid', 'spanish']);
   const ancho = Math.max(...campos.map(([k]) => k.length));
   const crudo = new Set(['url', 'doi']);
   const cuerpo = campos
@@ -182,17 +185,40 @@ export async function lugarEnSerie(t: Texto): Promise<LugarEnSerie | undefined> 
 }
 
 // ── Textos relacionados ──────────────────────────────────────────────────────
-// Entradas del blog que comparten más etiquetas; a igual cantidad, la más cercana en fecha.
+// Entradas del blog y ensayos que comparten más etiquetas; a igual cantidad, el más cercano en fecha.
 export const MAXIMO_RELACIONADOS = 3;
 
-export async function relacionados(e: CollectionEntry<'blog'>): Promise<CollectionEntry<'blog'>[]> {
-  const propias = new Set(e.data.etiquetas.map(slugificar));
+export async function relacionados(t: Texto): Promise<Texto[]> {
+  const propias = new Set(t.data.etiquetas.map(slugificar));
   if (propias.size === 0) return [];
-  const candidatas = (await entradasBlog())
-    .filter((o) => o.id !== e.id)
-    .map((o) => ({ o, comunes: o.data.etiquetas.filter((t) => propias.has(slugificar(t))).length }))
+  const todos: Texto[] = [...(await entradasBlog()), ...(await ensayos())];
+  const candidatos = todos
+    .filter((o) => !(o.collection === t.collection && o.id === t.id))
+    .map((o) => ({ o, comunes: o.data.etiquetas.filter((e) => propias.has(slugificar(e))).length }))
     .filter(({ comunes }) => comunes > 0);
-  const distancia = (o: CollectionEntry<'blog'>) => Math.abs(o.data.fecha.valueOf() - e.data.fecha.valueOf());
-  candidatas.sort((a, b) => b.comunes - a.comunes || distancia(a.o) - distancia(b.o));
-  return candidatas.slice(0, MAXIMO_RELACIONADOS).map(({ o }) => o);
+  const distancia = (o: Texto) => Math.abs(o.data.fecha.valueOf() - t.data.fecha.valueOf());
+  candidatos.sort((a, b) => b.comunes - a.comunes || distancia(a.o) - distancia(b.o));
+  return candidatos.slice(0, MAXIMO_RELACIONADOS).map(({ o }) => o);
+}
+
+// ── Temas de los ensayos ─────────────────────────────────────────────────────
+// Las etiquetas de los ensayos, con sus ensayos (del más reciente al más antiguo).
+export interface Tema {
+  slug: string;
+  nombre: string;
+  ensayos: CollectionEntry<'ensayos'>[];
+}
+
+export async function temasEnsayos(): Promise<Tema[]> {
+  const mapa = new Map<string, Tema>();
+  for (const e of await ensayos()) {
+    for (const t of e.data.etiquetas) {
+      const slug = slugificar(t);
+      if (!slug) continue;
+      if (!mapa.has(slug)) mapa.set(slug, { slug, nombre: t, ensayos: [] });
+      const tema = mapa.get(slug)!;
+      if (!tema.ensayos.includes(e)) tema.ensayos.push(e);
+    }
+  }
+  return [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 }

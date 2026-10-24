@@ -3,6 +3,7 @@
 import { IDS_CAPAS, RECORTE } from '../../src/lib/capas.ts';
 import { slugificar } from '../../src/lib/slug.ts';
 import { normalizarDoi, normalizarPaginas } from '../../src/lib/revista.ts';
+import { TIPOS_LUGAR, normalizarTipoLugar, chocaConEnsayos, errorCuerpoResumen } from '../../src/lib/referencia.ts';
 
 export const TIPOS = {
   blog: { carpeta: 'blog', ruta: 'blog' },
@@ -27,6 +28,8 @@ function normalizarMarcador(v) {
 // con ese nombre las taparía. Mismo criterio que src/pages/blog/[entrada].astro.
 export const RESERVADAS_BLOG = ['archivo', 'etiquetas'];
 export const chocaConBlog = (id) => RESERVADAS_BLOG.includes(id) || /^\d+$/.test(id);
+// Lo mismo en los ensayos (/ensayos/temas/): src/lib/referencia.ts.
+export { chocaConEnsayos };
 
 // Lee los campos uno por uno y junta los errores en castellano.
 function lector(fm, errores) {
@@ -79,8 +82,8 @@ function lector(fm, errores) {
   };
 }
 
-function validarBlog(fm, errores) {
-  const l = lector(fm, errores);
+// `etiquetas`: lista de textos. Una sola etiqueta escrita como texto también vale.
+function leerEtiquetas(fm, errores) {
   let etiquetas = fm.etiquetas;
   if (vacio(etiquetas)) etiquetas = [];
   else if (typeof etiquetas === 'string') etiquetas = [etiquetas];
@@ -88,11 +91,28 @@ function validarBlog(fm, errores) {
     errores.push('«etiquetas» tiene que ser una lista.');
     etiquetas = [];
   }
+  return etiquetas.filter((e) => !vacio(e)).map(String);
+}
+
+// `imagen` con crédito: mismo criterio en lugares y ensayos. El archivo lo completa exportar.mjs.
+function leerImagen(fm, errores) {
+  if (vacio(fm.imagen)) return undefined;
+  if (typeof fm.imagen !== 'object' || vacio(fm.imagen.archivo)) {
+    errores.push('«imagen» lleva «archivo», «credito» y, opcional, «descripcion».');
+    return undefined;
+  }
+  if (vacio(fm.imagen.credito)) errores.push('«imagen» necesita «credito»: autor y licencia.');
+  return { archivo: undefined, credito: fm.imagen.credito, descripcion: vacio(fm.imagen.descripcion) ? undefined : fm.imagen.descripcion };
+}
+
+function validarBlog(fm, errores) {
+  const l = lector(fm, errores);
+  const etiquetas = leerEtiquetas(fm, errores);
   return {
     titulo: l.texto('titulo', true),
     fecha: l.fecha('fecha', true),
     resumen: l.texto('resumen', false),
-    etiquetas: etiquetas.filter((e) => !vacio(e)).map(String),
+    etiquetas,
     imagen: undefined, // la completa exportar.mjs después de copiar la imagen
     slug: l.texto('slug', false),
     draft: l.draft(),
@@ -117,6 +137,57 @@ function validarEnsayo(fm, errores) {
     if (!d) errores.push(`«doi» no es un DOI válido: «${doi}». Se escribe «10.1234/abcd» o «https://doi.org/10.1234/abcd».`);
     doi = d;
   }
+  const fechaDe = (v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v);
+
+  // Otros lugares donde salió el ensayo. Mismo esquema que src/content.config.ts.
+  let publicadoEn = [];
+  if (!vacio(fm.publicado_en)) {
+    if (!Array.isArray(fm.publicado_en)) errores.push('«publicado_en» tiene que ser una lista de lugares (cada uno con «lugar», «tipo» y «fecha»).');
+    else {
+      publicadoEn = fm.publicado_en.map((p, i) => {
+        const n = `«publicado_en», lugar ${i + 1}`;
+        if (typeof p !== 'object' || p === null) {
+          errores.push(`${n}: lleva «lugar», «tipo», «fecha» y, opcional, «enlace».`);
+          return {};
+        }
+        const tipo = normalizarTipoLugar(p.tipo);
+        const fecha = fechaDe(p.fecha);
+        if (vacio(p.lugar)) errores.push(`${n}: falta «lugar».`);
+        if (vacio(p.tipo)) errores.push(`${n}: falta «tipo» (${TIPOS_LUGAR.join(', ')}).`);
+        else if (!tipo) errores.push(`${n}: «tipo: ${p.tipo}» no existe. Opciones: ${TIPOS_LUGAR.join(', ')}.`);
+        if (vacio(fecha)) errores.push(`${n}: falta «fecha» (formato AAAA-MM-DD).`);
+        else if (!esFecha(String(fecha))) errores.push(`${n}: «fecha» no es una fecha válida: «${fecha}». Formato: AAAA-MM-DD.`);
+        if (!vacio(p.enlace) && !esUrl(p.enlace)) errores.push(`${n}: «enlace» no es una dirección web válida: «${p.enlace}».`);
+        return { lugar: vacio(p.lugar) ? undefined : String(p.lugar), tipo: tipo ?? p.tipo, fecha: vacio(fecha) ? undefined : String(fecha), enlace: vacio(p.enlace) ? undefined : p.enlace };
+      });
+    }
+  }
+
+  let versionWeb;
+  if (!vacio(fm.version_web)) {
+    versionWeb = String(fm.version_web).trim();
+    if (!['completa', 'resumen'].includes(versionWeb)) errores.push(`«version_web: ${fm.version_web}» no existe. Opciones: completa, resumen.`);
+  }
+
+  // La dirección de un ensayo que se publica es fija: /ensayos/<slug>/.
+  const draft = l.draft();
+  const slug = l.texto('slug', false);
+  if (!draft && slug === undefined) {
+    errores.push('Falta «slug». Un ensayo que se publica (draft: false) lleva «slug»: es su dirección fija, /ensayos/<slug>/, y no cambia si se renombra la nota.');
+  }
+  let anteriores = fm.direcciones_anteriores;
+  if (vacio(anteriores)) anteriores = [];
+  else if (typeof anteriores === 'string') anteriores = [anteriores];
+  else if (!Array.isArray(anteriores)) {
+    errores.push('«direcciones_anteriores» tiene que ser una lista de direcciones (slugs).');
+    anteriores = [];
+  }
+  anteriores = anteriores.filter((a) => !vacio(a)).map(String);
+  for (const a of anteriores) {
+    if (!slugificar(a)) errores.push(`«direcciones_anteriores»: «${a}» no sirve como dirección: usá letras o números.`);
+    else if (slug && slugificar(a) === slugificar(slug)) errores.push(`«direcciones_anteriores»: «${a}» es la dirección vigente; ahí van sólo las que se usaron antes.`);
+  }
+
   return {
     titulo: l.texto('titulo', true),
     fecha: l.fecha('fecha', true),
@@ -127,8 +198,14 @@ function validarEnsayo(fm, errores) {
     numero: l.texto('numero', false),
     paginas,
     doi,
-    slug: l.texto('slug', false),
-    draft: l.draft(),
+    publicado_en: publicadoEn.length ? publicadoEn : undefined,
+    version_web: versionWeb,
+    etiquetas: leerEtiquetas(fm, errores),
+    imagen: leerImagen(fm, errores),
+    compartir: l.texto('compartir', false),
+    slug,
+    direcciones_anteriores: anteriores.length ? anteriores : undefined,
+    draft,
     ...l.serie(),
   };
 }
@@ -246,6 +323,16 @@ function validarLugar(fm, errores) {
 
 // Devuelve los datos del frontmatter que van al sitio, en el orden del esquema.
 // Lo que no está en el esquema (publicar, tipo, sensible, tags, aliases…) no sale de la bóveda.
+// Ensayo con `version_web: resumen`: el texto completo no entra al repositorio (decisión del autor,
+// 22-10-2026), ni publicado ni como borrador. exportar.mjs ya deja esas notas sin cuerpo; esto revisa
+// lo que se va a escribir.
+// Mismo criterio y mismo mensaje que el build (src/lib/referencia.ts).
+export function controlarCuerpo(tipo, datos, cuerpo, nombre) {
+  if (tipo !== 'ensayo') return [];
+  const error = errorCuerpoResumen(datos, cuerpo, nombre);
+  return error ? [error] : [];
+}
+
 export function validarFrontmatter(tipo, fm) {
   const errores = [];
   const datos = { blog: validarBlog, ensayo: validarEnsayo, lugar: validarLugar }[tipo](fm, errores);

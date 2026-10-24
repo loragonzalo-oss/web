@@ -19,6 +19,10 @@ const PAGINAS = [
   { nombre: 'serie', ruta: 'series/serie-de-ejemplo/' },
   { nombre: 'archivo', ruta: 'blog/archivo/' },
   { nombre: 'ensayo-revista', ruta: 'ensayos/ejemplo-ensayo-revista/' },
+  { nombre: 'ensayo-referencia', ruta: 'ensayos/relleno-ensayo-en-revista/' },
+  { nombre: 'ensayo-resumen', ruta: 'ensayos/relleno-ensayo-resumen/' },
+  { nombre: 'ensayos-temas', ruta: 'ensayos/temas/' },
+  { nombre: 'ensayos-tema', ruta: 'ensayos/temas/tema-de-relleno-a/' },
   // Prototipo de pieza inmersiva: también existe sólo en la construcción de prueba.
   { nombre: 'prototipo-profundidad', ruta: 'prototipos/profundidad/' },
   { nombre: 'prototipo-profundidad-liviana', ruta: 'prototipos/profundidad/liviana/' },

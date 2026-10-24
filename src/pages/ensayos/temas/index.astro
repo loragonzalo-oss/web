@@ -1,0 +1,24 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { url } from '../../../lib/rutas';
+import { temasEnsayos } from '../../../lib/lectura';
+
+const temas = await temasEnsayos();
+const borrador = temas.length > 0 && temas.every((t) => t.ensayos.every((e) => e.data.draft));
+---
+<Base titulo="Temas de los ensayos" descripcion="Los ensayos de Gonzalo R. Lora Veizaga, por tema." noIndexar={borrador}>
+  <section class="lectura">
+    <p class="meta"><a href={url('/ensayos/')}>Ensayos</a></p>
+    <h1>Temas</h1>
+    {temas.length === 0 ? (
+      <p class="vacio">Todavía no hay ensayos con tema.</p>
+    ) : (
+      <ul class="interfaz">
+        {temas.map((t) => (
+          <li><a href={url(`/ensayos/temas/${t.slug}/`)}>#{t.nombre}</a> <span class="meta">({t.ensayos.length === 1 ? '1 ensayo' : `${t.ensayos.length} ensayos`})</span></li>
+        ))}
+      </ul>
+    )}
+    <p class="interfaz"><a href={url('/ensayos/')}>← Volver a ensayos</a></p>
+  </section>
+</Base>

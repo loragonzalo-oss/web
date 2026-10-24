@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { stringify } from 'yaml';
 import { leerBoveda, buscar } from './boveda.mjs';
 import { convertirCuerpo, EXT_IMAGEN, anclaEncabezado } from './convertir.mjs';
-import { TIPOS, validarFrontmatter, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog } from './controles.mjs';
+import { TIPOS, validarFrontmatter, controlarCuerpo, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog, chocaConEnsayos } from './controles.mjs';
 import { slugificar } from '../../src/lib/slug.ts';
 
 export const RAIZ_REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -85,6 +85,8 @@ export async function exportar({ boveda, repo = RAIZ_REPO, simular = false, forz
     if (!ficha.archivo) ficha.errores.push('El nombre de la nota no sirve para armar una dirección: usá letras o números.');
     else if (tipo === 'blog' && chocaConBlog(ficha.id)) {
       ficha.errores.push(`La dirección /blog/${ficha.id}/ ya la usa el blog. Cambiá el nombre de la nota o poné otro «slug».`);
+    } else if (tipo === 'ensayo' && chocaConEnsayos(ficha.id)) {
+      ficha.errores.push(`La dirección /ensayos/${ficha.id}/ ya la usa el sitio. Poné otro «slug».`);
     }
   }
 
@@ -284,7 +286,13 @@ function convertir(f, { exportables, notas, adjuntos, forzar }) {
     },
   };
 
-  const cuerpo = convertirCuerpo(nota.cuerpo, ctx);
+  // `version_web: resumen`: el texto completo no sale de la bóveda (el repositorio es público).
+  const soloResumen = tipo === 'ensayo' && f.datos.version_web === 'resumen';
+  if (soloResumen && nota.cuerpo.trim()) {
+    avisos.push('Tiene «version_web: resumen»: se exportó sin el cuerpo. El texto completo queda en la bóveda.');
+  }
+  const cuerpo = soloResumen ? '' : convertirCuerpo(nota.cuerpo, ctx);
+  errores.push(...controlarCuerpo(tipo, f.datos, cuerpo, f.id));
   const datos = structuredClone(f.datos);
 
   // Imágenes del frontmatter: «imagen: "[[foto.jpg]]"» o «imagen: ./foto.jpg».
@@ -297,7 +305,7 @@ function convertir(f, { exportables, notas, adjuntos, forzar }) {
     return registrarImagen(limpio, valor) ?? undefined;
   };
   if (tipo === 'blog' && nota.fm.imagen) datos.imagen = imagenFm(nota.fm.imagen);
-  if (tipo === 'lugar' && datos.imagen) datos.imagen.archivo = imagenFm(nota.fm.imagen.archivo);
+  if ((tipo === 'lugar' || tipo === 'ensayo') && datos.imagen) datos.imagen.archivo = imagenFm(nota.fm.imagen.archivo);
 
   // relacionados: «[[Nota]]» pasa al nombre del archivo exportado.
   if (tipo === 'lugar') {

@@ -8,7 +8,7 @@
     "build": "astro build && pagefind --site dist",
     "build:prueba": "astro build --mode prueba && pagefind --site dist",
     "preview": "astro preview",
-    "test": "node --test scripts/obsidian/prueba/exportar.test.mjs",
+    "test": "node --test scripts/obsidian/prueba/exportar.test.mjs scripts/calidad/prueba/referencia.test.mjs",
     "desde-obsidian": "node scripts/obsidian/desde-obsidian.mjs",
     "revisar:enlaces": "node scripts/calidad/verificar-enlaces.mjs",
     "revisar:pruebas": "playwright test",
@@ -19,7 +19,9 @@
     "integracion:capturas": "node src/desarrollo/capturas-integracion.mjs",
     "rediseno:capturas": "node src/desarrollo/capturas-rediseno.mjs",
     "rediseno:peso": "node src/desarrollo/medir-peso.mjs",
-    "lint:taste": "node scripts/revision/lint-taste.mjs src"
+    "lint:taste": "node scripts/revision/lint-taste.mjs src",
+    "ensayos:pdf": "node scripts/ensayos/pdf.mjs",
+    "ensayos:capturas": "node src/desarrollo/capturas-ensayos.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.4",

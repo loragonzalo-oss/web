@@ -31,7 +31,7 @@ const cercanas = await relacionados(e);
         {e.data.etiquetas.map((t) => <a href={url(`/blog/etiquetas/${slugEtiqueta(t)}/`)}>#{t}</a>)}
       </p>
     )}
-    <Relacionados entradas={cercanas} />
+    <Relacionados textos={cercanas} />
     <p class="interfaz volver"><a href={url('/blog/')}>← Volver al blog</a></p>
   </Fragment>
 </Lectura>
