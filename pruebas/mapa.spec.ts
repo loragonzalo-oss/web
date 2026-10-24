@@ -168,15 +168,25 @@ test('los filtros por capa y por país se combinan y quedan en la dirección', a
   // Quedan las fichas con país: la línea (binacional) y el polígono (Perú).
   await expect(page.locator('.listado-item:visible')).toHaveCount(2);
   await expect.poll(async () => (await lugaresEnMarcadores(page)).total).toBe(2);
-  const direccion = page.url();
-  expect(new URL(direccion).searchParams.get('pais')).toBe('bolivia,peru,binacional');
+  expect(new URL(page.url()).searchParams.get('pais')).toBe('bolivia,peru,binacional');
+});
 
-  // La misma dirección, en otra visita, abre la vista filtrada.
-  await abrirMapa(page, direccion.replace(/^.*\/mapa\//, 'mapa/'));
+// Aparte de la anterior: cada carga del mapa pesa, y juntas se acercaban al límite de tiempo en CI.
+// Los filtros de la dirección los aplica la parte liviana: se prueba sin WebGL, así el mapa no se descarga.
+test('una dirección con filtros abre la vista filtrada', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    // @ts-expect-error se reemplaza para simular un navegador sin WebGL
+    HTMLCanvasElement.prototype.getContext = function (tipo: string, ...resto: unknown[]) {
+      return /webgl/.test(tipo) ? null : original.call(this, tipo, ...resto);
+    };
+  });
+  await abrir(page, 'mapa/?capa=clima,ecologia,biodiversidad,cultura,antropologia,arqueologia,turismo,emprendimientos-comunitarios,gobiernos-municipales&pais=bolivia,peru,binacional');
+  await expect(page.locator('.listado-item:visible')).toHaveCount(2);
+  await abrir(page, 'mapa/?capa=ecologia,biodiversidad&pais=bolivia,peru,binacional');
   await expect(page.locator('.listado-item:visible')).toHaveCount(2);
   await expect(page.locator('[data-filtro="capa"] input[value="clima"]')).not.toBeChecked();
-
-  await abrirMapa(page, 'mapa/?pais=peru');
+  await abrir(page, 'mapa/?pais=peru');
   await expect(page.locator('.listado-item:visible')).toHaveCount(1);
   await expect(page.locator('.listado-item:visible')).toHaveAttribute('data-lugar', 'ejemplo-poligono');
 });
