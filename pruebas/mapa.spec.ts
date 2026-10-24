@@ -159,16 +159,35 @@ test('la búsqueda filtra el listado y el mapa, con teclado y sin tildes', async
 
 test('los filtros por capa y por país se combinan y quedan en la dirección', async ({ page, isMobile }) => {
   await abrirMapa(page);
-  if (isMobile) await page.locator('.mapa-filtros summary').click();
-  await page.locator('[data-filtro="capa"] label', { hasText: 'Clima' }).click();
-  await expect(page.locator('.listado-item[data-lugar="ejemplo-clima"]')).toBeHidden();
-  expect(new URL(page.url()).searchParams.get('capa')).not.toContain('clima');
-
-  await page.locator('[data-filtro="pais"] label', { hasText: 'Sin país asignado' }).click();
-  // Quedan las fichas con país: la línea (binacional) y el polígono (Perú).
-  await expect(page.locator('.listado-item:visible')).toHaveCount(2);
-  await expect.poll(async () => (await lugaresEnMarcadores(page)).total).toBe(2);
-  expect(new URL(page.url()).searchParams.get('pais')).toBe('bolivia,peru,binacional');
+  if (isMobile) {
+    await test.step('desplegar «Capas y país» (en celular empieza plegado)', async () => {
+      await page.locator('.mapa-filtros summary').click({ timeout: 5000 });
+      await expect(page.locator('.mapa-filtros')).toHaveAttribute('open', '', { timeout: 5000 });
+    });
+  }
+  // Las casillas se marcan con el teclado: es como las usa quien no usa el ratón, y no depende de
+  // dónde caiga un toque dentro de la fila de filtros, que en celular se desplaza de costado.
+  // Cada paso con su límite de tiempo, para que un fallo diga dónde se trabó.
+  const marcar = async (filtro: string, valor: string) => {
+    const casilla = page.locator(`[data-filtro="${filtro}"] input[value="${valor}"]`);
+    await casilla.focus({ timeout: 5000 });
+    await page.keyboard.press('Space');
+    await expect(casilla).not.toBeChecked({ timeout: 5000 });
+  };
+  await test.step('apagar la capa Clima', async () => {
+    await marcar('capa', 'clima');
+    await expect(page.locator('.listado-item[data-lugar="ejemplo-clima"]')).toBeHidden({ timeout: 5000 });
+    expect(new URL(page.url()).searchParams.get('capa')).not.toContain('clima');
+  });
+  await test.step('apagar «Sin país asignado»', async () => {
+    await marcar('pais', 'sin-pais');
+    // Quedan las fichas con país: la línea (binacional) y el polígono (Perú).
+    await expect(page.locator('.listado-item:visible')).toHaveCount(2, { timeout: 5000 });
+    expect(new URL(page.url()).searchParams.get('pais')).toBe('bolivia,peru,binacional');
+  });
+  await test.step('el mapa muestra sólo esos dos lugares', async () => {
+    await expect.poll(async () => (await lugaresEnMarcadores(page)).total, { timeout: 8000 }).toBe(2);
+  });
 });
 
 // Aparte de la anterior: cada carga del mapa pesa, y juntas se acercaban al límite de tiempo en CI.
