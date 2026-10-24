@@ -37,19 +37,19 @@ export function radio(z: number): number {
 }
 
 // Anclas en orden según la polaridad: referencia < límite < alto riesgo (multiplicados por d).
-export function anclasOrdenadas({ polaridad: d, referencia, limite, alto_riesgo }: Anclas): boolean {
+export function anclasOrdenadas({ polaridad: d, referencia, limite, alto_riesgo }: Omit<Anclas, 'valor'>): boolean {
   return d * referencia < d * limite && d * limite < d * alto_riesgo;
 }
 
 // ——— Estado para el lector ———
 
 export type Umbral = 'fuente' | 'convencion';
-export type Valor = 'fuente' | 'provisorio';
+export type Valor = 'fuente' | 'provisorio' | 'sin_dato';
 
 export const ETIQUETAS_ESTADO = {
   conFuente: 'con fuente',
   umbral: { fuente: 'umbral con fuente', convencion: 'umbral por convención' },
-  valor: { fuente: 'valor con fuente', provisorio: 'valor provisorio' },
+  valor: { fuente: 'valor con fuente', provisorio: 'valor provisorio', sin_dato: 'sin dato' },
 } as const;
 
 export function etiquetasEstado(umbral: Umbral, valor: Valor): string[] {
@@ -62,7 +62,7 @@ export function etiquetasEstado(umbral: Umbral, valor: Valor): string[] {
 export const MARCA = { conFuente: '●', provisorio: '○' } as const;
 export function marcaEstado(umbral: Umbral, valor: Valor): string {
   if (umbral === 'fuente' && valor === 'fuente') return MARCA.conFuente;
-  return valor === 'provisorio' ? MARCA.provisorio : '';
+  return valor === 'provisorio' ? MARCA.provisorio : ''; // sin dato: la etiqueta ya lo dice
 }
 
 // ——— Formato de números (regla del sitio) ———
@@ -139,12 +139,12 @@ export interface PetaloRosa {
   indicador: string;
   ve: string;
   unidad: string;
-  valor: number;
+  valor?: number;                       // sin valor: «sin dato»
   decimales?: number;
   umbral: Umbral;
   estado_valor: Valor;
   incierto: boolean;
-  z: number;
+  z: number | null;                     // null: sin dato
 }
 
 export interface OpcionesRosa {
@@ -226,8 +226,10 @@ function lineas(texto: string, ancho = 20): string[] {
   return salida;
 }
 
+export const SIN_DATO = 'sin dato';
+
 export const valorEtiqueta = (p: Pick<PetaloRosa, 'valor' | 'unidad' | 'decimales' | 'umbral'>) =>
-  `${conUnidad(p.valor, p.unidad, p.decimales)}${p.umbral === 'convencion' ? '*' : ''}`;
+  p.valor === undefined ? SIN_DATO : `${conUnidad(p.valor, p.unidad, p.decimales)}${p.umbral === 'convencion' ? '*' : ''}`;
 
 export function svgRosa(petalos: PetaloRosa[], o: OpcionesRosa): string {
   const conTextos = o.textos !== false;
@@ -276,15 +278,17 @@ export function svgRosa(petalos: PetaloRosa[], o: OpcionesRosa): string {
     const desde = i * paso + HUECO_GRADOS / 2;
     const hasta = (i + 1) * paso - HUECO_GRADOS / 2;
     const medio = (i + 0.5) * paso;
-    let g = `<g data-petalo="${i + 1}">`;
-    if (p.z > 0) {
+    let g = `<g data-petalo="${i + 1}"${p.z === null ? ' data-sin-dato=""' : ''}>`;
+    if (p.z === null) {
+      // Sin dato: sin largo, ni punto ni triángulo; sólo la etiqueta.
+    } else if (p.z > 0) {
       // Todos los pétalos llevan contorno del color del texto; el incierto es además tenue.
       g += `<path d="${sector(desde, hasta, rIn, Math.max(rz(p.z), rIn + 1))}" fill="url(#rosa-degrade)"${p.incierto ? ' fill-opacity="0.45"' : ''} ${trazo}/>`;
     } else {
       const [x, y] = punto(medio, rIn + 9);
       g += `<circle cx="${x}" cy="${y}" r="6" fill="${c.enReferencia}" ${trazo}/>`;
     }
-    if (p.z >= Z_MAX) {
+    if (p.z !== null && p.z >= Z_MAX) {
       const [ax, ay] = punto(medio, ESCALA + 24);
       const [bx, by] = punto(medio - 2.4, ESCALA + 7);
       const [cx, cy] = punto(medio + 2.4, ESCALA + 7);
@@ -346,7 +350,7 @@ export function svgRosa(petalos: PetaloRosa[], o: OpcionesRosa): string {
       const filas = [
         ...nombre.map((t, j) => ({ t, clase: 'rosa-nombre', marca: j === nombre.length - 1 ? marca : '' })),
         { t: valorEtiqueta(p), clase: 'rosa-valor', marca: '' },
-        ...(p.z === 0 ? [{ t: 'en la referencia', clase: 'rosa-valor', marca: '' }] : []),
+        ...(p.z === 0 ? [{ t: 'en la referencia', clase: 'rosa-valor', marca: '' }] : []), // nunca con «sin dato» (z null)
       ];
       const alto = 20;
       const primera = seno > 0.3 ? y - (filas.length - 1) * alto - 4 : seno < -0.3 ? y + 14 : y - ((filas.length - 1) * alto) / 2 + 6;
@@ -382,6 +386,7 @@ export async function tablero() {
   // La vigente es la más reciente que tiene pétalos; las demás son historial.
   const vigente = versiones.find((v) => v.data.petalos.length > 0);
   if (!vigente) throw new Error('[tablero] Ninguna versión de src/content/tablero/ tiene pétalos.');
-  const petalos = vigente.data.petalos.map((p) => ({ ...p, z: calcularZ(p) }));
+  // Sin dato: z null; el pétalo no se dibuja y no cuenta como «en la referencia».
+  const petalos = vigente.data.petalos.map((p) => ({ ...p, z: p.valor === undefined ? null : calcularZ({ ...p, valor: p.valor }) }));
   return { versiones, vigente, petalos };
 }

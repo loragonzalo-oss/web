@@ -229,7 +229,8 @@ const petalo = z.object({
   ve: z.string().trim().min(1),
   indicador: z.string().trim().min(1),
   unidad: z.string().trim().min(1),
-  valor: z.number({ error: '«valor» tiene que ser un número (con punto decimal, sin espacios).' }),
+  // Sin valor actual con fuente: se omite «valor» y se pone «estado_valor: sin_dato».
+  valor: z.preprocess(vacio, z.number({ error: '«valor» tiene que ser un número (con punto decimal, sin espacios).' }).optional()),
   decimales: z.number().int().min(0).max(4).optional(),  // para mostrar «3807.80» en vez de «3807.8»
   polaridad: z.union([z.literal(1), z.literal(-1)], { error: '«polaridad» es 1 (el riesgo crece si el valor sube) o -1 (si baja).' }),
   referencia: z.number(),
@@ -237,9 +238,10 @@ const petalo = z.object({
   alto_riesgo: z.number(),
   criterio: z.enum(['A', 'B', 'C', 'D'], { error: '«criterio» es A, B, C o D.' }),
   umbral: z.enum(['fuente', 'convencion'], { error: '«umbral» es «fuente» o «convencion».' }),
-  estado_valor: z.enum(['fuente', 'provisorio'], { error: '«estado_valor» es «fuente» o «provisorio».' }),
+  estado_valor: z.enum(['fuente', 'provisorio', 'sin_dato'], { error: '«estado_valor» es «fuente», «provisorio» o «sin_dato».' }),
   incierto: z.boolean().default(false),
-  z_referencia: z.number({ error: 'Falta «z_referencia» (la z de la propuesta, para comparar con el cálculo).' }),
+  z_referencia: z.number().optional(),          // la z de la propuesta; no va con «sin_dato»
+  anclas_pendientes: z.boolean().default(false), // referencia, límite y alto riesgo sin fuente todavía
   fuente: z.string().trim().min(1, 'Falta «fuente». Si no se conoce, «[PENDIENTE: fuente primaria del valor]».'),
   nota: z.string().trim().min(1).optional(),
 });
@@ -293,8 +295,26 @@ const tablero = defineCollection({
         if ((p.criterio === 'D') !== (p.umbral === 'convencion')) {
           ctx.addIssue({ code: 'custom', path: ['petalos', i, 'umbral'], message: `${nombre}: el criterio D va con «umbral: convencion»; A, B y C van con «umbral: fuente».` });
         }
+        if (p.anclas_pendientes && !d.draft) {
+          ctx.addIssue({ code: 'custom', path: ['petalos', i, 'anclas_pendientes'], message: `${nombre}: con «draft: false» las anclas no pueden quedar pendientes de fuente. Cargá la fuente y quitá «anclas_pendientes».` });
+        }
+        // Sin dato: no hay valor ni z que comparar.
+        if (p.estado_valor === 'sin_dato') {
+          if (p.valor !== undefined || p.z_referencia !== undefined) {
+            ctx.addIssue({ code: 'custom', path: ['petalos', i, 'valor'], message: `${nombre}: con «estado_valor: sin_dato» el pétalo no lleva «valor» ni «z_referencia».` });
+          }
+          return;
+        }
+        if (p.valor === undefined) {
+          ctx.addIssue({ code: 'custom', path: ['petalos', i, 'valor'], message: `${nombre}: falta «valor». Si no hay valor actual con fuente, poné «estado_valor: sin_dato».` });
+          return;
+        }
+        if (p.z_referencia === undefined) {
+          ctx.addIssue({ code: 'custom', path: ['petalos', i, 'z_referencia'], message: `${nombre}: falta «z_referencia» (la z de la propuesta, para comparar con el cálculo).` });
+          return;
+        }
         // El YAML y el cálculo no se separan sin que nadie lo vea.
-        const z = calcularZ(p);
+        const z = calcularZ({ ...p, valor: p.valor });
         if (Math.abs(z - p.z_referencia) > TOLERANCIA_Z) {
           ctx.addIssue({ code: 'custom', path: ['petalos', i, 'z_referencia'], message: `${nombre}: la z calculada es ${z.toFixed(2)} y «z_referencia» dice ${p.z_referencia}. Revisá el valor y las anclas, o actualizá «z_referencia».` });
         }

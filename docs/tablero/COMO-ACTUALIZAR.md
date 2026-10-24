@@ -40,6 +40,8 @@ El sitio no se construye, y el error dice qué archivo y qué campo, si:
 - `umbral: fuente` → «umbral con fuente»; `umbral: convencion` → «umbral por convención» y asterisco junto al valor.
 - `estado_valor: fuente` → «valor con fuente»; `estado_valor: provisorio` → «valor provisorio».
 - Umbral y valor con fuente se resumen como «con fuente».
+- `estado_valor: sin_dato` → el pétalo no lleva `valor` ni `z_referencia`; se dibuja sin largo, con la etiqueta «sin dato» en la figura y en la tabla, y no cuenta como «en la referencia». Si se carga un valor sin quitar `sin_dato`, o se quita `sin_dato` sin cargar valor y `z_referencia`, la construcción avisa.
+- `anclas_pendientes: true` → referencia, límite y alto riesgo se rotulan «pendiente de fuente» en la tabla. Con `draft: false` la construcción no lo admite.
 - `incierto: true` → pétalo tenue (opacidad 0.45) y «valor incierto» en la tabla. Todos los pétalos llevan un contorno fino del color del texto del tema.
 
 (El encargo llamaba `valor` al segundo campo; se llama `estado_valor` porque `valor` ya es la cifra.)

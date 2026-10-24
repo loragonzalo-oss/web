@@ -56,6 +56,19 @@ test('estado de cada pétalo para el lector', async ({ page }) => {
   await expect(page.locator('tr[data-petalo="3"] .tablero-estado')).toContainText('valor provisorio');
 });
 
+test('pétalo sin dato: sin largo, «sin dato» en figura y tabla, no cuenta como en la referencia', async ({ page }) => {
+  await abrir(page, RUTA);
+  const petalo = page.locator('svg.rosa [data-petalo][data-sin-dato]');
+  await expect(petalo).toHaveCount(1);
+  await expect(petalo.locator('path, circle')).toHaveCount(0);
+  const n = await petalo.getAttribute('data-petalo');
+  const fila = page.locator(`tr[data-petalo="${n}"]`);
+  await expect(fila.locator('td').nth(1)).toHaveText('sin dato');   // valor
+  await expect(fila.locator('.tablero-estado')).toContainText('sin dato');
+  await expect(fila).not.toContainText('en la referencia');
+  await expect(page.locator('svg.rosa .rosa-etiquetas')).toContainText('sin dato');
+});
+
 test('a 360 px: sin desborde y con números en lugar de etiquetas largas', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await abrir(page, RUTA);

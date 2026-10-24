@@ -63,8 +63,8 @@ La página `/tablero/` está unida a `main` en borrador (`draft: true`): el siti
   - [PENDIENTE: nota de método del autor] (`metodo`);
   - el apoyo técnico de la nota de método (`metodo_apoyo`) es relleno redactado en la sesión: usarlo, reescribirlo o borrarlo.
 - [ ] **Campo `herramienta` del historial.** Hoy la página dice «Hecha con Claude» (P07) y «Hecha con Codex» (P06). Si se borra el campo de un YAML, esa línea no aparece.
-- [ ] **Balance P − ETP** (pétalo 7). La referencia (−242 mm/año) es igual al valor actual, así que el pétalo queda en z = 0 por construcción. Definir la referencia.
-- [ ] **Fuentes primarias de los valores de 12 pétalos** (2 al 13). Sólo Cohana (pétalo 1) tiene valor con fuente; los demás llevan «Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]» en el campo `fuente`.
+- [ ] **Balance P − ETP** (pétalo 7). Pasó a «sin dato» (decisión del autor, 24-10-2026): el −242 mm/año que figuraba como valor era la referencia copiada. Falta el valor actual con fuente y la fuente de la referencia (−242 mm/año, Cuadro 2 de los escenarios socioecológicos TDPS, versión 2). Referencia, límite y alto riesgo quedan como están, rotulados «pendiente de fuente» en la tabla (`anclas_pendientes: true`). Al cargar el valor: poner `valor`, cambiar `estado_valor` y agregar `z_referencia`; cuando las anclas tengan fuente, quitar `anclas_pendientes`.
+- [ ] **Fuentes primarias de los valores de 12 pétalos** (2 al 13). Sólo Cohana (pétalo 1) tiene valor con fuente. Once llevan «Cuadro 2 de Lora Veizaga (2026). [PENDIENTE: fuente primaria del valor]» en el campo `fuente`; el pétalo 7 no tiene valor (ver el punto anterior).
 - [ ] **Convención D.** Nueve pétalos (3, 4, 6, 7, 8, 9, 11, 12 y 13) tienen el alto riesgo por convención: el doble de la distancia entre la referencia y el límite, con asterisco. Confirmar o reemplazar por un criterio A, B o C con fuente.
 - [ ] **Referencia del nivel del lago** (pétalo 5). 3809.00 msnm es provisoria; por eso el valor va como provisorio e incierto.
 - [ ] **Referencias APA** de la lista de fuentes (`textos.fuentes`), hoy con [PENDIENTE]:
