@@ -8,7 +8,7 @@
     "build": "astro build && pagefind --site dist",
     "build:prueba": "astro build --mode prueba && pagefind --site dist",
     "preview": "astro preview",
-    "test": "node --test scripts/obsidian/prueba/exportar.test.mjs scripts/mapa/prueba/*.test.mjs",
+    "test": "node --test scripts/obsidian/prueba/exportar.test.mjs scripts/calidad/prueba/referencia.test.mjs scripts/mapa/prueba/*.test.mjs",
     "desde-obsidian": "node scripts/obsidian/desde-obsidian.mjs",
     "mapa:relieve": "node scripts/mapa/relieve.mjs",
     "revisar:enlaces": "node scripts/calidad/verificar-enlaces.mjs",
@@ -20,6 +20,9 @@
     "integracion:capturas": "node src/desarrollo/capturas-integracion.mjs",
     "rediseno:capturas": "node src/desarrollo/capturas-rediseno.mjs",
     "rediseno:peso": "node src/desarrollo/medir-peso.mjs",
+    "lint:taste": "node scripts/revision/lint-taste.mjs src",
+    "ensayos:pdf": "node scripts/ensayos/pdf.mjs",
+    "ensayos:capturas": "node src/desarrollo/capturas-ensayos.mjs",
     "mapa:capturas": "node src/desarrollo/capturas-mapa.mjs"
   },
   "dependencies": {

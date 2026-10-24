@@ -7,6 +7,8 @@ import { slugificar } from './lib/slug';
 import { IDS_CAPAS, IDS_PAISES, RECORTE } from './lib/capas';
 import { leerGeometria, normalizarRutaGeometria } from './lib/geometria';
 import { normalizarDoi, normalizarPaginas } from './lib/revista';
+import { normalizarTipoLugar, TIPOS_LUGAR, chocaConEnsayos } from './lib/referencia';
+import { anclasOrdenadas, calcularZ, MARCADORES_DE_TRABAJO, textosDe, TOLERANCIA_Z } from './lib/tablero';
 
 // La dirección de cada texto sale del nombre del archivo (sin carpetas), o de `slug`
 // en el frontmatter si se quiere fijar otra. Así se puede ordenar en carpetas sin
@@ -65,21 +67,72 @@ const revista = {
   }),
 };
 
-// Frontmatter de los ensayos. `publicacion` es el lugar donde salió (revista, libro, medio);
-// `volumen`, `numero`, `paginas` y `doi`, los datos de la revista, si los hay.
+// Frontmatter de los ensayos. `publicacion` es la publicación formal, la que se cita (revista,
+// libro, medio); `volumen`, `numero`, `paginas` y `doi`, los datos de la revista, si los hay.
+// `publicado_en` anota otros lugares donde salió (un post en LinkedIn, por ejemplo); nunca son
+// destino de la cita. Ver COMO-PUBLICAR.md, «Publicar un ensayo como referencia».
 const ensayos = defineCollection({
   loader: glob({ base: './src/content/ensayos', pattern: '**/*.md', generateId: generarId }),
-  schema: z.object({
-    titulo: z.string(),
-    fecha: z.coerce.date(),
-    resumen: z.string(),
-    publicacion: z.string().optional(),  // vacío = sin lugar de publicación
-    enlace: z.union([z.url(), z.literal('')]).optional(),
-    ...revista,
-    slug: z.string().optional(),
-    draft: z.boolean().default(false),
-    ...serie,
-  }),
+  schema: ({ image }) =>
+    z
+      .object({
+        titulo: z.string(),
+        fecha: z.coerce.date(),
+        resumen: z.string(),
+        publicacion: z.string().optional(),  // vacío = sin publicación formal
+        enlace: z.union([z.url(), z.literal('')]).optional(),
+        ...revista,
+        publicado_en: z.preprocess(
+          vacio,
+          z.array(z.object({
+            lugar: z.string().trim().min(1),
+            tipo: z.preprocess(
+              (v) => normalizarTipoLugar(v) ?? v,
+              z.enum(TIPOS_LUGAR, { error: `«tipo» es uno de estos: ${TIPOS_LUGAR.join(', ')}.` }),
+            ),
+            fecha: z.coerce.date(),
+            enlace: z.preprocess(vacio, z.url().optional()),
+          })).default([]),
+        ),
+        version_web: z.preprocess(vacio, z.enum(['completa', 'resumen']).default('completa')),
+        etiquetas: z.preprocess(vacio, z.array(z.string()).default([])),
+        imagen: z.preprocess(
+          vacio,
+          z.object({
+            archivo: image(),
+            credito: z.string().min(1),           // autor y licencia de la imagen
+            descripcion: z.string().optional(),   // texto alternativo
+          }).optional(),
+        ),
+        compartir: z.preprocess(vacio, z.string().trim().min(1).optional()),
+        slug: z.preprocess(vacio, z.string().trim().optional()),
+        direcciones_anteriores: z.preprocess(
+          vacio,
+          z.array(z.preprocess((v) => (typeof v === 'number' ? String(v) : v), z.string())).default([]),
+        ),
+        draft: z.boolean().default(false),
+        ...serie,
+      })
+      .superRefine((d, ctx) => {
+        // La dirección de un ensayo publicado no depende del nombre del archivo.
+        if (!d.draft && !d.slug) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['slug'],
+            message: 'Falta «slug». Un ensayo que se publica (draft: false) lleva «slug»: es su dirección fija, /ensayos/<slug>/, y no cambia si se renombra el archivo.',
+          });
+        }
+        if (d.slug && chocaConEnsayos(slugificar(d.slug))) {
+          ctx.addIssue({ code: 'custom', path: ['slug'], message: `La dirección /ensayos/${slugificar(d.slug)}/ ya la usa el sitio. Elegí otro «slug».` });
+        }
+        for (const anterior of d.direcciones_anteriores) {
+          if (!slugificar(anterior)) {
+            ctx.addIssue({ code: 'custom', path: ['direcciones_anteriores'], message: `«${anterior}» no sirve como dirección: usá letras o números.` });
+          } else if (d.slug && slugificar(anterior) === slugificar(d.slug)) {
+            ctx.addIssue({ code: 'custom', path: ['direcciones_anteriores'], message: `«${anterior}» es la dirección vigente: en «direcciones_anteriores» van sólo las que se usaron antes.` });
+          }
+        }
+      }),
 });
 
 // Admite coma decimal («-15,8») además de punto.
@@ -213,4 +266,83 @@ const lugares = defineCollection({
       }),
 });
 
-export const collections = { blog, ensayos, lugares };
+// Tablero de indicadores: un YAML por versión en src/content/tablero/.
+// Ver docs/tablero/COMO-ACTUALIZAR.md.
+const petalo = z.object({
+  ve: z.string().trim().min(1),
+  indicador: z.string().trim().min(1),
+  unidad: z.string().trim().min(1),
+  valor: z.number({ error: '«valor» tiene que ser un número (con punto decimal, sin espacios).' }),
+  decimales: z.number().int().min(0).max(4).optional(),  // para mostrar «3807.80» en vez de «3807.8»
+  polaridad: z.union([z.literal(1), z.literal(-1)], { error: '«polaridad» es 1 (el riesgo crece si el valor sube) o -1 (si baja).' }),
+  referencia: z.number(),
+  limite: z.number(),
+  alto_riesgo: z.number(),
+  criterio: z.enum(['A', 'B', 'C', 'D'], { error: '«criterio» es A, B, C o D.' }),
+  umbral: z.enum(['fuente', 'convencion'], { error: '«umbral» es «fuente» o «convencion».' }),
+  estado_valor: z.enum(['fuente', 'provisorio'], { error: '«estado_valor» es «fuente» o «provisorio».' }),
+  incierto: z.boolean().default(false),
+  z_referencia: z.number({ error: 'Falta «z_referencia» (la z de la propuesta, para comparar con el cálculo).' }),
+  fuente: z.string().trim().min(1, 'Falta «fuente». Si no se conoce, «[PENDIENTE: fuente primaria del valor]».'),
+  nota: z.string().trim().min(1).optional(),
+});
+
+const tablero = defineCollection({
+  loader: glob({ base: './src/content/tablero', pattern: '*.yaml' }),
+  schema: z
+    .object({
+      version: z.string().trim().min(1),          // «P07»
+      nombre: z.string().trim().min(1),           // «Propuesta 07»
+      fecha: z.coerce.date(),
+      herramienta: z.string().trim().min(1).optional(),
+      cambios: z.string().trim().min(1),          // qué cambió en esta versión (historial)
+      draft: z.boolean().default(false),
+      variables: z.array(z.object({ id: z.string().trim().min(1), nombre: z.string().trim().min(1) })).default([]),
+      textos: z
+        .object({
+          rotulo: z.string().trim().min(1),
+          introduccion: z.string().trim().min(1),
+          regla_lectura: z.string().trim().min(1),
+          metodo: z.string().trim().min(1),
+          metodo_apoyo: z.string().trim().min(1).optional(),
+          fuentes: z.array(z.string().trim().min(1)).default([]),
+        })
+        .optional(),
+      petalos: z.array(petalo).default([]),
+    })
+    .superRefine((d, ctx) => {
+      // Los marcadores de trabajo quedan en la bóveda; la página nunca los muestra.
+      for (const { ruta, texto } of textosDe(d)) {
+        const m = texto.match(MARCADORES_DE_TRABAJO);
+        if (m) ctx.addIssue({ code: 'custom', path: ruta, message: `«${m[0]}» es un marcador de trabajo y no va en el tablero. El estado del pétalo se dice con «umbral» y «estado_valor».` });
+      }
+      // Una versión publicada no sale con relleno.
+      if (!d.draft) {
+        for (const { ruta, texto } of textosDe(d)) {
+          if (texto.includes('[PENDIENTE')) ctx.addIssue({ code: 'custom', path: ruta, message: `Con «draft: false» no puede quedar ningún «[PENDIENTE…]» (está en ${ruta.join('.')}). Completalo o volvé a «draft: true».` });
+        }
+      }
+      if (d.petalos.length > 0 && !d.textos) {
+        ctx.addIssue({ code: 'custom', path: ['textos'], message: 'Una versión con pétalos lleva «textos» (rótulo, introducción, regla de lectura, método).' });
+      }
+      const ids = new Set(d.variables.map((v) => v.id));
+      d.petalos.forEach((p, i) => {
+        const nombre = `Pétalo ${i + 1} («${p.indicador}»)`;
+        if (!ids.has(p.ve)) ctx.addIssue({ code: 'custom', path: ['petalos', i, 've'], message: `${nombre}: la variable «${p.ve}» no está en «variables».` });
+        if (!anclasOrdenadas(p)) {
+          ctx.addIssue({ code: 'custom', path: ['petalos', i, 'limite'], message: `${nombre}: las anclas no están en orden. Con polaridad ${p.polaridad}, referencia, límite y alto riesgo tienen que ${p.polaridad === 1 ? 'subir' : 'bajar'} en ese orden.` });
+          return;
+        }
+        if ((p.criterio === 'D') !== (p.umbral === 'convencion')) {
+          ctx.addIssue({ code: 'custom', path: ['petalos', i, 'umbral'], message: `${nombre}: el criterio D va con «umbral: convencion»; A, B y C van con «umbral: fuente».` });
+        }
+        // El YAML y el cálculo no se separan sin que nadie lo vea.
+        const z = calcularZ(p);
+        if (Math.abs(z - p.z_referencia) > TOLERANCIA_Z) {
+          ctx.addIssue({ code: 'custom', path: ['petalos', i, 'z_referencia'], message: `${nombre}: la z calculada es ${z.toFixed(2)} y «z_referencia» dice ${p.z_referencia}. Revisá el valor y las anclas, o actualizá «z_referencia».` });
+        }
+      });
+    }),
+});
+
+export const collections = { blog, ensayos, lugares, tablero };

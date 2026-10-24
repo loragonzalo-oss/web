@@ -45,6 +45,16 @@ El sitio tiene dos capas. La base editorial queda liviana y estática. Las pieza
 5. Si hay sonido, empieza apagado y lo activa el lector.
 6. Rige la regla 6: ninguna pieza expone coordenadas exactas de lugares sensibles.
 
+### Skills de diseño
+
+Instaladas en .claude/skills/: `frontend-design` y cuatro de Emil Kowalski (`animate`, `review-animations`, `animation-performance`, `animation-vocabulary`). Cada una conserva su licencia junto al SKILL.md.
+
+- `frontend-design` manda en identidad visual, composición y tipografía.
+- Las skills de Emil Kowalski mandan sólo en la mecánica del movimiento: curvas, duraciones, propiedades y rendimiento. `review-animations` no se activa sola: se llama a mano antes de aprobar cualquier pieza inmersiva o cualquier cambio de movimiento en CSS.
+- En la base editorial: nada de IntersectionObserver ni librerías de animación, y nada de entradas escalonadas en listas. Si hay aparición al hacer scroll, va sólo con CSS (`animation-timeline: view()`), dentro de `@supports` y de `@media (prefers-reduced-motion: no-preference)`. Los ejemplos de React de esas skills (useReducedMotion, useEffect) no aplican.
+- Las piezas inmersivas cuentan como movimiento «explicativo»: no rige el tope de 300 ms que esas skills ponen a las animaciones de interfaz.
+- Taste e Impeccable revisan, no diseñan. Taste: referencias en docs/referencias/taste/ y `npm run lint:taste`. Impeccable: un paso de aviso en la revisión de cada pull request, con sus reglas apagadas en .impeccable/config.json. Sus hallazgos son avisos; las reglas de este archivo ganan siempre.
+
 ## Manejo de archivos
 
 - No borrar ni sobrescribir contenido escrito por el autor sin preguntar.
@@ -60,4 +70,9 @@ El sitio tiene dos capas. La base editorial queda liviana y estática. Las pieza
 - 22-10-2026: integración de las ramas. Revisión antes de unir con la construcción de prueba (`npm run build:prueba`, con borradores) y las pruebas ampliadas.
 - 22-10-2026: piezas inmersivas. Decisión del autor: se permite JavaScript pesado (WebGL, Three.js, GSAP) en páginas puntuales que él apruebe, con versión liviana, texto en HTML, fuentes citadas y sonido apagado al inicio. La base editorial sigue sin JavaScript salvo que haga falta.
 - 22-10-2026: rediseño en dos capas. Una dirección es un tema más su composición (src/styles/composiciones/). Los prototipos de piezas inmersivas viven en /prototipos/ y siguen la regla de los borradores: dev y build:prueba, nunca el build publicado.
+- 22-10-2026: skills de diseño. Se suman cuatro skills de movimiento de Emil Kowalski, las referencias y el verificador de Taste (`npm run lint:taste`) y el detector de Impeccable como aviso en la revisión de cada pull request. Ninguna agrega JavaScript a la base editorial. Reparto de mando en «Skills de diseño».
+- 22-10-2026: ensayos como referencia. Un ensayo que se publica lleva `slug` (dirección fija /ensayos/<slug>/); la cita nunca apunta a una red social; los textos que arma el sitio para compartir sólo combinan campos del frontmatter y rótulos neutros.
+- 22-10-2026: no se comparten enlaces de loragonzalo-oss.github.io/web (decisión del autor). El bloque «Compartir» de los ensayos queda apagado (COMPARTIR_ACTIVO en sitio.config.mjs) y se enciende al migrar al dominio propio.
+- 22-10-2026: ensayos con `version_web: resumen` (decisión del autor). Su texto completo no entra al repositorio, que es público: el puente con Obsidian los exporta sin cuerpo y el build frena si uno publicado trae cuerpo.
+- 22-10-2026: el build también frena los borradores con `version_web: resumen` que traen cuerpo (decisión del autor): el repositorio es público también para los borradores.
 - 22-10-2026: regla 6 en líneas y polígonos. Decisión del autor: un lugar sensible (capa Arqueología o `sensible: true`) no lleva línea ni polígono, sólo un punto con precision: aproximada (dos decimales) u oculta. El esquema de `lugares` lo hace cumplir al construir el sitio, y el campo `sensible` pasa al esquema (el puente con Obsidian lo exporta cuando es true).

@@ -1,20 +1,19 @@
 ---
-// «Textos relacionados»: entradas del blog que comparten etiquetas con esta.
-import type { CollectionEntry } from 'astro:content';
-import { rutaTexto } from '../lib/lectura';
+// «Textos relacionados»: entradas del blog y ensayos que comparten etiquetas con este texto.
+import { rutaTexto, type Texto } from '../lib/lectura';
 import { fechaLarga, fechaISO } from '../lib/fechas';
 
-interface Props { entradas: CollectionEntry<'blog'>[] }
-const { entradas } = Astro.props;
+interface Props { textos: Texto[] }
+const { textos } = Astro.props;
 ---
-{entradas.length > 0 && (
+{textos.length > 0 && (
   <section class="relacionados" aria-labelledby="titulo-relacionados">
     <h2 id="titulo-relacionados" class="interfaz">Textos relacionados</h2>
     <ul>
-      {entradas.map((e) => (
+      {textos.map((t) => (
         <li>
-          <a href={rutaTexto(e)}>{e.data.titulo}</a>
-          <span class="meta"> · <time datetime={fechaISO(e.data.fecha)}>{fechaLarga(e.data.fecha)}</time></span>
+          <a href={rutaTexto(t)}>{t.data.titulo}</a>
+          <span class="meta"> · {t.collection === 'ensayos' && <>Ensayo · </>}<time datetime={fechaISO(t.data.fecha)}>{fechaLarga(t.data.fecha)}</time></span>
         </li>
       ))}
     </ul>

@@ -1,5 +1,7 @@
 // Imágenes para compartir (Open Graph) de entradas y ensayos, generadas al construir el sitio.
-// Tipográficas: título y nombre del autor. Colores y tipografías salen del tema publicado
+// Tipográficas: título, nombre del autor y, en los ensayos con publicación formal, su nombre.
+// Pensadas para LinkedIn, Facebook y X: 1200 × 630 (1.91:1, no hace falta recortarlas), PNG
+// de pocos KB, márgenes amplios y letra grande para que se lea en la miniatura del celular. Colores y tipografías salen del tema publicado
 // (TEMA en sitio.config.mjs → src/styles/temas/<tema>.css; se lee el archivo, no se edita).
 // Si algo falla, se usa public/og-default.png.
 import { readFile } from 'node:fs/promises';
@@ -77,14 +79,17 @@ const nodo = (type: string, style: Record<string, unknown>, children?: unknown) 
   props: { style, children },
 });
 
-function tamTitulo(titulo: string) {
-  if (titulo.length <= 40) return 76;
-  if (titulo.length <= 70) return 64;
-  if (titulo.length <= 110) return 52;
-  return 44;
+// Con la línea de la publicación el título tiene menos alto: baja un escalón.
+function tamTitulo(titulo: string, conPublicacion = false) {
+  const tam = titulo.length <= 40 ? 76 : titulo.length <= 70 ? 64 : titulo.length <= 110 ? 52 : 46;
+  return conPublicacion && tam > 46 ? tam - 8 : tam;
 }
 
-async function dibujar(titulo: string, seccion: string) {
+export interface OpcionesOG {
+  publicacion?: string;  // nombre de la publicación formal de un ensayo
+}
+
+async function dibujar(titulo: string, seccion: string, { publicacion }: OpcionesOG = {}) {
   const c = await coloresDelTema();
   const f = await cargarFuentes();
   // Satori suma el relleno al tamaño de la caja: el exterior fija 1200 × 630 y el interior se acomoda.
@@ -96,11 +101,19 @@ async function dibujar(titulo: string, seccion: string) {
     },
     [
       nodo('div', { fontFamily: f.interfaz, fontSize: 28, fontWeight: 600, color: c.acento, letterSpacing: 3, textTransform: 'uppercase' }, seccion),
-      nodo(
-        'div',
-        { fontFamily: f.cuerpo, fontWeight: 600, fontSize: tamTitulo(titulo), lineHeight: 1.15, color: c.texto, display: 'flex', maxHeight: 380, overflow: 'hidden' },
-        titulo,
-      ),
+      nodo('div', { display: 'flex', flexDirection: 'column' }, [
+        nodo(
+          'div',
+          { fontFamily: f.cuerpo, fontWeight: 600, fontSize: tamTitulo(titulo, !!publicacion), lineHeight: 1.15, color: c.texto, display: 'flex', maxHeight: publicacion ? 300 : 380, overflow: 'hidden' },
+          titulo,
+        ),
+        ...(publicacion
+          ? [nodo('div', { display: 'flex', flexWrap: 'wrap', marginTop: 22, fontFamily: f.interfaz, fontSize: 30, lineHeight: 1.25, color: c.suave }, [
+              nodo('div', { display: 'flex', marginRight: 10 }, 'Publicado en'),
+              nodo('div', { display: 'flex', fontFamily: f.interfaz, fontWeight: 600, color: c.texto }, publicacion),
+            ])]
+          : []),
+      ]),
       nodo(
         'div',
         { display: 'flex', borderTop: `2px solid ${c.borde}`, paddingTop: 28, fontFamily: f.interfaz, fontSize: 30, lineHeight: 1.2 },
@@ -121,10 +134,10 @@ async function dibujar(titulo: string, seccion: string) {
 }
 
 // Devuelve siempre un PNG: el generado o, si falla, og-default.png.
-export async function imagenOG(titulo: string, seccion: string): Promise<Response> {
+export async function imagenOG(titulo: string, seccion: string, opciones: OpcionesOG = {}): Promise<Response> {
   let png: Buffer;
   try {
-    png = await dibujar(titulo, seccion);
+    png = await dibujar(titulo, seccion, opciones);
   } catch (error) {
     console.warn(`[og] No se pudo generar la imagen de «${titulo}»; se usa og-default.png. ${error}`);
     png = await readFile(raiz('public/og-default.png'));

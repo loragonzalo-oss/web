@@ -1,0 +1,50 @@
+---
+// «Compartir»: texto listo para copiar y enlaces simples a LinkedIn y X. Sin JavaScript,
+// sin botones de terceros y sin rastreadores. El texto lo arma textoCompartir()
+// (src/lib/referencia.ts) o lo escribe el autor en `compartir`.
+import { enlaceLinkedIn, enlaceX } from '../lib/referencia';
+
+interface Props { texto: string; titulo: string; direccion: string }
+const { texto, titulo, direccion } = Astro.props;
+---
+<details class="compartir interfaz">
+  <summary>Compartir</summary>
+  <div class="compartir-cuerpo">
+    <p class="formato" id="compartir-texto-rotulo">Texto para copiar</p>
+    <pre class="texto-compartir" aria-labelledby="compartir-texto-rotulo">{texto}</pre>
+    <p class="formato">Dirección</p>
+    <p class="direccion">{direccion}</p>
+    <ul class="redes">
+      <li><a href={enlaceLinkedIn(direccion)} rel="noopener noreferrer">Compartir en LinkedIn</a></li>
+      <li><a href={enlaceX(titulo, direccion)} rel="noopener noreferrer">Compartir en X</a></li>
+    </ul>
+  </div>
+</details>
+
+<style>
+  .compartir {
+    margin: 2.5rem 0 0;
+    border-top: 1px solid var(--color-borde);
+    font-size: var(--tam-chico);
+  }
+  /* Pegado a «Cómo citar»: comparten la raya de arriba. */
+  .compartir + :global(.como-citar) { margin-top: 0; }
+  summary { cursor: pointer; padding: 0.8rem 0; color: var(--color-acento); }
+  .compartir-cuerpo { padding-bottom: 1rem; }
+  .formato { margin: 0.8rem 0 0.3rem; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; color: var(--color-texto-suave); }
+  pre {
+    margin: 0;
+    padding: 0.8rem 1rem;
+    background: var(--color-superficie);
+    border-radius: var(--radio);
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  .direccion { margin: 0; overflow-wrap: anywhere; user-select: all; }
+  .redes { list-style: none; margin: 1rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; }
+  .redes a { display: inline-block; padding: 0.3rem 0; }
+</style>

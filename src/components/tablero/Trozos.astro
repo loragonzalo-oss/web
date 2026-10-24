@@ -1,0 +1,7 @@
+---
+// Una línea de texto del tablero: texto, *cursiva* y [PENDIENTE: …] marcado como relleno.
+import type { Trozo } from '../../lib/tablero';
+interface Props { trozos: Trozo[] }
+const { trozos } = Astro.props;
+---
+{trozos.map((t) => (t.tipo === 'pendiente' ? <span class="pendiente" data-pagefind-ignore>{t.texto}</span> : t.tipo === 'cursiva' ? <em>{t.texto}</em> : t.texto))}

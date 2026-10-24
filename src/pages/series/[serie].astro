@@ -25,8 +25,10 @@ const borrador = s.textos.every((t) => t.data.draft);
           <div>
             <p class="meta">
               {t.collection === 'ensayos' ? 'Ensayo' : 'Blog'} ·
-              <time datetime={fechaISO(t.data.fecha)}>{fechaLarga(t.data.fecha)}</time> ·
-              {minutosLectura(t.body)} min de lectura
+              <time datetime={fechaISO(t.data.fecha)}>{fechaLarga(t.data.fecha)}</time>
+              {t.collection === 'ensayos' && t.data.version_web === 'resumen'
+                ? <> · versión web: resumen</>
+                : <> · {minutosLectura(t.body)} min de lectura</>}
               {t.data.draft && <> · borrador</>}
             </p>
             <h2><a href={rutaTexto(t)}>{t.data.titulo}</a></h2>

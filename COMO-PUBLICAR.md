@@ -14,19 +14,20 @@ En los dos casos, el encabezado de cada archivo es el mismo: ver «El encabezado
 1. [Publicar desde Obsidian](#publicar-desde-obsidian) — el camino habitual
 2. [Subir a mano](#subir-a-mano)
 3. [El encabezado (frontmatter)](#el-encabezado-frontmatter) — blog, ensayo, series, reglas y plantillas
-4. [Lo que el sitio agrega solo](#lo-que-el-sitio-agrega-solo)
-5. [Notas, figuras y citas destacadas](#notas-figuras-y-citas-destacadas)
-6. [Agregar un lugar al mapa](#agregar-un-lugar-al-mapa)
-7. [Lugares sensibles](#lugares-sensibles) — regla 6
-8. [Imágenes para compartir](#imágenes-para-compartir)
-9. [El buscador](#el-buscador)
-10. [Identidad visual: ver los temas y elegir uno](#identidad-visual-ver-los-temas-y-elegir-uno)
-11. [Direcciones del rediseño: verlas y elegir una](#direcciones-del-rediseño-verlas-y-elegir-una)
-12. [Prototipo de pieza inmersiva: «scroll es profundidad»](#prototipo-de-pieza-inmersiva-scroll-es-profundidad)
-13. [Si algo falla](#si-algo-falla)
-14. [Revisiones automáticas](#revisiones-automáticas)
-15. [Primera publicación: activar GitHub Pages](#primera-publicación-activar-github-pages)
-16. [Pasar al dominio propio](#pasar-al-dominio-propio)
+4. [Publicar un ensayo como referencia](#publicar-un-ensayo-como-referencia) — dirección fija, dónde salió, compartir e imprimir
+5. [Lo que el sitio agrega solo](#lo-que-el-sitio-agrega-solo)
+6. [Notas, figuras y citas destacadas](#notas-figuras-y-citas-destacadas)
+7. [Agregar un lugar al mapa](#agregar-un-lugar-al-mapa)
+8. [Lugares sensibles](#lugares-sensibles) — regla 6
+9. [Imágenes para compartir](#imágenes-para-compartir)
+10. [El buscador](#el-buscador)
+11. [Identidad visual: ver los temas y elegir uno](#identidad-visual-ver-los-temas-y-elegir-uno)
+12. [Direcciones del rediseño: verlas y elegir una](#direcciones-del-rediseño-verlas-y-elegir-una)
+13. [Prototipo de pieza inmersiva: «scroll es profundidad»](#prototipo-de-pieza-inmersiva-scroll-es-profundidad)
+14. [Si algo falla](#si-algo-falla)
+15. [Revisiones automáticas](#revisiones-automáticas)
+16. [Primera publicación: activar GitHub Pages](#primera-publicación-activar-github-pages)
+17. [Pasar al dominio propio](#pasar-al-dominio-propio)
 
 ## Publicar desde Obsidian
 
@@ -137,6 +138,7 @@ El script revisa cada nota marcada antes de copiar nada. Si una falla, **no la e
 - **Dos notas que irían a la misma dirección** (por ejemplo, «Cuencas» y «cuencas»), o una entrada del blog que taparía una dirección que el blog ya usa (`archivo`, `etiquetas` o un número solo).
 - **Una `parte` de serie que no es un número entero** desde 1.
 - **En un ensayo, `paginas` o `doi` mal escritos** (ver «Ensayo», en «El encabezado»).
+- **En un ensayo que se publica, falta `slug`**, o `publicado_en`, `version_web` o `imagen` (sin `credito`) están mal escritos (ver «Publicar un ensayo como referencia»). Un ensayo con `version_web: resumen` no frena por traer texto: se exporta sin cuerpo y se avisa.
 
 ### Si un archivo cambió en el repositorio
 
@@ -260,7 +262,7 @@ doi: "10.1234/abcd.2026.003"
 - La cita los usa: en APA, «*Revista*, *12*(3), 45–67. https://doi.org/10.1234/abcd» (con DOI, la cita lleva el DOI en lugar de la dirección); en BibTeX, un `@article` con `journal`, `volume`, `number`, `pages` y `doi`.
 - Si `paginas` o `doi` están mal escritos, el sitio no se construye y el error dice cuál (el script de Obsidian lo frena antes).
 
-También acepta `serie` y `parte`, igual que el blog.
+También acepta `serie` y `parte`, igual que el blog, y los campos para publicarlo como referencia (`slug`, obligatorio al publicar; `publicado_en`, `version_web`, `etiquetas`, `imagen`, `compartir` y `direcciones_anteriores`): ver «Publicar un ensayo como referencia».
 
 ### Series
 
@@ -287,6 +289,72 @@ Cada serie tiene su página en `/series/nombre-de-la-serie/`, con sus textos en 
 
 En la carpeta `plantillas/` del repositorio hay tres plantillas listas (`entrada-blog.md`, `ensayo.md` y `lugar.md`). Para usarlas, copiá esa carpeta a tu bóveda y elegila en Obsidian en *Configuración → Plantillas → Ubicación de la carpeta de plantillas*. Traen `publicar`, `tipo` (y `sensible`, en la de lugar), que el script lee y que no salen de la bóveda; si subís el archivo a mano, el sitio los ignora.
 
+## Publicar un ensayo como referencia
+
+La versión de la web es la que se enlaza, se cita y se comparte. LinkedIn, una revista o un medio son lugares donde el ensayo también salió.
+
+**Orden recomendado** (una vez en el dominio propio; antes no se comparten enlaces, ver «El texto para compartir»): primero se publica el ensayo en la web (`draft: false`, esperar el despliegue y abrir la dirección para comprobarla); después, el post en LinkedIn con el enlace a la web; al final, se anota el post en `publicado_en` y se vuelve a publicar.
+
+### Fijar la dirección (`slug`)
+
+Cada ensayo vive en `/ensayos/<slug>/`. Para publicarlo (`draft: false`), `slug` es obligatorio: si falta, el script de Obsidian frena la nota y el sitio no se construye, con un mensaje que lo dice. Con `slug` fijo, renombrar la nota en Obsidian no cambia la dirección.
+
+```yaml
+slug: nombre-del-ensayo
+```
+
+Conviene escribirlo en minúsculas, sin tildes y con guiones. No se puede usar `temas` (es `/ensayos/temas/`). Si alguna vez hay que cambiar un slug que ya circuló, el viejo va en `direcciones_anteriores` y su dirección sigue llevando al ensayo (la página vieja apunta a la nueva y los buscadores no la guardan):
+
+```yaml
+slug: nombre-nuevo
+direcciones_anteriores: ["nombre-viejo"]
+```
+
+### Anotar dónde salió
+
+- **La publicación formal**, la que se cita, va como siempre en `publicacion`, `enlace` y los datos de revista (ver «Ensayo», en «El encabezado»). No hace falta repetirla en `publicado_en`.
+- **Los otros lugares** van en `publicado_en`, uno por elemento, con `lugar`, `tipo` (`revista`, `libro`, `medio`, `red social` u `otro`), `fecha` y, si hay, `enlace`:
+
+```yaml
+publicado_en:
+  - lugar: "LinkedIn"
+    tipo: red social
+    fecha: 2026-10-01
+    enlace: "https://www.linkedin.com/posts/..."
+```
+
+En la página aparece el bloque «Publicado originalmente en», con la publicación formal y los lugares de `publicado_en` juntos, en orden de fecha y sin repetir. Al imprimir, va al pie de la hoja.
+
+**La cita** («Cómo citar este texto») manda al DOI si lo hay; si no, al `enlace` de la publicación formal; si no, a la dirección del ensayo en la web. Un enlace a una red social (LinkedIn, X, Facebook, Instagram…) nunca es destino de la cita, aunque esté en `enlace`.
+
+### Cuándo usar `version_web: resumen`
+
+Cuando los derechos del texto los tiene la revista o la editorial. Con `version_web: resumen`, la página muestra el resumen, los datos de publicación y el enlace al original («Leer el texto completo»), pero no el texto, ni la opción de imprimir, ni el PDF. Se decide ensayo por ensayo; por defecto es `completa`.
+
+**El texto completo no entra al repositorio**, que es público (decisión del autor, 22-10-2026):
+
+- `npm run desde-obsidian` exporta esas notas sin el cuerpo, también si son borradores, y lo avisa en la salida («se exportó sin el cuerpo»). El texto completo queda en tu bóveda, sin tocar.
+- Si subís el archivo a mano, dejá vacío todo lo que va debajo del encabezado. Un ensayo con `version_web: resumen` que trae cuerpo frena el build, con un mensaje que lo dice, sea publicado (`draft: false`) o borrador (`draft: true`): el repositorio es público también para los borradores.
+- Para pasar un ensayo de `resumen` a `completa` (por ejemplo, cuando la revista libera los derechos), cambiá el campo en la bóveda y volvé a exportar: ahí sí sale el texto.
+
+### Temas
+
+`etiquetas`, igual que en el blog. Con ellas se arman el acceso «Por tema» de `/ensayos`, las páginas `/ensayos/temas/<tema>/`, los «Textos relacionados» y los hashtags del texto para compartir.
+
+### El texto para compartir
+
+> **Apagado hasta el dominio propio.** Los enlaces de `loragonzalo-oss.github.io/web` no se comparten: al migrar desaparece la ruta `/web/`. Por eso el bloque «Compartir» y los enlaces «Compartir en LinkedIn» y «Compartir en X» no aparecen mientras `COMPARTIR_ACTIVO` sea `false` en `sitio.config.mjs`, que es como viene. Se enciende al migrar al dominio propio (ver «Pasar al dominio propio»). Hasta entonces, el «orden recomendado» de arriba espera al dominio propio.
+
+Con el interruptor encendido, cada ensayo tiene un bloque plegable «Compartir» con un texto listo para copiar: título, resumen, «Publicado originalmente en …», las etiquetas como hashtags (sin tildes ni espacios: «Gestión del agua» pasa a `#GestionDelAgua`) y la dirección. Si pasa de unos 600 caracteres, se recorta el resumen; la dirección nunca. Si preferís tu propio texto, escribilo en `compartir`; la dirección se agrega al final si no la pusiste. Debajo hay enlaces simples «Compartir en LinkedIn» y «Compartir en X», sin botones ni rastreadores de esas redes.
+
+### La imagen para compartir
+
+Sin hacer nada, LinkedIn, Facebook y X muestran la tarjeta tipográfica del ensayo (1200 × 630): título, tu nombre y, si hay publicación formal, su nombre. Para usar una foto, agregá `imagen` con `archivo`, `credito` (obligatorio) y `descripcion`; el sitio la recorta a 1200 × 630 y pone el crédito al pie del ensayo. Después del despliegue en el dominio propio, conviene pegar la dirección en el Post Inspector de LinkedIn (https://www.linkedin.com/post-inspector/) para que LinkedIn lea la versión nueva.
+
+### Imprimir y PDF
+
+El botón «Imprimir o guardar como PDF» abre la impresión del navegador; sin JavaScript, Ctrl+P (o ⌘P) hace lo mismo. La hoja sale sin menú ni bloques de la página y lleva al pie la dirección, la fecha, «Publicado originalmente en» y la cita APA. Hay además un script que genera un PDF por ensayo (`npm run ensayos:pdf`, después de construir), pero todavía no corre en el despliegue: necesita Chromium en `deploy.yml`, y eso se decide en la integración.
+
 ## Lo que el sitio agrega solo
 
 No hace falta escribir nada para esto:
@@ -294,9 +362,9 @@ No hace falta escribir nada para esto:
 - **Tiempo de lectura**, arriba del texto (a unas 200 palabras por minuto).
 - **Tabla de contenidos** («En este texto»), cuando el texto tiene tres subtítulos o más (`##` y `###`). En computadora va al costado; en celular, plegada arriba del texto.
 - **Cómo citar este texto**, al pie, en formato APA y BibTeX, armado con el título, la fecha y, en los ensayos, `publicacion`, `enlace` y los datos de revista (`volumen`, `numero`, `paginas`, `doi`). Autor «Lora Veizaga, G. R.»; en el blog, el medio es «Blog de Gonzalo R. Lora Veizaga».
-- **Textos relacionados**, al pie de cada entrada del blog: las que comparten más etiquetas.
+- **Textos relacionados**, al pie de cada entrada del blog y de cada ensayo: los textos que comparten más etiquetas.
 - **Archivo** del blog por año, en `/blog/archivo/`.
-- Al **imprimir** una entrada o un ensayo salen sólo el texto y las notas, con la dirección de la página y la fecha al final.
+- Al **imprimir** una entrada o un ensayo salen sólo el texto y las notas, con la dirección de la página, la fecha y la cita APA al final (en los ensayos, también «Publicado originalmente en»).
 
 Las comillas, rayas y puntos suspensivos quedan exactamente como los escribís: el sitio no los cambia.
 
@@ -545,7 +613,7 @@ Si subís un lugar a mano, marcalo con `sensible: true` si es un lugar sagrado o
 
 Cuando alguien comparte una entrada o un ensayo en Facebook o X, aparece una imagen. El sitio la arma sola al construirse: una tarjeta con el título, la palabra «Blog» o «Ensayo» y tu nombre, con los colores y las tipografías del tema publicado (`TEMA` en `sitio.config.mjs`, ver «Identidad visual»). Si cambia el tema o un color del tema, las tarjetas cambian solas en el próximo despliegue.
 
-- En una entrada del blog, si ponés `imagen:` en el encabezado, se usa esa foto en lugar de la tarjeta.
+- En una entrada del blog, si ponés `imagen:` en el encabezado, se usa esa foto en lugar de la tarjeta. En un ensayo, `imagen` lleva `archivo` y `credito` (ver «Publicar un ensayo como referencia»).
 - Si la tarjeta no se puede armar (por ejemplo, porque un color del tema está escrito de una forma que el generador no entiende: entiende `#hex`, `rgb()` y `hsl()`), se usa `public/og-default.png` y el despliegue sigue igual. En el registro del despliegue queda una línea que empieza con `[og]` y dice por qué.
 - Las demás páginas (portada, mapa, «Sobre mí»…) usan siempre `public/og-default.png`.
 
@@ -660,6 +728,9 @@ La revisión tiene siete pasos. Si uno sale en rojo, los siguientes no corren.
 **3. Construir el sitio que se publica.** Arma el sitio completo, igual que el despliegue, y el índice del buscador.
 - *Si falla:* casi siempre es un encabezado mal escrito en un `.md` (fecha, comillas, un campo con otro nombre) o un lugar del mapa con coordenadas que no corresponden. El error dice qué archivo y qué campo. Es lo mismo que se explica en «Si algo falla».
 
+**Aviso de diseño (Impeccable, no bloquea).** Entre el paso 3 y el 4 corre un detector de patrones de diseño genérico sobre el sitio construido. Es un aviso: aunque encuentre algo, la revisión sigue y no queda en rojo. Las reglas que no sirven para un sitio editorial en español están apagadas en `.impeccable/config.json`. Los hallazgos se leen en el registro de ese paso, en la pestaña *Actions*. Hay otro verificador del mismo tipo que se corre a mano: `npm run lint:taste`.
+- *Si sale en amarillo:* no hace falta hacer nada. Si un hallazgo te parece útil, se discute; las reglas de CLAUDE.md ganan siempre.
+
 **4. Enlaces internos rotos.** Revisa todos los enlaces que van de una página del sitio a otra (y a imágenes y archivos del sitio). No revisa los enlaces a otros sitios.
 - *Si falla:* la lista dice en qué página está el enlace y a dónde apunta. Lo más común es un archivo renombrado (su dirección cambió y los enlaces viejos quedaron apuntando a la anterior) o un enlace escrito a mano con un error. Se corrige el enlace o se devuelve el nombre original al archivo.
 
@@ -710,6 +781,14 @@ export const BASE = '/';
 ```
 
 No hay que tocar nada más: enlaces, estilos, imágenes, RSS, sitemap y Open Graph toman la dirección de ahí.
+
+En el mismo archivo, encendé el bloque «Compartir» de los ensayos:
+
+```js
+export const COMPARTIR_ACTIVO = true;
+```
+
+Mientras el sitio vive en `loragonzalo-oss.github.io/web` está apagado: esas direcciones no se comparten, porque al migrar desaparece la ruta `/web/` (regla aprobada el 22-10-2026). Se enciende al migrar al dominio propio, en el mismo cambio que `SITE` y `BASE`.
 
 ### 2. Agregar el archivo CNAME
 

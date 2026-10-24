@@ -1,6 +1,8 @@
 /*
   Impresión de entradas y ensayos: sin menú, sin pie ni navegación; tinta negra sobre
-  papel blanco; al final, la dirección de la página y la fecha.
+  papel blanco. Las notas al pie quedan al final del texto y, al pie de la hoja, la
+  referencia completa: dirección canónica, fecha, «Publicado originalmente en» y la cita APA
+  (.pie-impreso, en src/layouts/Lectura.astro). Es también la versión «Guardar como PDF».
 */
 @media print {
   /* Papel blanco aunque la pantalla esté en modo oscuro. */
@@ -27,6 +29,8 @@
   .indice-plegable,
   .nav-serie,
   .como-citar,
+  .compartir,
+  .imprimir,
   .pie-texto,
   .no-imprimir,
   .borrador-aviso { display: none !important; }
@@ -53,4 +57,18 @@
     font-size: 9pt;
     overflow-wrap: anywhere;
   }
+
+  /* Notas al pie: al final del texto, separadas del pie de la hoja. */
+  .cuerpo .footnotes { break-before: auto; font-size: 9.5pt; }
+  .cuerpo .footnotes a[data-footnote-backref] { display: none; }
+
+  /* Pie de la hoja: la referencia completa, junta en la última página. */
+  .pie-impreso { break-inside: avoid; color: #000000; }
+  .pie-impreso p { margin: 0 0 0.35rem; }
+  .pie-impreso .publicado-en { margin: 0.4rem 0; padding: 0; border: 0; }
+  .pie-impreso .publicado-rotulo,
+  .pie-impreso-rotulo { margin: 0.6rem 0 0.15rem; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.08em; }
+  .pie-impreso-cita { padding-left: 2em; text-indent: -2em; }
+  .pie-impreso a { color: inherit; text-decoration: none; }
+  .pie-impreso li a[href^='http']::after { content: ' (' attr(href) ')'; overflow-wrap: anywhere; }
 }
