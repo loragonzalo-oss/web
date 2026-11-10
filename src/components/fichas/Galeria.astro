@@ -1,0 +1,21 @@
+---
+// Galería de una ficha con tipo: la foto principal (`imagen`) y las de `galeria`, cada una con
+// su crédito.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  fotos: { archivo: ImageMetadata; credito: string; descripcion?: string }[];
+}
+const { fotos } = Astro.props;
+---
+<ul class:list={['ficha-galeria', { 'ficha-galeria-una': fotos.length === 1 }]}>
+  {fotos.map((f) => (
+    <li>
+      <figure class="ficha-imagen">
+        <Image src={f.archivo} alt={f.descripcion ?? ''} widths={[400, 800]} sizes="(max-width: 700px) 100vw, 24rem" />
+        <figcaption>{f.descripcion && <>{f.descripcion}. </>}Crédito: {f.credito}</figcaption>
+      </figure>
+    </li>
+  ))}
+</ul>

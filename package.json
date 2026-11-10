@@ -23,7 +23,8 @@
     "lint:taste": "node scripts/revision/lint-taste.mjs src",
     "ensayos:pdf": "node scripts/ensayos/pdf.mjs",
     "ensayos:capturas": "node src/desarrollo/capturas-ensayos.mjs",
-    "mapa:capturas": "node src/desarrollo/capturas-mapa.mjs"
+    "mapa:capturas": "node src/desarrollo/capturas-mapa.mjs",
+    "fichas:capturas": "node src/desarrollo/capturas-fichas.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.4",

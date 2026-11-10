@@ -121,3 +121,36 @@ export async function resolverRelacionados(l: Lugar): Promise<Relacionado[]> {
     return { ref };
   });
 }
+
+// `fichas_relacionadas`: otras fichas del mapa, por el nombre del archivo (con o sin .md o
+// carpeta, o como wikilink). Se suman las fichas que nombran a esta: si un ser nombra un
+// ecosistema, el ecosistema lista al ser sin repetirlo en su archivo.
+export interface FichaRelacionada {
+  ref: string;
+  lugar?: Lugar;
+}
+
+const idDeRef = (ref: string) =>
+  slugificar(ref.replace(/^\[\[|\]\]$/g, '').split('|')[0].replace(/\.md$/i, '').split('/').pop()!.trim());
+
+export async function resolverFichasRelacionadas(l: Lugar): Promise<FichaRelacionada[]> {
+  const todos = await lugares();
+  const salida: FichaRelacionada[] = [];
+  const vistos = new Set<string>([l.id]);
+  for (const ref of l.data.fichas_relacionadas) {
+    const id = idDeRef(ref);
+    if (vistos.has(id)) continue;
+    vistos.add(id);
+    const lugar = todos.find((o) => o.id === id);
+    if (!lugar) console.warn(`[mapa] «${l.data.titulo}»: la ficha relacionada «${ref}» no existe o es un borrador.`);
+    salida.push({ ref, lugar });
+  }
+  for (const o of todos) {
+    if (vistos.has(o.id)) continue;
+    if (o.data.fichas_relacionadas.some((ref) => idDeRef(ref) === l.id)) {
+      vistos.add(o.id);
+      salida.push({ ref: o.id, lugar: o });
+    }
+  }
+  return salida;
+}

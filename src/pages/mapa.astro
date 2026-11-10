@@ -9,6 +9,7 @@ import { FONDOS, FONDO_PREDETERMINADO, CODIFICACION_RELIEVE, LAGO } from '../lib
 import { lagoSintetico } from '../lib/lago-sintetico';
 import { verBorradores } from '../lib/borradores';
 import { url } from '../lib/rutas';
+import { esFichaContacto } from '../lib/fichas';
 
 const lista = await lugares();
 const enMapa = lista.map(lugarMapa).filter((l) => l !== null);
@@ -37,6 +38,8 @@ const datos = {
 // Mientras no haya ningún lugar publicado, la página no se ofrece a los buscadores.
 const sinPublicados = lista.every((l) => l.data.draft);
 const sinUbicacion = { punto: '', linea: ' · línea', poligono: ' · polígono' };
+// Enlace a /mapa/artesanos/ sólo cuando hay alguna ficha de esos tipos para ver.
+const hayArtesanos = lista.some((l) => esFichaContacto(l.data.ficha));
 ---
 <Base
   titulo="Mapa del Lago Titikaka"
@@ -48,6 +51,7 @@ const sinUbicacion = { punto: '', linea: ' · línea', poligono: ' · polígono'
     <header class="mapa-encabezado">
       <h1>Mapa del Lago Titikaka</h1>
       <p class="mapa-intro">El lago y sus orillas, de los dos lados: Bolivia y Perú. Las capas se prenden y se apagan; cada punto, línea o zona abre una ficha. Debajo del mapa está el mismo contenido como listado.</p>
+      {hayArtesanos && <p class="mapa-intro interfaz"><a href={url('/mapa/artesanos/')}>Artesanía y emprendimientos</a>: las fichas de artesanía, emprendimientos y agencias de turismo comunitario, en una grilla.</p>}
     </header>
 
     <div class="mapa-controles interfaz" data-controles hidden>

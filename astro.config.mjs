@@ -5,6 +5,9 @@ import { satteri } from '@astrojs/markdown-satteri';
 import temas from './src/desarrollo/integracion-temas.mjs';
 import { pluginsLectura, notasAlPie } from './src/markdown/lectura.mjs';
 import { SITE, BASE, TEMA } from './sitio.config.mjs';
+import { hayArtesanosPublicados } from './src/lib/artesanos-publicados.mjs';
+
+const artesanosPublicados = hayArtesanosPublicados();
 
 export default defineConfig({
   site: SITE,
@@ -22,7 +25,11 @@ export default defineConfig({
   },
   integrations: [
     // /mapa/ queda fuera del sitemap mientras esté en construcción. /buscar/ lleva noindex.
-    sitemap({ filter: (pagina) => !pagina.includes('/mapa/') && !pagina.includes('/buscar/') }),
+    // /mapa/artesanos/ entra sólo cuando tiene una ficha publicada (sus páginas filtradas, nunca).
+    sitemap({
+      filter: (pagina) =>
+        (!pagina.includes('/mapa/') || (artesanosPublicados && pagina.endsWith('/mapa/artesanos/'))) && !pagina.includes('/buscar/'),
+    }),
     temas({ tema: TEMA }),
   ],
 });

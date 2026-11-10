@@ -1,6 +1,11 @@
 ---
 publicar: false
 tipo: lugar
+# ficha (opcional): el tipo de ficha, que ordena sus secciones. Uno de estos:
+# municipio, sitio, sitio-sagrado, ser, ecosistema, artesano, emprendimiento,
+# agencia-turismo-comunitario. Hay una plantilla por tipo (lugar-<tipo>.md).
+# Vacío: la ficha se dibuja como siempre.
+ficha: 
 titulo: ""
 capa: 
 # sensible: true para lugares sagrados y los que el autor indique.

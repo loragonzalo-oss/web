@@ -471,3 +471,38 @@ test('regla 6: un lugar sensible no lleva línea ni polígono, y «sensible: tru
   assert.doesNotMatch(await leer('src/content/lugares/lugar-exacto-de-prueba.md'), /\nsensible:/);
   await rm(base, { recursive: true });
 });
+
+test('tipos de ficha: sitio sagrado sin «sensible», galería copiada, consulta sin nombre y fichas relacionadas', async () => {
+  const { base, boveda, repo, leer } = await preparar();
+  const nota = (nombre, fm) =>
+    writeFile(path.join(boveda, `300 Lugares/${nombre}.md`), `---\npublicar: true\ntipo: lugar\n${fm}\nresumen: "Relleno."\nmarcador: "[DATO PROPIO]"\ndraft: true\n---\n\nTexto de relleno.\n`);
+  await nota('Sagrado de prueba', 'titulo: "Sagrado de prueba"\ncapa: cultura\nficha: sitio-sagrado\nlat: -15.71\nlon: -69.52\nprecision: aproximada\nconsulta:\n  con: "Nombre de relleno"\n  fecha: 2026-11-10');
+  await nota('Sagrado exacto', 'titulo: "Sagrado exacto"\ncapa: cultura\nficha: sitio-sagrado\nlat: -15.71\nlon: -69.52\nprecision: exacta');
+  await nota('Sagrado desactivado', 'titulo: "Sagrado desactivado"\ncapa: cultura\nficha: sitio-sagrado\nsensible: false\nlat: -15.71\nlon: -69.52\nprecision: aproximada');
+  await nota('Ser de prueba', 'titulo: "Ser de prueba"\ncapa: biodiversidad\nficha: ser\nlat: -15.8\nlon: -69.4\nnombre_comun: "Relleno"\ngaleria:\n  - archivo: "[[Imagen de prueba.png]]"\n    credito: "Relleno"\nfichas_relacionadas:\n  - "[[Sagrado de prueba]]"\n  - "[[Sagrado exacto]]"\n  - "[[Entrada de prueba]]"');
+  await nota('Artesania con telefono', 'titulo: "Artesania con telefono"\ncapa: emprendimientos-comunitarios\nficha: artesano\nlat: -15.66\nlon: -69.33\ncontacto:\n  - texto: "WhatsApp"\n    url: "https://wa.me/59171234567"\n    verificado: 2026-11-10');
+  const r = await exportar({ boveda, repo });
+  const motivos = (n) => frenada(r, `300 Lugares/${n}.md`)?.motivos.join('\n') ?? '';
+  assert.match(motivos('Sagrado exacto'), /ficha de sitio sagrado\) y tiene «precision: exacta»/);
+  assert.match(motivos('Sagrado desactivado'), /no admite «sensible: false»/);
+  assert.match(motivos('Artesania con telefono'), /WhatsApp/);
+  const sagrado = await leer('src/content/lugares/sagrado-de-prueba.md');
+  assert.match(sagrado, /\nficha: sitio-sagrado\n/);
+  assert.match(sagrado, /\nconsulta:\n  fecha: "?2026-11-10"?\n/);
+  assert.doesNotMatch(sagrado, /Nombre de relleno/);
+  const ser = await leer('src/content/lugares/ser-de-prueba.md');
+  assert.match(ser, /\ngaleria:\n  - archivo: \.\/imagenes\/ser-de-prueba\/imagen-de-prueba\.png\n/);
+  assert.ok(existsSync(path.join(repo, 'src/content/lugares/imagenes/ser-de-prueba/imagen-de-prueba.png')));
+  // Sólo otros lugares que salen: el frenado y la entrada del blog se quitan con aviso.
+  assert.match(ser, /\nfichas_relacionadas:\n  - sagrado-de-prueba\n(?!  -)/);
+  assert.ok(r.avisos.some((a) => /fichas_relacionadas: «\[\[Entrada de prueba\]\]» se quitó porque no es un lugar/.test(a.texto)));
+  await rm(base, { recursive: true });
+});
+
+test('un lugar no puede llamarse «artesanos»: taparía /mapa/artesanos/', async () => {
+  const { base, boveda, repo } = await preparar();
+  await writeFile(path.join(boveda, '300 Lugares/Artesanos.md'), '---\npublicar: true\ntipo: lugar\ntitulo: "Artesanos"\ncapa: cultura\nlat: -15.8\nlon: -69.4\nresumen: "Relleno."\nmarcador: "[DATO PROPIO]"\ndraft: true\n---\n\nRelleno.\n');
+  const r = await exportar({ boveda, repo });
+  assert.match(frenada(r, '300 Lugares/Artesanos.md').motivos.join(), /\/mapa\/artesanos\/ ya la usa el sitio/);
+  await rm(base, { recursive: true });
+});

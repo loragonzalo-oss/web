@@ -13,6 +13,9 @@ import { url } from '../../lib/rutas';
 
 export const getStaticPaths = (async () => {
   const lista = await lugares();
+  // /mapa/artesanos/ es la página de artesanía y emprendimientos: un lugar no puede taparla.
+  const choque = lista.find((l) => l.id === 'artesanos');
+  if (choque) throw new Error(`El lugar «${choque.data.titulo}» iría a /mapa/artesanos/, que ya usa el sitio. Cambiá el nombre del archivo o poné otro «slug».`);
   return lista.map((l) => ({ params: { lugar: l.id }, props: { l } }));
 }) satisfies GetStaticPaths;
 

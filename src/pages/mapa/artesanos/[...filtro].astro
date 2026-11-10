@@ -1,0 +1,144 @@
+---
+// /mapa/artesanos/: reúne las fichas de artesanía, emprendimiento y agencia de turismo
+// comunitario (src/lib/fichas.ts, FICHAS_CONTACTO) en una grilla. Sin JavaScript: el filtro por
+// tipo y por país son páginas propias, una por combinación:
+//   /mapa/artesanos/                    todas
+//   /mapa/artesanos/<tipo>/             un tipo, todos los países
+//   /mapa/artesanos/<tipo|todos>/<pais>/ un tipo (o todos) en un país
+// Las páginas filtradas no se ofrecen a los buscadores; /mapa/artesanos/ entra al sitemap sólo
+// cuando hay al menos una ficha publicada (astro.config.mjs).
+// Criterio de inclusión: [PENDIENTE] (PENDIENTES.md). Hasta tenerlo no se publica ninguna ficha.
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import Base from '../../../layouts/Base.astro';
+import Pendiente from '../../../components/Pendiente.astro';
+import '../../../styles/ficha.css';
+import '../../../styles/mapa.css';
+import { lugares, enlaceMapa, paginaLugar, tipoLugar } from '../../../lib/lugares';
+import { esFichaContacto, nombreFicha, type IdFicha } from '../../../lib/fichas';
+import { nombreCapa, reglasCapas } from '../../../lib/capas';
+import { TODOS, FILTRO_TIPOS, FILTRO_PAISES, combinaciones, rutaFiltro, nombreFiltroTipo, nombreFiltroPais } from '../../../lib/artesanos';
+import { url } from '../../../lib/rutas';
+
+export const getStaticPaths = (() => combinaciones()) satisfies GetStaticPaths;
+
+const { tipo, pais } = Astro.props;
+const todas = (await lugares()).filter((l) => esFichaContacto(l.data.ficha));
+const visibles = todas.filter(
+  (l) => (tipo === TODOS || l.data.ficha === tipo) && (pais === TODOS || l.data.pais === pais),
+);
+const filtrada = tipo !== TODOS || pais !== TODOS;
+const sinPublicadas = todas.every((l) => l.data.draft);
+
+const TIPOS = FILTRO_TIPOS;
+const LISTA_PAISES = FILTRO_PAISES;
+const nombreTipo = nombreFiltroTipo;
+const nombrePais = nombreFiltroPais;
+const subtitulo = [tipo !== TODOS && nombreTipo(tipo), pais !== TODOS && nombrePais(pais)].filter(Boolean).join(' · ');
+const titulo = `Artesanía y emprendimientos${subtitulo ? ` · ${subtitulo}` : ''}`;
+const foto = (l: (typeof todas)[number]) => l.data.imagen ?? l.data.galeria[0];
+---
+<Base
+  titulo={titulo}
+  descripcion="Artesanía, emprendimientos y agencias de turismo comunitario del Lago Titikaka, con su ficha y sus enlaces de contacto."
+  noIndexar={sinPublicadas || filtrada}
+>
+  <style is:inline set:html={reglasCapas()}></style>
+  <div class="pagina-artesanos">
+    <p class="interfaz pagina-lugar-volver"><a href={url('/mapa/')}>← Mapa del Lago Titikaka</a></p>
+    <header>
+      <h1>Artesanía y emprendimientos</h1>
+      <p class="artesanos-intro">Artesanía, emprendimientos y agencias de turismo comunitario de las orillas del lago. Cada ficha lleva sólo los enlaces que la persona autorizó; el sitio no vende en línea.</p>
+    </header>
+
+    {todas.length === 0 ? (
+      <p class="vacio artesanos-vacio">Todavía no hay fichas publicadas. <Pendiente texto="texto del autor" /></p>
+    ) : (
+      <>
+        <nav class="artesanos-filtros interfaz" aria-label="Filtrar las fichas">
+          <div class="artesanos-filtro">
+            <p class="artesanos-filtro-rotulo" id="filtro-tipo">Tipo</p>
+            <ul aria-labelledby="filtro-tipo">
+              {TIPOS.map((t) => (
+                <li><a href={rutaFiltro(t, pais)} aria-current={t === tipo ? 'page' : undefined}>{nombreTipo(t)}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div class="artesanos-filtro">
+            <p class="artesanos-filtro-rotulo" id="filtro-pais">País</p>
+            <ul aria-labelledby="filtro-pais">
+              {LISTA_PAISES.map((p) => (
+                <li><a href={rutaFiltro(tipo, p)} aria-current={p === pais ? 'page' : undefined}>{nombrePais(p)}</a></li>
+              ))}
+            </ul>
+          </div>
+        </nav>
+
+        <p class="meta artesanos-estado">{visibles.length === 1 ? 'Una ficha' : `${visibles.length} fichas`}{filtrada && ` de ${todas.length}`}.</p>
+
+        {visibles.length === 0 ? (
+          <p class="vacio">Ninguna ficha coincide con este filtro. <a href={rutaFiltro(TODOS, TODOS)}>Ver todas</a>.</p>
+        ) : (
+          <ul class="artesanos-grilla">
+            {visibles.map((l) => {
+              const f = foto(l);
+              const enMapa = tipoLugar(l) !== null;
+              return (
+                <li class="artesano-tarjeta" data-ficha={l.data.ficha} data-pais={l.data.pais ?? ''}>
+                  {f ? (
+                    <Image class="artesano-foto" src={f.archivo} alt={f.descripcion ?? ''} widths={[400, 700]} sizes="(max-width: 700px) 100vw, 22rem" />
+                  ) : (
+                    <div class="artesano-foto artesano-sin-foto" aria-hidden="true"></div>
+                  )}
+                  <div class="artesano-texto">
+                    <p class="ficha-capa">
+                      <span class={`capa-punto capa-${l.data.capa}`} aria-hidden="true"></span>
+                      {nombreFicha(l.data.ficha as IdFicha)}
+                      {l.data.draft && <span class="ficha-borrador"> · borrador</span>}
+                    </p>
+                    <h2 class="artesano-nombre"><a href={paginaLugar(l.id)}>{l.data.titulo}</a></h2>
+                    <dl class="ficha-datos">
+                      <div><dt>{l.data.ficha === 'artesano' ? 'Oficio' : 'Rubro'}</dt><dd>{l.data.oficio ?? (l.data.draft ? <Pendiente texto="oficio" /> : '—')}</dd></div>
+                      <div><dt>Comunidad</dt><dd>{l.data.comunidad ?? (l.data.draft ? <Pendiente texto="comunidad" /> : '—')}</dd></div>
+                      {l.data.pais && <div><dt>País</dt><dd>{nombrePais(l.data.pais)}</dd></div>}
+                    </dl>
+                    <p class="artesano-acciones interfaz">
+                      <a href={paginaLugar(l.id)}>Ver la ficha<span class="sr-solo"> de {l.data.titulo}</span></a>
+                      {enMapa
+                        ? <a href={enlaceMapa(l.id)}>Ver en el mapa<span class="sr-solo"> ({nombreCapa(l.data.capa)})</span></a>
+                        : <span class="meta">Sin ubicación publicada</span>}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </>
+    )}
+  </div>
+</Base>
+
+<style>
+  .pagina-artesanos { max-width: var(--ancho-sitio); }
+  .pagina-lugar-volver { font-size: var(--tam-chico); color: var(--color-texto-suave); margin-bottom: 1.5rem; }
+  .artesanos-intro { max-width: var(--ancho-lectura); }
+  .artesanos-filtros { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin: 1.5rem 0 0.75rem; font-size: var(--tam-chico); }
+  .artesanos-filtro { min-width: 0; }
+  .artesanos-filtro-rotulo { margin: 0 0 0.3rem; color: var(--color-texto-suave); }
+  .artesanos-filtro ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .artesanos-filtro a {
+    display: inline-block; padding: 0.3rem 0.7rem; border: 1px solid var(--color-borde);
+    border-radius: 999px; text-decoration: none; min-height: 24px;
+  }
+  .artesanos-filtro a[aria-current='page'] { background: var(--color-texto); color: var(--color-fondo); border-color: var(--color-texto); }
+  .artesanos-grilla { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); }
+  .artesano-tarjeta { border: 1px solid var(--color-borde); border-radius: var(--radio); overflow: hidden; display: flex; flex-direction: column; background: var(--color-fondo); }
+  .artesano-foto { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+  .artesano-sin-foto { background: var(--color-superficie); }
+  .artesano-texto { padding: 0.75rem 1rem 1rem; }
+  .artesano-texto .ficha-datos > div { grid-template-columns: 6.5rem 1fr; }
+  .artesano-nombre { font-size: var(--tam-h3); margin: 0.3rem 0 0.5rem; }
+  .artesano-acciones { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: var(--tam-chico); margin: 0.75rem 0 0; }
+  .sr-solo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>

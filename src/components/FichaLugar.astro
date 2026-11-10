@@ -3,12 +3,21 @@
 // el panel del mapa copia la cabecera y el cuerpo de acá. Así hay una sola fuente de verdad.
 // Con `pagina`, es la ficha completa de la página propia del lugar (/mapa/<id>/): título h1 y
 // cuerpo abierto. Con `enlace`, el título lleva a esa página.
+//
+// Con `ficha` (tipo de ficha, src/lib/fichas.ts), el cuerpo se ordena en secciones fijas según el
+// tipo; una sección vacía no se publica y en un borrador aparece con su [PENDIENTE: …]. Sin
+// `ficha`, la ficha se dibuja como siempre.
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
 import Pendiente from './Pendiente.astro';
-import { nombreCapa } from '../lib/capas';
+import Seccion from './fichas/Seccion.astro';
+import Datos from './fichas/Datos.astro';
+import Galeria from './fichas/Galeria.astro';
+import Contactar from './fichas/Contactar.astro';
+import { nombreCapa, PAISES } from '../lib/capas';
 import { fechaLarga, fechaISO } from '../lib/fechas';
-import { resolverRelacionados, type Lugar } from '../lib/lugares';
+import { esFichaContacto, nombreFicha } from '../lib/fichas';
+import { paginaLugar, resolverFichasRelacionadas, resolverRelacionados, type Lugar } from '../lib/lugares';
 import { verBorradores } from '../lib/borradores';
 
 interface Props { lugar: Lugar; enlace?: string; pagina?: boolean }
@@ -27,11 +36,51 @@ const MARCADOR = {
   '[HIPÓTESIS]': { aviso: true, texto: 'Hipótesis: premisa razonable sin respaldo documental.' },
   '[DATO PROPIO]': { aviso: false, texto: 'Dato propio del autor, sin documento que lo cite.' },
 }[d.marcador];
+
+// --- Ficha con tipo ---------------------------------------------------------------------------
+const tipo = d.ficha;
+const borrador = d.draft;
+const contacto = esFichaContacto(tipo);
+const protegida = d.precision !== 'exacta';
+const fotos = [...(d.imagen ? [d.imagen] : []), ...d.galeria];
+const tieneTexto = Boolean(lugar.body?.trim());
+const fichas = tipo ? (await resolverFichasRelacionadas(lugar)).filter((r) => r.lugar || verBorradores) : [];
+const nombrePais = PAISES.find((p) => p.id === d.pais)?.nombre;
+const datos = {
+  municipio: [
+    { rotulo: 'Nombre oficial', valor: d.nombre_oficial },
+    { rotulo: 'País', valor: nombrePais },
+    { rotulo: 'Departamento o región', valor: d.departamento },
+    { rotulo: 'Provincia', valor: d.provincia },
+    { rotulo: 'Tipo de gobierno', valor: d.gobierno },
+  ],
+  ser: [
+    { rotulo: 'Nombre común', valor: d.nombre_comun },
+    { rotulo: 'Nombre científico', valor: d.nombre_cientifico, cursiva: true },
+    ...(d.nombres_originarios.length
+      ? d.nombres_originarios.map((n) => ({ rotulo: `En ${n.lengua}`, valor: n.nombre }))
+      : [{ rotulo: 'Nombre en aimara o quechua', valor: undefined }]),
+  ],
+  ...Object.fromEntries(
+    ['artesano', 'emprendimiento', 'agencia-turismo-comunitario'].map((t) => [t, [
+      { rotulo: t === 'artesano' ? 'Oficio' : 'Rubro', valor: d.oficio },
+      { rotulo: 'Comunidad', valor: d.comunidad },
+      { rotulo: 'País', valor: nombrePais },
+    ]]),
+  ),
+}[tipo ?? ''] as { rotulo: string; valor?: string; cursiva?: boolean }[] | undefined;
+const tituloGaleria = { artesano: 'Piezas', emprendimiento: 'Productos y servicios', 'agencia-turismo-comunitario': 'Servicios' }[tipo ?? ''] ?? 'Galería';
+const tituloFichas = { ser: 'Lugares relacionados', ecosistema: 'Seres y sitios relacionados' }[tipo ?? ''] ?? 'Relacionados en el mapa';
+const fichaPendiente = tipo === 'ser' || tipo === 'ecosistema';
+// En un ecosistema, primero los seres y después los sitios y el resto.
+const orden = (r: (typeof fichas)[number]) => (r.lugar?.data.ficha === 'ser' ? 0 : 1);
+fichas.sort((a, b) => orden(a) - orden(b));
 ---
 <div class="ficha-cabecera">
   <p class="ficha-capa">
     <span class={`capa-punto capa-${d.capa}`} aria-hidden="true"></span>
     {nombreCapa(d.capa)}
+    {tipo && <span class="ficha-tipo"> · {nombreFicha(tipo)}</span>}
     {d.draft && <span class="ficha-borrador"> · borrador</span>}
     {MARCADOR.aviso && <span class="ficha-insignia">{d.marcador}</span>}
   </p>
@@ -41,26 +90,70 @@ const MARCADOR = {
 
 <Detalle class="ficha-detalle">
 {!pagina && <summary>Leer la ficha</summary>}
-<div class="ficha-cuerpo">
+<div class:list={['ficha-cuerpo', tipo && `ficha-tipo-${tipo}`]}>
   {d.draft && <p class="borrador-aviso">Borrador: sólo se ve en el modo de desarrollo. No se publica.</p>}
 
   <p class:list={['ficha-marcador', { 'ficha-marcador-aviso': MARCADOR.aviso }]}>
     <strong>{d.marcador}</strong> {MARCADOR.texto}
   </p>
 
-  {d.imagen && (
-    <figure class="ficha-imagen">
-      <Image src={d.imagen.archivo} alt={d.imagen.descripcion ?? ''} widths={[400, 800]} sizes="(max-width: 700px) 100vw, 24rem" />
-      <figcaption>{d.imagen.descripcion && <>{d.imagen.descripcion}. </>}Crédito: {d.imagen.credito}</figcaption>
-    </figure>
+  {tipo ? (
+    <>
+      {(tipo === 'sitio' || tipo === 'sitio-sagrado') && protegida && (
+        <p class="ficha-protegida" role="note">
+          <strong>Ubicación protegida.</strong>{' '}
+          {d.precision === 'oculta'
+            ? 'Este lugar no tiene marca en el mapa, para cuidarlo.'
+            : 'El punto del mapa está corrido a propósito, para cuidar el lugar: no marca el sitio exacto.'}
+        </p>
+      )}
+      {tipo === 'sitio-sagrado' && borrador && !d.consulta?.fecha && (
+        <p class="ficha-nota"><Pendiente texto="consulta: con quién se habló y cuándo (no se publica)" /></p>
+      )}
+
+      {datos && <Datos filas={datos} borrador={borrador} />}
+
+      <Seccion titulo={tituloGaleria} vacia={fotos.length === 0} pendiente="fotos con crédito" borrador={borrador} Sub={Sub}>
+        <Galeria fotos={fotos} />
+      </Seccion>
+
+      <Seccion titulo="Historia" vacia={!tieneTexto} pendiente="texto del autor" borrador={borrador} Sub={Sub} clase="ficha-historia">
+        <div class="ficha-texto"><Content /></div>
+      </Seccion>
+
+      {(fichas.length > 0 || (fichaPendiente && borrador)) && (
+        <Seccion titulo={tituloFichas} vacia={fichas.length === 0} pendiente="fichas relacionadas" borrador={borrador} Sub={Sub}>
+          <ul>
+            {fichas.map((r) => (
+              <li>
+                {r.lugar
+                  ? <>{r.lugar.data.ficha && <>{nombreFicha(r.lugar.data.ficha)}: </>}<a href={paginaLugar(r.lugar.id)}>{r.lugar.data.titulo}</a></>
+                  : <Pendiente texto={`ficha relacionada no encontrada: ${r.ref}`} />}
+              </li>
+            ))}
+          </ul>
+        </Seccion>
+      )}
+
+      {contacto && <Contactar contacto={d.contacto} consentimiento={d.consentimiento} borrador={borrador} Sub={Sub} />}
+    </>
+  ) : (
+    <>
+      {d.imagen && (
+        <figure class="ficha-imagen">
+          <Image src={d.imagen.archivo} alt={d.imagen.descripcion ?? ''} widths={[400, 800]} sizes="(max-width: 700px) 100vw, 24rem" />
+          <figcaption>{d.imagen.descripcion && <>{d.imagen.descripcion}. </>}Crédito: {d.imagen.credito}</figcaption>
+        </figure>
+      )}
+
+      <div class="ficha-texto"><Content /></div>
+    </>
   )}
 
-  <div class="ficha-texto"><Content /></div>
-
-  {d.precision === 'aproximada' && (
+  {d.precision === 'aproximada' && !(tipo === 'sitio' || tipo === 'sitio-sagrado') && (
     <p class="ficha-nota">Ubicación aproximada: {d.geometria ? 'el trazado está desplazado' : 'el punto está desplazado'} a propósito.</p>
   )}
-  {d.precision === 'oculta' && (
+  {d.precision === 'oculta' && !(tipo === 'sitio' || tipo === 'sitio-sagrado') && (
     <p class="ficha-nota">Ubicación no publicada: este lugar no tiene marca en el mapa.</p>
   )}
 
@@ -79,7 +172,18 @@ const MARCADOR = {
     </section>
   )}
 
-  {d.enlaces.length > 0 && (
+  {tipo ? (
+    <Seccion titulo={tipo === 'municipio' ? 'Enlaces oficiales' : 'Enlaces'} vacia={d.enlaces.length === 0} pendiente={tipo === 'municipio' ? 'enlaces oficiales con su fecha de verificación' : 'enlaces'} borrador={borrador} Sub={Sub}>
+      <ul>
+        {d.enlaces.map((e) => (
+          <li>
+            <a href={e.url} rel="noopener">{e.texto}</a>
+            <span class="meta"> · verificado el <time datetime={fechaISO(e.verificado)}>{fechaLarga(e.verificado)}</time></span>
+          </li>
+        ))}
+      </ul>
+    </Seccion>
+  ) : d.enlaces.length > 0 && (
     <section class="ficha-seccion">
       <Sub>Enlaces</Sub>
       <ul>
@@ -93,16 +197,18 @@ const MARCADOR = {
     </section>
   )}
 
-  {d.fuentes.length > 0 && (
+  {(d.fuentes.length > 0 || (tipo && borrador)) && (
     <section class="ficha-seccion">
       <Sub>Fuentes</Sub>
-      <ul>
-        {d.fuentes.map((f) => (
-          <li>
-            {f.autor} ({f.año}). {f.url ? <a href={f.url} rel="noopener"><em>{f.titulo}</em></a> : <em>{f.titulo}</em>}.
-          </li>
-        ))}
-      </ul>
+      {d.fuentes.length > 0 ? (
+        <ul>
+          {d.fuentes.map((f) => (
+            <li>
+              {f.autor} ({f.año}). {f.url ? <a href={f.url} rel="noopener"><em>{f.titulo}</em></a> : <em>{f.titulo}</em>}.
+            </li>
+          ))}
+        </ul>
+      ) : <p><Pendiente texto="fuentes" /></p>}
     </section>
   )}
 </div>
