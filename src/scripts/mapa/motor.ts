@@ -25,6 +25,7 @@ import {
 import urlEstilos from 'maplibre-gl/dist/maplibre-gl.css?url';
 import urlTrabajador from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { crearPanel } from './panel';
+import { colorPorCapa as expresionColor } from './estilo';
 import type { Datos, LugarMapa } from './tipos';
 
 interface Opciones {
@@ -73,9 +74,11 @@ export async function iniciar({ datos, visibles, alFiltrar, idDesdeHash }: Opcio
     return `rgba(${r}, ${g}, ${b}, ${((a / 255) * alfa).toFixed(3)})`;
   };
   const variable = (nombre: string) => getComputedStyle(raiz).getPropertyValue(nombre).trim();
-  const capas = [...new Set(items.map((i) => i.dataset.capa!))];
-  const colorPorCapa = (alfa = 1): ExpressionSpecification =>
-    ['match', ['get', 'capa'], ...capas.flatMap((c) => [c, rgba(variable(`--color-capa-${c}`), alfa)]), rgba(variable('--color-acento'), alfa)] as ExpressionSpecification;
+  // Todas las capas del sitio (src/lib/capas.ts), no sólo las de los lugares publicados: el estilo
+  // tiene que valer también con cero lugares o con lugares de una sola capa.
+  const capas = Object.keys(datos.nombresCapas);
+  const colorPorCapa = (alfa = 1) =>
+    expresionColor(capas, (c) => rgba(variable(`--color-capa-${c}`), alfa), rgba(variable('--color-acento'), alfa));
   // El tema decide si el mapa va oscuro: con --mapa-filtro-teselas distinto de «none».
   const oscuro = () => variable('--mapa-filtro-teselas') !== 'none' && variable('--mapa-filtro-teselas') !== '';
 

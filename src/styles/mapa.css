@@ -9,7 +9,10 @@
 .mapa-intro { max-width: var(--ancho-lectura); color: var(--color-texto-suave); margin-top: 0; }
 
 /* --- Búsqueda y filtros --- */
-.mapa-controles { display: grid; gap: 0.9rem; margin: 1.25rem 0 0.9rem; }
+.mapa-controles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.9rem; margin: 1.25rem 0 0.9rem; }
+/* Un hijo de grilla no se achica por debajo de su contenido salvo que se lo pida. Sin esto, la
+   fila de casillas de celular (que no corta línea y se desplaza de costado) ensanchaba la página. */
+.mapa-controles > *, .mapa-filtros { min-width: 0; max-width: 100%; }
 @media (max-width: 700px) { .mapa-controles { gap: 0.6rem; } }
 .mapa-buscar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; }
 .mapa-buscar label, .filtro legend, .fondos legend {
@@ -47,11 +50,10 @@
 .filtro-acciones button:hover, .listado-acciones button:hover, .ficha-acciones button:hover, .mapa-aviso button:hover { border-color: var(--color-acento); }
 
 /* En escritorio, los filtros siempre a la vista; en celular, plegables. */
-.mapa-filtros { display: grid; gap: 0.9rem; }
+.mapa-filtros { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.9rem; }
 .mapa-filtros > summary { display: none; }
-.mapa-filtros[open] { display: grid; }
 @media (max-width: 700px) {
-  .mapa-filtros { display: block; }
+  .mapa-filtros, .mapa-filtros[open] { display: block; }
   .mapa-filtros > summary {
     display: list-item; cursor: pointer; font-weight: 600; font-size: var(--tam-chico); text-transform: uppercase;
     letter-spacing: 0.08em; color: var(--color-texto-suave); min-height: 2rem;

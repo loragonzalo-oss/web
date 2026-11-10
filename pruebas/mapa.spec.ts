@@ -210,6 +210,19 @@ test('una dirección con filtros abre la vista filtrada', async ({ page }) => {
   await expect(page.locator('.listado-item:visible')).toHaveAttribute('data-lugar', 'ejemplo-poligono');
 });
 
+test('no se desplaza de costado con los filtros, la leyenda y una ficha abiertos', async ({ page, isMobile }) => {
+  await abrirMapa(page, 'mapa/#lugar-ejemplo-linea');
+  await expect(panel(page)).toBeVisible();
+  if (isMobile) {
+    await page.locator('.mapa-filtros summary').click();
+    await page.locator('[data-leyenda] summary').click();
+  }
+  await expect(page.locator('.mapa-filtros')).toHaveAttribute('open', '');
+  await expect(page.locator('[data-leyenda]')).toHaveAttribute('open', '');
+  const { ancho, visible } = await page.evaluate(() => ({ ancho: document.documentElement.scrollWidth, visible: document.documentElement.clientWidth }));
+  expect(ancho, 'la página es más ancha que la pantalla').toBeLessThanOrEqual(visible);
+});
+
 test('la leyenda muestra cada capa y se pliega en celular', async ({ page, isMobile }) => {
   await abrirMapa(page);
   const leyenda = page.locator('[data-leyenda]');
