@@ -8,6 +8,7 @@ import { IDS_CAPAS, IDS_PAISES, RECORTE } from './lib/capas';
 import { leerGeometria, normalizarRutaGeometria } from './lib/geometria';
 import { normalizarDoi, normalizarPaginas } from './lib/revista';
 import { normalizarTipoLugar, TIPOS_LUGAR, chocaConEnsayos } from './lib/referencia';
+import { avisosFicha, erroresFicha, IDS_FICHAS, motivoSensible, normalizarFicha } from './lib/fichas';
 import { anclasOrdenadas, calcularZ, MARCADORES_DE_TRABAJO, textosDe, TOLERANCIA_Z } from './lib/tablero';
 
 // La dirección de cada texto sale del nombre del archivo (sin carpetas), o de `slug`
@@ -158,6 +159,9 @@ function erroresGeometria(ref: string, precision: string): string[] {
   return leerGeometria(readFileSync(archivo, 'utf8'), { recorte: RECORTE, precision }).errores.map((e) => `${ruta}: ${e}`);
 }
 
+// Texto opcional de una ficha. Un número suelto en YAML llega como número.
+const textoFicha = textoOpcional;
+
 // Frontmatter de los lugares del mapa. Ver COMO-PUBLICAR.md, «Agregar un lugar al mapa».
 const lugares = defineCollection({
   loader: glob({ base: './src/content/lugares', pattern: '**/*.md', generateId: generarId }),
@@ -171,9 +175,14 @@ const lugares = defineCollection({
         // Línea o polígono: archivo GeoJSON en src/content/lugares/geometrias/. Va en lugar de lat y lon.
         geometria: z.preprocess(vacio, z.string().trim().min(1).optional()),
         precision: z.preprocess(vacio, z.enum(['exacta', 'aproximada', 'oculta']).default('exacta')),
-        // Lugar sensible (lugares sagrados y los que el autor indique). La capa Arqueología es
-        // siempre sensible, lo diga o no. Regla 6: sólo punto aproximado u oculto.
-        sensible: z.preprocess(vacio, z.boolean().default(false)),
+        // Lugar sensible (lugares sagrados y los que el autor indique). La capa Arqueología y las
+        // fichas de sitio sagrado son siempre sensibles, lo digan o no. Regla 6: sólo punto
+        // aproximado u oculto. Sin valor no es lo mismo que «false»: una ficha «sitio-sagrado»
+        // con «sensible: false» frena el build.
+        sensible: z.preprocess(vacio, z.boolean().optional()),
+        // Tipo de ficha: ordena las secciones de la ficha (src/lib/fichas.ts). Sin `ficha`, la
+        // ficha se dibuja como siempre. Ver COMO-PUBLICAR.md, «Tipos de ficha».
+        ficha: z.preprocess((v) => normalizarFicha(vacio(v)), z.enum(IDS_FICHAS, { error: `«ficha» es uno de estos: ${IDS_FICHAS.join(', ')}.` }).optional()),
         // bolivia, peru o binacional («Perú» también vale). Sin `pais`: «sin país asignado» en el filtro.
         pais: z.preprocess((v) => (typeof v === 'string' && v.trim() ? slugificar(v) : vacio(v)), z.enum(IDS_PAISES).optional()),
         resumen: z.string(),
@@ -200,15 +209,61 @@ const lugares = defineCollection({
         ),
         marcador: z.preprocess(normalizarMarcador, z.enum(['corpus', '[VERIFICAR]', '[HIPÓTESIS]', '[DATO PROPIO]'])),
         relacionados: z.preprocess(vacio, z.array(z.string()).default([])),
+        // Galería: más fotos, además de `imagen`. Cada una con su crédito.
+        galeria: z.preprocess(
+          vacio,
+          z.array(z.object({
+            archivo: image(),
+            credito: z.string().min(1),           // autor y licencia de la imagen
+            descripcion: z.string().optional(),   // texto alternativo
+          })).default([]),
+        ),
+        // Otras fichas del mapa (nombre del archivo, sin .md): lugares de un ser, seres y sitios
+        // de un ecosistema.
+        fichas_relacionadas: z.preprocess(vacio, z.array(z.string().trim().min(1)).default([])),
+        // municipio: datos neutros. El país es `pais`.
+        nombre_oficial: textoFicha,
+        departamento: textoFicha,   // departamento (Bolivia) o región (Perú)
+        provincia: textoFicha,
+        gobierno: textoFicha,       // tipo de gobierno
+        // sitio-sagrado: con quién se habló y cuándo. No se publica: el build sólo avisa si falta.
+        consulta: z.preprocess(
+          vacio,
+          z.object({ con: textoFicha, fecha: z.preprocess(vacio, z.coerce.date().optional()) }).optional(),
+        ),
+        // ser
+        nombre_comun: textoFicha,
+        nombre_cientifico: textoFicha,
+        nombres_originarios: z.preprocess(
+          vacio,
+          z.array(z.object({ lengua: z.string().trim().min(1), nombre: z.string().trim().min(1) })).default([]),
+        ),
+        // artesano, emprendimiento, agencia-turismo-comunitario
+        oficio: textoFicha,         // oficio o rubro
+        comunidad: textoFicha,      // el nombre de la comunidad, nunca la dirección
+        // Bloque «Contactar o comprar»: sólo enlaces que la persona autorizó. Ni teléfonos ni
+        // direcciones (regla 5): erroresFicha() lo controla.
+        contacto: z.preprocess(
+          vacio,
+          z.array(z.object({ texto: z.string().trim().min(1), url: z.string().trim().min(1), verificado: z.coerce.date() })).default([]),
+        ),
+        // Fecha en que la persona aceptó figurar. Sin ella, la ficha no se publica.
+        consentimiento: z.preprocess(vacio, z.coerce.date().optional()),
         slug: z.string().optional(),
         draft: z.boolean().default(false),
       })
       .superRefine((d, ctx) => {
         const sinCoordenadas = d.lat === undefined || d.lon === undefined;
         // Regla 6 (decisión del autor, 22-10-2026): un lugar sensible no lleva línea ni polígono,
-        // sólo un punto aproximado (dos decimales) u oculto. Mismo criterio que esSensible() en
-        // scripts/obsidian/controles.mjs.
-        const sensible = d.sensible ? 'marcado con «sensible: true»' : d.capa === 'arqueologia' ? 'capa Arqueología' : null;
+        // sólo un punto aproximado (dos decimales) u oculto. Una ficha «sitio-sagrado» es sensible
+        // aunque no lo diga (decisión del autor, 24-10-2026). Mismo criterio que el puente con
+        // Obsidian (scripts/obsidian/controles.mjs): los dos usan motivoSensible().
+        const sensible = motivoSensible(d);
+        for (const e of erroresFicha(d)) ctx.addIssue({ code: 'custom', path: [e.campo], message: e.mensaje });
+        if (d.slug && slugificar(d.slug) === 'artesanos') {
+          ctx.addIssue({ code: 'custom', path: ['slug'], message: 'La dirección /mapa/artesanos/ ya la usa el sitio. Elegí otro «slug».' });
+        }
+        for (const aviso of avisosFicha(d, d.titulo)) console.warn(`[mapa] ${aviso}`);
         if (sensible && d.geometria !== undefined) {
           ctx.addIssue({ code: 'custom', path: ['geometria'], message: `Regla 6: es un lugar sensible (${sensible}) y no puede llevar línea ni polígono. Va como punto con «precision: aproximada» (lat y lon con dos decimales) o con «precision: oculta». El trazado queda en la bóveda privada.` });
         }

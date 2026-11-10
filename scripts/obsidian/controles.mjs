@@ -5,6 +5,7 @@ import { leerGeometria } from '../../src/lib/geometria.ts';
 import { slugificar } from '../../src/lib/slug.ts';
 import { normalizarDoi, normalizarPaginas } from '../../src/lib/revista.ts';
 import { TIPOS_LUGAR, normalizarTipoLugar, chocaConEnsayos, errorCuerpoResumen } from '../../src/lib/referencia.ts';
+import { IDS_FICHAS, normalizarFicha, motivoSensible, erroresFicha } from '../../src/lib/fichas.ts';
 
 export const TIPOS = {
   blog: { carpeta: 'blog', ruta: 'blog' },
@@ -31,6 +32,8 @@ export const RESERVADAS_BLOG = ['archivo', 'etiquetas'];
 export const chocaConBlog = (id) => RESERVADAS_BLOG.includes(id) || /^\d+$/.test(id);
 // Lo mismo en los ensayos (/ensayos/temas/): src/lib/referencia.ts.
 export { chocaConEnsayos };
+// Y en el mapa: /mapa/artesanos/ es la página que reúne a artesanos y emprendimientos.
+export const chocaConMapa = (id) => id === 'artesanos';
 
 // Lee los campos uno por uno y junta los errores en castellano.
 function lector(fm, errores) {
@@ -221,11 +224,10 @@ function coordenada(v, campo, errores) {
   return n;
 }
 
-// Un lugar es sensible si está en la capa Arqueología o si el autor lo marca con «sensible: true».
+// Un lugar es sensible si está en la capa Arqueología, si es una ficha de sitio sagrado o si el
+// autor lo marca con «sensible: true». Mismo criterio que el esquema (src/lib/fichas.ts).
 export function esSensible(fm) {
-  if (fm.sensible === true) return 'marcado con «sensible: true»';
-  if (typeof fm.capa === 'string' && slugificar(fm.capa) === 'arqueologia') return 'capa Arqueología';
-  return null;
+  return motivoSensible(fm);
 }
 
 function validarLugar(fm, errores) {
@@ -326,6 +328,69 @@ function validarLugar(fm, errores) {
     return { autor: f?.autor, año: f?.año, titulo: f?.titulo, url: vacio(f?.url) ? undefined : f.url };
   });
 
+  // Tipo de ficha (src/lib/fichas.ts). Sin «ficha», la ficha se dibuja como siempre.
+  let ficha;
+  if (!vacio(fm.ficha)) {
+    ficha = normalizarFicha(fm.ficha);
+    if (!IDS_FICHAS.includes(ficha)) {
+      errores.push(`«ficha: ${fm.ficha}» no existe. Opciones: ${IDS_FICHAS.join(', ')}.`);
+      ficha = undefined;
+    }
+  }
+  if (!vacio(fm.sensible) && typeof fm.sensible !== 'boolean') errores.push(`«sensible» tiene que ser true o false (es «${fm.sensible}»).`);
+  const galeria = lista('galeria').map((g, i) => {
+    if (typeof g !== 'object' || g === null || vacio(g.archivo)) {
+      errores.push(`«galeria», foto ${i + 1}: lleva «archivo», «credito» y, opcional, «descripcion».`);
+      return {};
+    }
+    if (vacio(g.credito)) errores.push(`«galeria», foto ${i + 1}: necesita «credito» (autor y licencia).`);
+    return { archivo: g.archivo, credito: g.credito, descripcion: vacio(g.descripcion) ? undefined : g.descripcion };
+  });
+  const textos = (campo) => lista(campo).filter((r) => !vacio(r)).map(String);
+  const nombresOriginarios = lista('nombres_originarios').map((n, i) => {
+    if (vacio(n?.lengua) || vacio(n?.nombre)) errores.push(`«nombres_originarios», elemento ${i + 1}: necesita «lengua» y «nombre».`);
+    return { lengua: n?.lengua, nombre: n?.nombre };
+  });
+  const contacto = lista('contacto').map((e, i) => {
+    if (vacio(e?.texto) || vacio(e?.url) || !esFecha(String(e?.verificado instanceof Date ? e.verificado.toISOString() : e?.verificado ?? ''))) {
+      errores.push(`«contacto», enlace ${i + 1}: necesita «texto», «url» y «verificado» (AAAA-MM-DD).`);
+    }
+    return { texto: e?.texto, url: e?.url, verificado: e?.verificado };
+  });
+  // Consulta del sitio sagrado: con quién se habló queda en la bóveda (el repositorio es
+  // público); al repositorio sólo va la fecha, para que el build sepa que la consulta existe.
+  let consulta;
+  const consultaVacia = vacio(fm.consulta) || (typeof fm.consulta === 'object' && !Array.isArray(fm.consulta) && vacio(fm.consulta.con) && vacio(fm.consulta.fecha));
+  if (!consultaVacia) {
+    if (typeof fm.consulta !== 'object' || Array.isArray(fm.consulta)) errores.push('«consulta» lleva «con» (con quién se habló) y «fecha» (AAAA-MM-DD).');
+    else {
+      const fecha = fm.consulta.fecha instanceof Date ? fm.consulta.fecha.toISOString().slice(0, 10) : fm.consulta.fecha;
+      if (vacio(fecha)) errores.push('«consulta» necesita «fecha» (AAAA-MM-DD).');
+      else if (!esFecha(String(fecha))) errores.push(`«consulta»: «fecha» no es una fecha válida: «${fecha}». Formato: AAAA-MM-DD.`);
+      else consulta = { fecha: String(fecha) };
+    }
+  }
+  const datosFicha = {
+    ficha,
+    capa,
+    sensible: typeof fm.sensible === 'boolean' ? fm.sensible : undefined,
+    draft: fm.draft === true,
+    nombre_oficial: l.texto('nombre_oficial', false),
+    departamento: l.texto('departamento', false),
+    provincia: l.texto('provincia', false),
+    gobierno: l.texto('gobierno', false),
+    consulta: consultaVacia ? undefined : fm.consulta,
+    nombre_comun: l.texto('nombre_comun', false),
+    nombre_cientifico: l.texto('nombre_cientifico', false),
+    nombres_originarios: nombresOriginarios,
+    oficio: l.texto('oficio', false),
+    comunidad: l.texto('comunidad', false),
+    contacto,
+    consentimiento: l.fecha('consentimiento', false),
+    enlaces,
+  };
+  for (const e of erroresFicha(datosFicha)) errores.push(e.mensaje);
+
   const marcador = normalizarMarcador(fm.marcador);
   if (vacio(fm.marcador)) errores.push('Falta «marcador»: corpus, "[VERIFICAR]", "[HIPÓTESIS]" o "[DATO PROPIO]".');
   else if (!marcador) errores.push(`«marcador: ${fm.marcador}» no existe. Opciones: corpus, "[VERIFICAR]", "[HIPÓTESIS]", "[DATO PROPIO]".`);
@@ -348,6 +413,21 @@ function validarLugar(fm, errores) {
     fuentes,
     marcador: marcador ?? undefined,
     relacionados: lista('relacionados').filter((r) => !vacio(r)).map(String),
+    ficha,
+    galeria: galeria.length ? galeria : undefined,
+    fichas_relacionadas: textos('fichas_relacionadas').length ? textos('fichas_relacionadas') : undefined,
+    nombre_oficial: datosFicha.nombre_oficial,
+    departamento: datosFicha.departamento,
+    provincia: datosFicha.provincia,
+    gobierno: datosFicha.gobierno,
+    consulta,
+    nombre_comun: datosFicha.nombre_comun,
+    nombre_cientifico: datosFicha.nombre_cientifico,
+    nombres_originarios: nombresOriginarios.length ? nombresOriginarios : undefined,
+    oficio: datosFicha.oficio,
+    comunidad: datosFicha.comunidad,
+    contacto: contacto.length ? contacto : undefined,
+    consentimiento: datosFicha.consentimiento,
     slug: l.texto('slug', false),
     draft: l.draft(),
   };

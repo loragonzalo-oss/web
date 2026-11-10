@@ -1,7 +1,8 @@
 // Mapa (/mapa) con MapLibre: grupos de puntos, enlace propio de cada ficha, «atrás», foco,
 // búsqueda, filtros en la dirección, leyenda, panel en celular, menos movimiento y versión
 // liviana (sin WebGL o con ahorro de datos). Corre sobre la construcción de prueba (npm run build:prueba), que
-// incluye las fichas de ejemplo: once lugares, uno de ellos oculto, una línea y un polígono.
+// incluye las fichas de ejemplo: diecinueve lugares (once de capa y ocho de tipo de ficha), dos de
+// ellos ocultos, una línea y dos polígonos.
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { abrir } from './ayudas';
@@ -181,12 +182,13 @@ test('los filtros por capa y por país se combinan y quedan en la dirección', a
   });
   await test.step('apagar «Sin país asignado»', async () => {
     await marcar('pais', 'sin-pais');
-    // Quedan las fichas con país: la línea (binacional) y el polígono (Perú).
-    await expect(page.locator('.listado-item:visible')).toHaveCount(2, { timeout: 5000 });
+    // Quedan las fichas con país: la línea (binacional), el polígono (Perú) y las tres de
+    // artesanía, emprendimiento y agencia (Bolivia, Perú y binacional; la agencia, oculta).
+    await expect(page.locator('.listado-item:visible')).toHaveCount(5, { timeout: 5000 });
     expect(new URL(page.url()).searchParams.get('pais')).toBe('bolivia,peru,binacional');
   });
-  await test.step('el mapa muestra sólo esos dos lugares', async () => {
-    await expect.poll(async () => (await lugaresEnMarcadores(page)).total, { timeout: 8000 }).toBe(2);
+  await test.step('el mapa muestra sólo esos lugares, sin la agencia oculta', async () => {
+    await expect.poll(async () => (await lugaresEnMarcadores(page)).total, { timeout: 8000 }).toBe(4);
   });
 });
 
@@ -201,13 +203,14 @@ test('una dirección con filtros abre la vista filtrada', async ({ page }) => {
     };
   });
   await abrir(page, 'mapa/?capa=clima,ecologia,biodiversidad,cultura,antropologia,arqueologia,turismo,emprendimientos-comunitarios,gobiernos-municipales&pais=bolivia,peru,binacional');
-  await expect(page.locator('.listado-item:visible')).toHaveCount(2);
+  await expect(page.locator('.listado-item:visible')).toHaveCount(5);
   await abrir(page, 'mapa/?capa=ecologia,biodiversidad&pais=bolivia,peru,binacional');
   await expect(page.locator('.listado-item:visible')).toHaveCount(2);
   await expect(page.locator('[data-filtro="capa"] input[value="clima"]')).not.toBeChecked();
   await abrir(page, 'mapa/?pais=peru');
-  await expect(page.locator('.listado-item:visible')).toHaveCount(1);
-  await expect(page.locator('.listado-item:visible')).toHaveAttribute('data-lugar', 'ejemplo-poligono');
+  const peru = page.locator('.listado-item:visible');
+  await expect(peru).toHaveCount(2);
+  expect(await peru.evaluateAll((l) => l.map((e) => e.getAttribute('data-lugar')).sort())).toEqual(['ejemplo-ficha-emprendimiento', 'ejemplo-poligono']);
 });
 
 test('no se desplaza de costado con los filtros, la leyenda y una ficha abiertos', async ({ page, isMobile }) => {
@@ -285,7 +288,7 @@ test('sin WebGL: listado completo, aviso, filtros y enlace propio, sin descargar
   await expect(page.locator('[data-aviso]')).toContainText('le falta WebGL');
   await expect(page.locator('[data-mapa-zona]')).toBeHidden();
   await expect(page.locator('[data-mapa-pie]')).toBeHidden();
-  await expect(page.locator('.listado-item:visible')).toHaveCount(11);
+  await expect(page.locator('.listado-item:visible')).toHaveCount(19);
   await expect(page.locator('[data-ver-en-mapa]:visible')).toHaveCount(0);
   // El enlace propio abre la ficha en el listado.
   await expect(page.locator('#lugar-ejemplo-antropologia details')).toHaveAttribute('open', '');
@@ -311,7 +314,7 @@ test('sin JavaScript, /mapa muestra el listado sin controles que no funcionaría
   const contexto = await browser.newContext({ javaScriptEnabled: false });
   const page = await contexto.newPage();
   await page.goto('mapa/');
-  await expect(page.locator('.listado-item:visible')).toHaveCount(11);
+  await expect(page.locator('.listado-item:visible')).toHaveCount(19);
   await expect(page.locator('[data-controles]')).toBeHidden();
   await expect(page.locator('[data-mapa-pie]')).toBeHidden();
   await expect(page.locator('#mapa noscript')).toHaveCount(1);

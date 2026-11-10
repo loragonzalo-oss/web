@@ -86,7 +86,7 @@ test.describe('regla 6 en el sitio construido', () => {
     }
     // En la construcción de prueba están las tres fichas protegidas de ejemplo.
     if (existsSync(join(DIST, 'mapa', 'ejemplo-clima'))) {
-      expect(revisadas.sort()).toEqual(expect.arrayContaining(['ejemplo-arqueologia', 'ejemplo-cultura', 'ejemplo-poligono']));
+      expect(revisadas.sort()).toEqual(expect.arrayContaining(['ejemplo-arqueologia', 'ejemplo-cultura', 'ejemplo-poligono', 'ejemplo-ficha-sitio-sagrado']));
     }
   });
 
@@ -108,6 +108,28 @@ test.describe('regla 6 en el sitio construido', () => {
     }
     // Fuera de los datos, ninguna coordenada en el HTML.
     expect(coordenadasEnTexto(html.replace(json!, ''))).toEqual([]);
+  });
+
+  // Sitio sagrado (decisión del autor, 24-10-2026): sensible aunque no lo diga. En el repositorio
+  // no hay ninguno exacto ni con línea o polígono, y su página no publica la consulta.
+  test('las fichas de sitio sagrado son protegidas y no publican la consulta', () => {
+    const sagrados = readdirSync(LUGARES)
+      .filter((a) => a.endsWith('.md'))
+      .map((a) => ({ archivo: a, fm: parse(readFileSync(join(LUGARES, a), 'utf8').split(/^---$/m)[1]) ?? {} }))
+      .filter(({ fm }) => typeof fm.ficha === 'string' && slugificar(fm.ficha.replace(/_/g, '-')) === 'sitio-sagrado');
+    expect(sagrados.length, 'la ficha de ejemplo de sitio sagrado').toBeGreaterThan(0);
+    const ids = protegidas().map((f) => f.id);
+    for (const { archivo, fm } of sagrados) {
+      const id = fm.slug ? slugificar(fm.slug) : slugificar(archivo.replace(/\.md$/, ''));
+      expect(ids, `${archivo}: protegida (aproximada u oculta)`).toContain(id);
+      expect(fm.geometria, `${archivo}: sin línea ni polígono`).toBeFalsy();
+      expect(fm.sensible, `${archivo}: no se desactiva`).not.toBe(false);
+      const pagina = join(DIST, 'mapa', id, 'index.html');
+      if (!existsSync(pagina)) continue;
+      const html = readFileSync(pagina, 'utf8');
+      expect(html, `/mapa/${id}/: la consulta no se publica`).not.toMatch(/consulta/i);
+      if (fm.consulta?.con) expect(html).not.toContain(String(fm.consulta.con));
+    }
   });
 
   test('ningún JSON del sitio lleva coordenadas de una ficha protegida', () => {

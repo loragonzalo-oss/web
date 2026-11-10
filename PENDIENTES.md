@@ -38,6 +38,9 @@ Tres grupos: **datos del autor** (información que sólo él tiene), **decisione
   - **OpenTopoMap** (mapa topográfico con curvas de nivel, sobre OpenStreetMap y SRTM). CC BY-SA; [VERIFICAR] su política de uso de teselas, que pide no cargarlas en sitios con mucho tráfico.
   - Cartografía oficial: IGM de Bolivia y GeoGPS Perú / IGN de Perú (servicios WMS). Licencia: [PENDIENTE]. Útil para límites y toponimia oficial de los dos lados.
 - [ ] [PENDIENTE: criterio de inclusión para empresas y emprendimientos]. Qué condiciones tiene que cumplir un emprendimiento comunitario o una empresa de turismo para tener ficha (quién lo propone, cómo se verifica, si se cobra o no, cómo se da de baja). Hasta que exista, no cargar fichas de esas dos capas.
+- [ ] [PENDIENTE: criterio de inclusión de artesanos y emprendimientos] (encargo 1.4, 10-11-2026). La página /mapa/artesanos/ y las plantillas de fichas `artesano`, `emprendimiento` y `agencia-turismo-comunitario` están hechas, pero **no se publica ninguna ficha de estos tres tipos hasta que el autor decida quién entra**. Es el mismo criterio del punto anterior, ampliado a artesanos y agencias. Mientras tanto, la página muestra su estado vacío.
+- [ ] [PENDIENTE: texto del autor] — estado vacío de /mapa/artesanos/ («Todavía no hay fichas publicadas»). Archivo: `src/pages/mapa/artesanos/[...filtro].astro`. Se ve en el sitio publicado mientras no haya fichas de esos tipos (la página lleva `noindex` y no está en el menú ni en el sitemap).
+- [ ] Fichas por tipo en borrador: cada sección vacía de una ficha con `ficha` muestra un `[PENDIENTE: …]` (galería, historia, enlaces, fuentes, datos del tipo, consentimiento). Sólo se ven en borradores (`npm run dev` y la construcción de prueba); en el sitio publicado, una sección vacía no aparece. Componentes: `src/components/FichaLugar.astro` y `src/components/fichas/`.
 
 ## Decisiones del autor
 
@@ -105,6 +108,9 @@ La página `/tablero/` está unida a `main` en borrador (`draft: true`): el siti
 - [ ] Si la capa Arqueología es siempre sensible. Hoy el script no deja exportar una ficha de esa capa con `precision: exacta`, sin excepción. Si hay fichas de arqueología que no son sensibles (un museo, por ejemplo), hay que decidir cómo se marcan.
 - [x] Decidido el 22-10-2026: el campo `sensible` entra en el esquema del sitio. Un lugar sensible (capa Arqueología o `sensible: true`) va sólo como punto aproximado u oculto, nunca con línea ni polígono, y el sitio lo frena al construirse.
 - [ ] Marcadores de borrador que frenan la exportación: hoy `[PENDIENTE]` y `[VERIFICAR]`. Si el autor usa otros, se agregan en `scripts/obsidian/controles.mjs`.
+- [ ] **Consulta del sitio sagrado: qué entra al repositorio** (decisión tomada en el encargo 1.4, a confirmar). El encargo pide un campo de consulta (con quién se habló y cuándo) que no se publica y que el build lee para avisar si falta. Como el repositorio es público, el script de Obsidian exporta sólo la `fecha`; `con` se queda en la bóveda. El esquema acepta `con` igual, por si se sube a mano, y nunca lo muestra. Si el autor prefiere que `con` viaje, se cambia en `scripts/obsidian/controles.mjs` (`consulta`).
+- [ ] **Teléfonos en «Contactar o comprar»** (`[PREGUNTA 2]` del encargo 1.4, resuelta con la opción por defecto): frenan `tel:`, `sms:`, WhatsApp (`wa.me`, `api.whatsapp.com`) y un número de siete dígitos o más en el texto del enlace o escrito como teléfono en la dirección. En `contacto` valen sólo `https://` y `mailto:`. Una ficha de esos tres tipos sin `consentimiento` frena sólo al publicarse; en borrador, no. Controles en `src/lib/fichas.ts`.
+- [x] Decidido el 24-10-2026 (`[PREGUNTA 1]` del encargo 1.4): una ficha `sitio-sagrado` es sensible aunque no lo diga y no se puede desactivar; `sensible: false` frena el build y el script.
 
 ### Repositorio
 
@@ -114,14 +120,14 @@ La página `/tablero/` está unida a `main` en borrador (`draft: true`): el siti
 
 - [ ] Unir el pull request de integración a `main` y activar GitHub Pages con fuente «GitHub Actions» (ver COMO-PUBLICAR.md, «Primera publicación»).
 - [ ] Primera corrida del puente en la computadora del autor: instalar Node y GitHub Desktop, `npm install` y una prueba con `--simular` (pasos en COMO-PUBLICAR.md, «Publicar desde Obsidian»). El script sólo se probó con la bóveda de relleno de `scripts/obsidian/prueba/`, no con la bóveda real.
-- [ ] /mapa: el motor está hecho (MapLibre, encargo 1.3); falta el contenido real. Siguen las fichas por tipo (encargo 1.4) y, en la fase 2, el viaje al lago y los seres del lago. Cuando se publique el primer lugar real, sacar el filtro que deja /mapa/ fuera del sitemap en `astro.config.mjs`. La etiqueta `noindex` ya se quita sola cuando hay al menos un lugar publicado.
+- [ ] /mapa: el motor está hecho (MapLibre, encargo 1.3) y las fichas por tipo también (encargo 1.4: campo `ficha`, /mapa/artesanos/); falta el contenido real. Siguen, en la fase 2, el viaje al lago (2.1) y los seres del lago (2.2), que usa la ficha `ser`. Cuando se publique el primer lugar real, sacar el filtro que deja /mapa/ fuera del sitemap en `astro.config.mjs`. La etiqueta `noindex` ya se quita sola cuando hay al menos un lugar publicado.
 - [ ] Rehacer las capturas del mapa (`docs/capturas/mapa-motor/`, que reemplaza a `docs/capturas/mapa-*.png`, `docs/capturas/temas/mapa-*.png` y `docs/capturas/integracion/mapa-*.png`, sacadas con el mapa anterior) cuando haya contenido real: se sacaron sin fondo, porque el entorno donde se hicieron bloquea los servidores de teselas. Comprobar ahí que los puntos, la línea y el polígono de ejemplo caen sobre el agua. Se rehacen con `npm run mapa:capturas`.
 - [ ] Borrar el contenido de ejemplo cuando haya contenido real. Todo está en `draft: true`, así que no se publica:
   - `src/content/blog/ejemplo-entrada-uno.md`, `ejemplo-entrada-dos.md`, `ejemplo-entrada-larga.md`, `ejemplo-entrada-serie.md` y `ejemplo-figura.png` (con ellos desaparece la «Serie de ejemplo»);
   - `src/content/ensayos/ejemplo-ensayo.md` y `ejemplo-ensayo-revista.md`;
-  - las once fichas `src/content/lugares/ejemplo-*.md` y sus dos geometrías, `src/content/lugares/geometrias/ejemplo-linea.geojson` y `ejemplo-poligono.geojson`.
+  - las diecinueve fichas `src/content/lugares/ejemplo-*.md` (once de capa y ocho de tipo de ficha, `ejemplo-ficha-*.md`), sus tres geometrías (`src/content/lugares/geometrias/ejemplo-linea.geojson`, `ejemplo-poligono.geojson` y `ejemplo-ficha-ecosistema.geojson`) y las imágenes de relleno `src/content/lugares/imagenes/relleno-ficha-*.png`.
 
-  Las pruebas de `pruebas/` abren `blog/ejemplo-entrada-larga/`, `series/serie-de-ejemplo/`, `ensayos/ejemplo-ensayo-revista/` y las fichas de lugar de ejemplo: al borrar los ejemplos, apuntarlas a contenido real (`pruebas/paginas.spec.ts`, `pruebas/integracion.spec.ts`, `pruebas/mapa.spec.ts` y `pruebas/regla6.spec.ts`).
+  Las pruebas de `pruebas/` abren `blog/ejemplo-entrada-larga/`, `series/serie-de-ejemplo/`, `ensayos/ejemplo-ensayo-revista/` y las fichas de lugar de ejemplo: al borrar los ejemplos, apuntarlas a contenido real (`pruebas/paginas.spec.ts`, `pruebas/integracion.spec.ts`, `pruebas/mapa.spec.ts`, `pruebas/fichas.spec.ts` y `pruebas/regla6.spec.ts`).
 
 ## Notas técnicas
 

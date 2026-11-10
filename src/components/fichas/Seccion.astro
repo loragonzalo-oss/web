@@ -1,0 +1,21 @@
+---
+// Sección fija de una ficha con tipo (src/lib/fichas.ts). Vacía: en el sitio publicado no se
+// muestra; en un borrador aparece con su [PENDIENTE: …], para ver qué falta.
+import Pendiente from '../Pendiente.astro';
+
+interface Props {
+  titulo: string;
+  vacia: boolean;
+  pendiente: string;
+  borrador: boolean;
+  Sub: 'h2' | 'h4';
+  clase?: string;
+}
+const { titulo, vacia, pendiente, borrador, Sub, clase } = Astro.props;
+---
+{(!vacia || borrador) && (
+  <section class:list={['ficha-seccion', clase]}>
+    <Sub>{titulo}</Sub>
+    {vacia ? <p><Pendiente texto={pendiente} /></p> : <slot />}
+  </section>
+)}

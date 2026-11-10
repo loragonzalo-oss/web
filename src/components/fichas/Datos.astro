@@ -1,0 +1,22 @@
+---
+// Datos breves de una ficha (municipio, ser, artesanía…): pares rótulo y valor. Un dato vacío
+// no se muestra; en un borrador aparece como [PENDIENTE: …].
+import Pendiente from '../Pendiente.astro';
+
+interface Props {
+  filas: { rotulo: string; valor?: string; cursiva?: boolean }[];
+  borrador: boolean;
+}
+const { filas, borrador } = Astro.props;
+const visibles = filas.filter((f) => f.valor || borrador);
+---
+{visibles.length > 0 && (
+  <dl class="ficha-datos">
+    {visibles.map((f) => (
+      <div>
+        <dt>{f.rotulo}</dt>
+        <dd>{f.valor ? (f.cursiva ? <em>{f.valor}</em> : f.valor) : <Pendiente texto={f.rotulo.toLocaleLowerCase('es')} />}</dd>
+      </div>
+    ))}
+  </dl>
+)}

@@ -18,6 +18,8 @@ En los dos casos, el encabezado de cada archivo es el mismo: ver «El encabezado
 5. [Lo que el sitio agrega solo](#lo-que-el-sitio-agrega-solo)
 6. [Notas, figuras y citas destacadas](#notas-figuras-y-citas-destacadas)
 7. [Agregar un lugar al mapa](#agregar-un-lugar-al-mapa)
+   - [Tipos de ficha](#tipos-de-ficha) — municipio, sitio, sitio sagrado, ser, ecosistema, artesanía, emprendimiento, agencia
+   - [Artesanía y emprendimientos: /mapa/artesanos/](#artesanía-y-emprendimientos-mapaartesanos)
 8. [Lugares sensibles](#lugares-sensibles) — regla 6
 9. [Imágenes para compartir](#imágenes-para-compartir)
 10. [El buscador](#el-buscador)
@@ -83,6 +85,7 @@ Diferencias con el archivo que se sube a mano:
 
 - Las imágenes se escriben como wikilink: `imagen: "[[foto.jpg]]"` en el blog; en un lugar, `imagen:` lleva `archivo: "[[foto-del-lugar.jpg]]"`, `credito` y `descripcion`.
 - En un lugar, `relacionados` acepta wikilinks (`- "[[Una entrada del blog]]"`), y se suma `sensible` (ver «Lugares sensibles»), que pasa al repositorio sólo cuando es `true`.
+- En un lugar con tipo de ficha (ver «Tipos de ficha»): las fotos de `galeria` van como wikilink (`archivo: "[[pieza.jpg]]"`) y se copian como la `imagen`; `fichas_relacionadas` acepta wikilinks a otras notas de lugar (`- "[[Otro lugar]]"`), que pasan al nombre del lugar exportado, y se quitan con aviso si esa nota no sale o no es un lugar; de `consulta` sólo sale la `fecha`: con quién se habló se queda en la bóveda.
 - En un lugar con línea o polígono, `geometria` nombra el archivo `.geojson` de la bóveda como wikilink: `geometria: "[[nombre-del-rio.geojson]]"`. El script lo revisa con los mismos controles que el sitio (ver «Línea o polígono») y lo copia a `src/content/lugares/geometrias/`, con el nombre de la nota.
 - Las propiedades que no son del sitio (`tags`, `aliases`, `publicar`, `tipo` o cualquier otra que agregues) **se quedan en la bóveda**: al repositorio sólo pasan los campos del sitio.
 
@@ -126,7 +129,8 @@ Los enlaces que escribe el script son relativos (`../../ensayos/…`): siguen fu
 El script revisa cada nota marcada antes de copiar nada. Si una falla, **no la exporta** y dice en castellano qué corregir; las demás salen igual. Al final, la orden termina con error para que no pase inadvertido.
 
 - **Encabezado incompleto o mal escrito**: falta un campo obligatorio, una fecha no es `AAAA-MM-DD`, una capa no existe, etc. Son los mismos controles que hace el sitio al construirse, pero acá el aviso llega antes y en tu computadora.
-- **Lugar sensible con coordenadas de más** (regla 6, ver «Lugares sensibles»).
+- **Lugar sensible con coordenadas de más** (regla 6, ver «Lugares sensibles»). Una ficha `sitio-sagrado` es sensible aunque no lo diga, y con `sensible: false` frena.
+- **Tipo de ficha**: un `ficha` que no existe, un campo de otro tipo (por ejemplo `oficio` en un municipio), un teléfono o un WhatsApp en `contacto`, o una ficha de artesanía, emprendimiento o agencia sin `draft: true` y sin `consentimiento` (ver «Tipos de ficha»).
 - **Marcadores de borrador**: `[PENDIENTE]`, `[PENDIENTE: …]`, `[VERIFICAR]` en el texto o en el encabezado de una nota que no tiene `draft: true`. Se completan, se marca la nota como borrador o, si de verdad tienen que salir así, se exporta con `--forzar`:
 
   ```sh
@@ -287,7 +291,7 @@ Cada serie tiene su página en `/series/nombre-de-la-serie/`, con sus textos en 
 
 ### Plantillas
 
-En la carpeta `plantillas/` del repositorio hay tres plantillas listas (`entrada-blog.md`, `ensayo.md` y `lugar.md`). Para usarlas, copiá esa carpeta a tu bóveda y elegila en Obsidian en *Configuración → Plantillas → Ubicación de la carpeta de plantillas*. Traen `publicar`, `tipo` (y `sensible`, en la de lugar), que el script lee y que no salen de la bóveda; si subís el archivo a mano, el sitio los ignora.
+En la carpeta `plantillas/` del repositorio hay plantillas listas: `entrada-blog.md`, `ensayo.md`, `lugar.md` (un lugar sin tipo de ficha) y una por tipo de ficha (`lugar-municipio.md`, `lugar-sitio.md`, `lugar-sitio-sagrado.md`, `lugar-ser.md`, `lugar-ecosistema.md`, `lugar-artesano.md`, `lugar-emprendimiento.md` y `lugar-agencia-turismo-comunitario.md`; ver «Tipos de ficha»). Para usarlas, copiá esa carpeta a tu bóveda y elegila en Obsidian en *Configuración → Plantillas → Ubicación de la carpeta de plantillas*. Traen `publicar`, `tipo` (y `sensible`, en la de lugar), que el script lee y que no salen de la bóveda; si subís el archivo a mano, el sitio los ignora.
 
 ## Publicar un ensayo como referencia
 
@@ -583,9 +587,99 @@ El fondo «Relieve» usa teselas propias, guardadas en el repositorio (`public/m
 
 Cada vez que se regeneran, el repositorio guarda también la versión anterior: conviene generarlas una vez y no rehacerlas sin motivo.
 
+### Tipos de ficha
+
+Todas las fichas tienen la misma base: título, resumen, imagen, texto, enlaces, fuentes y marcador. El campo opcional **`ficha`** dice qué tipo de ficha es, y con eso la ficha se ordena según lo que el lector busca en ella. Una ficha sin `ficha` se ve como siempre.
+
+El campo se llama `ficha` y no `tipo` porque `tipo` ya lo usa el puente con Obsidian (`tipo: lugar`). Los dos van juntos en la nota:
+
+```yaml
+tipo: lugar
+ficha: sitio-sagrado
+```
+
+**El tipo no es la capa.** La capa dice en qué tema del mapa aparece el lugar; el tipo, cómo se arma la ficha. Un sitio sagrado puede ir en la capa Cultura o en Antropología; un ser del lago, en Biodiversidad.
+
+**Qué tipo elegir:**
+
+| `ficha:` | Para | Secciones propias |
+|---|---|---|
+| `municipio` | un gobierno municipal | Datos (nombre oficial, país, departamento o región, provincia, tipo de gobierno) y **Enlaces oficiales**, con su fecha de verificación. |
+| `sitio` | un lugar arqueológico, histórico o cultural | Aviso «Ubicación protegida» si es `aproximada` u `oculta`. |
+| `sitio-sagrado` | un lugar sagrado | Aviso «Ubicación protegida» (siempre). Es sensible por defecto: ver abajo. |
+| `ser` | un ser del lago: una especie o un ser con nombre propio | Nombres (común, científico, en aimara o quechua) y **Lugares relacionados**. |
+| `ecosistema` | un ecosistema | **Seres y sitios relacionados**. Puede llevar polígono, salvo que sea sensible. |
+| `artesano` | artesanía | Oficio, comunidad, **Piezas** (galería) y **Contactar o comprar**. |
+| `emprendimiento` | un emprendimiento | Rubro, comunidad, **Productos y servicios** (galería) y **Contactar o comprar**. |
+| `agencia-turismo-comunitario` | una agencia de turismo comunitario | Rubro, comunidad, **Servicios** (galería) y **Contactar o comprar**. |
+
+Además, toda ficha con tipo lleva estas secciones, en este orden: galería (la `imagen` y las fotos de `galeria`), **Historia** (el texto de la nota), las relacionadas, **Enlaces** y **Fuentes**. El marcador va arriba, como siempre. Se puede escribir el tipo con espacios o con el nombre que ve el lector («Sitio sagrado», «Agencia de turismo comunitario»).
+
+**Una sección vacía no se publica.** En un borrador (`draft: true`, con `npm run dev`) aparece con su `[PENDIENTE: …]`, para ver qué falta.
+
+**Campos de cada tipo** (todos opcionales, salvo lo que se dice). Un campo de otro tipo frena la ficha: casi siempre es un tipo mal elegido.
+
+- Todas: `galeria` (lista de fotos, cada una con `archivo`, `credito` y `descripcion`, como `imagen`) y `fichas_relacionadas` (otras fichas del mapa, por el nombre del archivo; en la bóveda, como `"[[Nota del lugar]]"`).
+- `municipio`: `nombre_oficial`, `departamento` (departamento o región), `provincia`, `gobierno` (tipo de gobierno). El país es `pais`, el de siempre. Los enlaces oficiales van en `enlaces`, con `verificado`.
+- `sitio-sagrado`: `consulta`, con `con` (con quién se habló) y `fecha`. Ver abajo.
+- `ser`: `nombre_comun`, `nombre_cientifico`, `nombres_originarios` (lista de `lengua` y `nombre`). Los lugares van en `fichas_relacionadas`. Si un ser nombra un ecosistema, el ecosistema lo lista solo, sin repetirlo.
+- `artesano`, `emprendimiento`, `agencia-turismo-comunitario`: `oficio` (oficio o rubro), `comunidad` (el nombre de la comunidad, **nunca la dirección**), `contacto` y `consentimiento` (ver «Contactar o comprar»).
+
+En `plantillas/` hay una plantilla por tipo, con estos campos y sus explicaciones.
+
+#### El sitio sagrado
+
+Decisión del autor (24-10-2026): una ficha `sitio-sagrado` **es sensible aunque no diga `sensible: true`**, y **no se puede desactivar**. Valen las mismas reglas que para la capa Arqueología (ver «Lugares sensibles»):
+
+- nada de `precision: exacta` (ni dejar `precision` vacío, que vale exacta);
+- nada de `geometria` (ni línea ni polígono);
+- sólo un punto `aproximada` (lat y lon con dos decimales) u `oculta` (sin lat ni lon).
+
+Una ficha `sitio-sagrado` con `sensible: false` frena el build y el script de Obsidian, con un mensaje que lo dice. La ficha muestra siempre el aviso «Ubicación protegida».
+
+**La consulta.** `consulta` anota con quién se habló y cuándo, antes de publicar el lugar:
+
+```yaml
+consulta:
+  con: "Nombre de la persona o de la autoridad"
+  fecha: 2026-11-10
+```
+
+No se publica en el sitio. Sirve para que el build avise («ficha de sitio sagrado sin consulta») si falta; no frena. **Con quién se habló se queda en la bóveda:** el repositorio es público, así que el script de Obsidian exporta sólo la `fecha`. Si subís la ficha a mano, poné sólo la fecha.
+
+La ficha `sitio` (sin «sagrado») no es sensible por defecto: lo es si está en la capa Arqueología o si lleva `sensible: true`, como cualquier lugar.
+
+#### Contactar o comprar
+
+Las fichas `artesano`, `emprendimiento` y `agencia-turismo-comunitario` llevan el bloque **«Contactar o comprar»**. No hay venta en línea (el plan la dejó para después del crédito): el bloque lleva sólo enlaces que la persona de la ficha haya autorizado.
+
+```yaml
+contacto:
+  - texto: "Su página"
+    url: "https://…"
+    verificado: 2026-11-10
+consentimiento: 2026-11-10
+```
+
+- **`contacto`**: lista de enlaces, cada uno con `texto`, `url` y `verificado` (la fecha en que se comprobó que funciona). Su página, su red social o un formulario (`https://…`); un correo (`mailto:…`) sólo si la persona lo quiere.
+- **Ni teléfonos ni direcciones** (regla 5). Frenan el build y el script de Obsidian: un enlace `tel:` o `sms:`, un WhatsApp (`wa.me`, `api.whatsapp.com`), un número de teléfono en el texto del enlace o en la dirección (`?telefono=…`, `+591…`). En `enlaces` también frenan `tel:` y WhatsApp.
+- **`consentimiento`**: la fecha en que la persona aceptó figurar en el sitio. **Obligatoria para publicar** (`draft: false`): sin ella, el build y el script frenan la ficha. En un borrador falta sin frenar y se ve como `[PENDIENTE]`. No se muestra en la ficha.
+
+### Artesanía y emprendimientos: /mapa/artesanos/
+
+La página `…/mapa/artesanos/` reúne las fichas `artesano`, `emprendimiento` y `agencia-turismo-comunitario` en una grilla: foto (la `imagen` o la primera de la galería), nombre, oficio o rubro, comunidad y país, con enlace a la ficha propia y a «Ver en el mapa» (una ficha `oculta` dice «Sin ubicación publicada»).
+
+- **Filtros sin JavaScript**: por tipo y por país. Cada combinación es una página: `…/mapa/artesanos/emprendimiento/`, `…/mapa/artesanos/todos/bolivia/`, `…/mapa/artesanos/artesano/peru/`. Una ficha sin `pais` aparece sólo con «Todos» los países. Las páginas filtradas no se ofrecen a los buscadores.
+- **Sin ninguna ficha publicada**, la página dice «Todavía no hay fichas publicadas» con un `[PENDIENTE: texto del autor]`, no se ofrece a los buscadores y no entra al sitemap. Entra al sitemap (sólo `/mapa/artesanos/`, no los filtros) cuando hay al menos una de estas fichas publicada.
+- /mapa enlaza a la página cuando hay alguna de estas fichas para ver.
+- **Criterio de inclusión: [PENDIENTE].** No se publica ninguna ficha de estos tres tipos hasta que el autor decida quién entra (PENDIENTES.md).
+- Un lugar no puede llamarse `artesanos` (el archivo o el `slug`): taparía esta página. El build y el script lo frenan.
+
 ## Lugares sensibles
 
 Regla del sitio (CLAUDE.md, regla 6): las coordenadas exactas de un lugar sensible —sitios arqueológicos, lugares sagrados y los que el autor indique— **nunca entran al repositorio**. La ubicación exacta queda en la bóveda privada.
+
+Un lugar es sensible si está en la capa `arqueologia`, si es una ficha `sitio-sagrado` (ver «Tipos de ficha») o si lleva `sensible: true`.
 
 **Lo que controla el sitio al construirse**, venga el archivo del script o subido a mano:
 
@@ -596,9 +690,9 @@ Regla del sitio (CLAUDE.md, regla 6): las coordenadas exactas de un lugar sensib
 
 Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
 
-**Lugares sensibles: sólo punto aproximado u oculto** (decisión del autor, 22-10-2026). Un lugar es sensible si está en la capa `arqueologia` o si lleva `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible no puede tener `precision: exacta` ni llevar línea o polígono (`geometria`): va como punto con `precision: aproximada` o con `precision: oculta`. El sitio no se construye si no se cumple, y el script de Obsidian lo frena antes.
+**Lugares sensibles: sólo punto aproximado u oculto** (decisión del autor, 22-10-2026). Un lugar es sensible si está en la capa `arqueologia`, si es una ficha `sitio-sagrado` (decisión del autor, 24-10-2026; no se puede desactivar) o si lleva `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible no puede tener `precision: exacta` ni llevar línea o polígono (`geometria`): va como punto con `precision: aproximada` o con `precision: oculta`. El sitio no se construye si no se cumple, y el script de Obsidian lo frena antes.
 
-**Lo que controla además el script de Obsidian.** Para el script, un lugar es sensible si está en la capa `arqueologia` o si su nota tiene `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible:
+**Lo que controla además el script de Obsidian.** Para el script, un lugar es sensible si está en la capa `arqueologia`, si es una ficha `sitio-sagrado` o si su nota tiene `sensible: true` (lugares sagrados y los que vos indiques). Un lugar sensible:
 
 - no puede tener `precision: exacta` (ni dejar `precision` vacío, que vale exacta);
 - con `precision: aproximada`, `lat` y `lon` llevan dos decimales como máximo;
@@ -607,7 +701,7 @@ Para redondear: `-16.01234` queda `-16.01`; `-69.12789` queda `-69.13`.
 
 La ubicación exacta guardala en una nota aparte, sin `publicar`. Que esa nota privada enlace a la pública, y no al revés: un enlace a una nota que no se publica queda como texto con su nombre.
 
-Si subís un lugar a mano, marcalo con `sensible: true` si es un lugar sagrado o uno que vos indiques (la capa `arqueologia` no lo necesita: es siempre sensible). Con eso el sitio, al construirse, frena lo mismo que el script.
+Si subís un lugar a mano, marcalo con `sensible: true` si es un lugar sagrado o uno que vos indiques (la capa `arqueologia` y las fichas `sitio-sagrado` no lo necesitan: son siempre sensibles). Con eso el sitio, al construirse, frena lo mismo que el script.
 
 ## Imágenes para compartir
 

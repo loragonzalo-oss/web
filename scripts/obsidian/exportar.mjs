@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { stringify } from 'yaml';
 import { leerBoveda, buscar } from './boveda.mjs';
 import { convertirCuerpo, EXT_IMAGEN, anclaEncabezado } from './convertir.mjs';
-import { TIPOS, validarFrontmatter, validarGeometria, controlarCuerpo, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog, chocaConEnsayos } from './controles.mjs';
+import { TIPOS, validarFrontmatter, validarGeometria, controlarCuerpo, esSensible, buscarMarcadoresBorrador, buscarCoordenadas, chocaConBlog, chocaConEnsayos, chocaConMapa } from './controles.mjs';
 import { slugificar } from '../../src/lib/slug.ts';
 
 export const RAIZ_REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -87,6 +87,8 @@ export async function exportar({ boveda, repo = RAIZ_REPO, simular = false, forz
       ficha.errores.push(`La dirección /blog/${ficha.id}/ ya la usa el blog. Cambiá el nombre de la nota o poné otro «slug».`);
     } else if (tipo === 'ensayo' && chocaConEnsayos(ficha.id)) {
       ficha.errores.push(`La dirección /ensayos/${ficha.id}/ ya la usa el sitio. Poné otro «slug».`);
+    } else if (tipo === 'lugar' && chocaConMapa(ficha.id)) {
+      ficha.errores.push(`La dirección /mapa/${ficha.id}/ ya la usa el sitio (la página de artesanos y emprendimientos). Cambiá el nombre de la nota o poné otro «slug».`);
     }
   }
 
@@ -307,6 +309,9 @@ function convertir(f, { exportables, notas, adjuntos, forzar }) {
   };
   if (tipo === 'blog' && nota.fm.imagen) datos.imagen = imagenFm(nota.fm.imagen);
   if ((tipo === 'lugar' || tipo === 'ensayo') && datos.imagen) datos.imagen.archivo = imagenFm(nota.fm.imagen.archivo);
+  if (tipo === 'lugar' && datos.galeria) {
+    datos.galeria = datos.galeria.map((g, i) => ({ ...g, archivo: imagenFm(nota.fm.galeria[i].archivo) }));
+  }
 
   // Línea o polígono de un lugar: «geometria: "[[rio.geojson]]"» (o el nombre o la ruta del
   // archivo en la bóveda). Se revisa y se copia a src/content/lugares/geometrias/<nota>.geojson.
@@ -336,6 +341,21 @@ function convertir(f, { exportables, notas, adjuntos, forzar }) {
       avisos.push(`relacionados: «${ref}» se quitó porque ${ficha?.tipo === 'lugar' ? 'es otro lugar (sólo valen entradas y ensayos)' : 'esa nota no se publica o es un borrador'}.`);
       return [];
     });
+  }
+
+  // fichas_relacionadas: «[[Otra nota]]» pasa al nombre del lugar exportado. Sólo otros lugares.
+  if (tipo === 'lugar' && datos.fichas_relacionadas) {
+    datos.fichas_relacionadas = datos.fichas_relacionadas.flatMap((ref) => {
+      const m = ref.trim().match(/^\[\[([^\]]+)\]\]$/);
+      if (!m) return [ref];
+      const ruta = m[1].split('|')[0].split('#')[0];
+      const { archivo: otra } = buscar(notas, ruta, nota, { quitarExt: true });
+      const ficha = otra && fichaDe(otra);
+      if (ficha && ficha.tipo === 'lugar' && exportables.has(ficha)) return [ficha.id];
+      avisos.push(`fichas_relacionadas: «${ref}» se quitó porque ${ficha && ficha.tipo !== 'lugar' ? 'no es un lugar del mapa' : 'esa nota no se publica o la frenó un control'}.`);
+      return [];
+    });
+    if (datos.fichas_relacionadas.length === 0) delete datos.fichas_relacionadas;
   }
 
   const salida = sinUndefined(datos);

@@ -1,0 +1,36 @@
+---
+// Bloque «Contactar o comprar» de las fichas de artesanía, emprendimiento y agencia de turismo
+// comunitario. No hay venta en línea: sólo enlaces que la persona de la ficha autorizó (su página,
+// su red social o un formulario). Ni teléfonos ni direcciones: el esquema los frena (regla 5).
+import Pendiente from '../Pendiente.astro';
+import { fechaLarga, fechaISO } from '../../lib/fechas';
+
+interface Props {
+  contacto: { texto: string; url: string; verificado: Date }[];
+  consentimiento?: Date;
+  borrador: boolean;
+  Sub: 'h2' | 'h4';
+}
+const { contacto, consentimiento, borrador, Sub } = Astro.props;
+---
+{(contacto.length > 0 || borrador) && (
+  <section class="ficha-seccion ficha-contactar">
+    <Sub>Contactar o comprar</Sub>
+    {contacto.length > 0 ? (
+      <ul>
+        {contacto.map((e) => (
+          <li>
+            <a href={e.url} rel="noopener">{e.texto}</a>
+            <span class="meta"> · verificado el <time datetime={fechaISO(e.verificado)}>{fechaLarga(e.verificado)}</time></span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p><Pendiente texto="enlaces que la persona autorizó: su página, su red social o un formulario" /></p>
+    )}
+    <p class="ficha-nota">El sitio no vende en línea: estos enlaces llevan a donde la persona de la ficha atiende.</p>
+    {borrador && !consentimiento && (
+      <p class="ficha-nota"><Pendiente texto="fecha de consentimiento: sin ella la ficha no se publica" /></p>
+    )}
+  </section>
+)}
